@@ -57,5 +57,12 @@ export function createRedactionBotAgent(config: RedactionBotAgentConfig) {
     run(task: string, options?: { signal?: AbortSignal }) {
       return runtime.run(task, { skill, signal: options?.signal })
     },
+    /** AgentHandle for orchestration (supervisor / swarm / hierarchical / blackboard). */
+    asHandle() {
+      return {
+        name: "legal-redaction-bot",
+        run: (task: string) => runtime.run(task, { skill }).then((r) => r.content),
+      }
+    },
   }
 }
