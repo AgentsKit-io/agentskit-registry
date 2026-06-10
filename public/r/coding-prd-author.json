@@ -18,7 +18,6 @@
     "README.md",
     "eval.ts"
   ],
-  "akosDeployable": true,
   "skill": {
     "name": "coding-prd-author",
     "description": "Transforms free-form product descriptions into structured, acceptance-criteria-driven PRDs ready for engineering hand-off.",
@@ -49,7 +48,7 @@
     },
     {
       "path": "README.md",
-      "content": "# PRD Author\n\nTransforms free-form product descriptions into structured, acceptance-criteria-driven PRDs ready for engineering hand-off.\n\n```bash\nnpx agentskit add coding-prd-author\n```\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createPrdAuthorAgent } from './agents/coding-prd-author/agent'\n\nconst agent = createPrdAuthorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })\nconst { content } = await agent.run('…')\n```\n\nSwap the adapter for any provider — no lock-in. **Deploy on AKOS — coming soon** → https://akos.agentskit.io\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional, zero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `retriever` | RAG grounding |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.\n"
+      "content": "# PRD Author\n\nTransforms free-form product descriptions into structured, acceptance-criteria-driven PRDs ready for engineering hand-off.\n\n```bash\nnpx agentskit add coding-prd-author\n```\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createPrdAuthorAgent } from './agents/coding-prd-author/agent'\n\nconst agent = createPrdAuthorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })\nconst { content } = await agent.run('…')\n```\n\nSwap the adapter for any provider — no lock-in.\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional, zero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `retriever` | RAG grounding |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.\n"
     },
     {
       "path": "eval.ts",

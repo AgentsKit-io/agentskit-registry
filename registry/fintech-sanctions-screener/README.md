@@ -14,7 +14,7 @@ const agent = createSanctionsScreenerAgent({ adapter: openai({ apiKey: process.e
 const { content } = await agent.run('…')
 ```
 
-Swap the adapter for any provider — no lock-in. **Deploy on AKOS — coming soon** → https://akos.agentskit.io
+Swap the adapter for any provider — no lock-in.
 
 ## Capabilities
 

@@ -18,7 +18,6 @@
     "README.md",
     "eval.ts"
   ],
-  "akosDeployable": true,
   "skill": {
     "name": "coding-release-notes-drafter",
     "description": "Drafts release notes from the merged PRs since the last tag.",
@@ -49,7 +48,7 @@
     },
     {
       "path": "README.md",
-      "content": "# Release Notes Drafter\n\nDrafts release notes from the merged PRs since the last tag.\n\n```bash\nnpx agentskit add coding-release-notes-drafter\n```\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createReleaseNotesDrafterAgent } from './agents/coding-release-notes-drafter/agent'\n\nconst agent = createReleaseNotesDrafterAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })\nconst { content } = await agent.run('…')\n```\n\nSwap the adapter for any provider — no lock-in. **Deploy on AKOS — coming soon** → https://akos.agentskit.io\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional, zero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `retriever` | RAG grounding |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.\n"
+      "content": "# Release Notes Drafter\n\nDrafts release notes from the merged PRs since the last tag.\n\n```bash\nnpx agentskit add coding-release-notes-drafter\n```\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createReleaseNotesDrafterAgent } from './agents/coding-release-notes-drafter/agent'\n\nconst agent = createReleaseNotesDrafterAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })\nconst { content } = await agent.run('…')\n```\n\nSwap the adapter for any provider — no lock-in.\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional, zero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `retriever` | RAG grounding |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.\n"
     },
     {
       "path": "eval.ts",

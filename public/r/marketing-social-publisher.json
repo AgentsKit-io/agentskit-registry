@@ -18,7 +18,6 @@
     "README.md",
     "eval.ts"
   ],
-  "akosDeployable": true,
   "skill": {
     "name": "marketing-social-publisher",
     "description": "Posts approved copy to Discord and Slack. Formats messages for each platform's conventions and confirms delivery. Runs only after HITL approval.",
@@ -49,7 +48,7 @@
     },
     {
       "path": "README.md",
-      "content": "# Social Publisher\n\nPosts approved copy to Discord and Slack. Formats messages for each platform's conventions and confirms delivery. Runs only after HITL approval.\n\n```bash\nnpx agentskit add marketing-social-publisher\n```\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createSocialPublisherAgent } from './agents/marketing-social-publisher/agent'\n\nconst agent = createSocialPublisherAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })\nconst { content } = await agent.run('…')\n```\n\nSwap the adapter for any provider — no lock-in. **Deploy on AKOS — coming soon** → https://akos.agentskit.io\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional, zero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `retriever` | RAG grounding |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.\n"
+      "content": "# Social Publisher\n\nPosts approved copy to Discord and Slack. Formats messages for each platform's conventions and confirms delivery. Runs only after HITL approval.\n\n```bash\nnpx agentskit add marketing-social-publisher\n```\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createSocialPublisherAgent } from './agents/marketing-social-publisher/agent'\n\nconst agent = createSocialPublisherAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })\nconst { content } = await agent.run('…')\n```\n\nSwap the adapter for any provider — no lock-in.\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional, zero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `retriever` | RAG grounding |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.\n"
     },
     {
       "path": "eval.ts",

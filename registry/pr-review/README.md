@@ -28,9 +28,3 @@ Wire it into CI to auto-review PRs. Swap the adapter for any provider — no loc
 ## Packages
 
 `@agentskit/core` · `@agentskit/runtime` · `@agentskit/skills` · `@agentskit/tools`
-
-
-
-## Deploy
-
-**Deploy on AKOS — coming soon** → [join the waitlist](https://akos.agentskit.io).

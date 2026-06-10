@@ -18,7 +18,6 @@
     "README.md",
     "eval.ts"
   ],
-  "akosDeployable": true,
   "skill": {
     "name": "coding-qa-author",
     "description": "Produces Vitest spec stubs from acceptance criteria so a test skeleton is committed alongside implementation.",
@@ -49,7 +48,7 @@
     },
     {
       "path": "README.md",
-      "content": "# QA Author\n\nProduces Vitest spec stubs from acceptance criteria so a test skeleton is committed alongside implementation.\n\n```bash\nnpx agentskit add coding-qa-author\n```\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createQaAuthorAgent } from './agents/coding-qa-author/agent'\n\nconst agent = createQaAuthorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })\nconst { content } = await agent.run('…')\n```\n\nSwap the adapter for any provider — no lock-in. **Deploy on AKOS — coming soon** → https://akos.agentskit.io\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional, zero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `retriever` | RAG grounding |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.\n"
+      "content": "# QA Author\n\nProduces Vitest spec stubs from acceptance criteria so a test skeleton is committed alongside implementation.\n\n```bash\nnpx agentskit add coding-qa-author\n```\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createQaAuthorAgent } from './agents/coding-qa-author/agent'\n\nconst agent = createQaAuthorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })\nconst { content } = await agent.run('…')\n```\n\nSwap the adapter for any provider — no lock-in.\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional, zero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `retriever` | RAG grounding |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.\n"
     },
     {
       "path": "eval.ts",
