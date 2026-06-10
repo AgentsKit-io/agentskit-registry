@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgentsKit Registry — ready-to-use AI agents</title>
+  <meta name="description" content="Ready-to-use AI agents for AgentsKit. Copy the source into your project — you own the code. npx agentskit add <agent>." />
+  <meta property="og:title" content="AgentsKit Registry" />
+  <meta property="og:description" content="Ready-to-use AI agents for AgentsKit. npx agentskit add <agent>." />
+  <link rel="canonical" href="https://registry.agentskit.io" />
+  <style>
+    :root { color-scheme: light dark; --bg:#0b0b0f; --fg:#e7e7ea; --muted:#a9a9b3; --card:#15151c; --border:#23232b; --accent:#6ea8fe; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 48px 20px 80px; }
+    h1 { font-size: 2rem; letter-spacing:-.02em; margin:0 0 8px; }
+    .sub { color:var(--muted); margin:0 0 24px; }
+    code,kbd { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .install { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin:0 0 36px; overflow:auto; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:8px; }
+    .card h3 { margin:0; font-size:1.05rem; }
+    .card .cat { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); }
+    .card p { margin:0; color:var(--muted); font-size:.92rem; flex:1; }
+    .card .add { margin-top:6px; background:#0b0b0f; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:.82rem; color:#cfe0ff; }
+    .tags { display:flex; flex-wrap:wrap; gap:6px; }
+    .tag { font-size:.7rem; color:var(--muted); border:1px solid var(--border); border-radius:999px; padding:2px 8px; }
+    a { color:var(--accent); }
+    footer { margin-top:48px; color:var(--muted); font-size:.85rem; }
+    @media (prefers-color-scheme: light) {
+      :root { --bg:#fff; --fg:#0b0b0f; --muted:#555; --card:#f7f7f9; --border:#e6e6ea; --accent:#2563eb; }
+      .card .add { background:#fff; color:#1d4ed8; }
+    }
+  </style>
+  <script src="https://www.agentskit.io/ecosystem-bar.js" defer data-current="registry"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>AgentsKit Registry</h1>
+    <p class="sub">Ready-to-use AI agents. Copy the source into your project — you own the code.</p>
+    <div class="install"><code>npx agentskit add &lt;agent&gt;</code></div>
+    <div class="grid" id="grid"><p class="sub">Loading agents…</p></div>
+    <footer>
+      <a href="https://github.com/AgentsKit-io/agentskit-registry">Source on GitHub</a> ·
+      <a href="https://github.com/AgentsKit-io/agentskit-registry/blob/main/CONTRIBUTING.md">Contribute an agent</a> ·
+      Built on <a href="https://www.agentskit.io">AgentsKit</a>
+    </footer>
+  </div>
+  <script>
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+      })
+    }
+    fetch('./r/index.json')
+      .then(function (r) { return r.json() })
+      .then(function (data) {
+        var grid = document.getElementById('grid')
+        grid.innerHTML = ''
+        ;(data.agents || []).forEach(function (a) {
+          var card = document.createElement('div')
+          card.className = 'card'
+          var tags = (a.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>' }).join('')
+          card.innerHTML =
+            '<span class="cat">' + esc(a.category) + '</span>' +
+            '<h3>' + esc(a.title) + '</h3>' +
+            '<p>' + esc(a.description) + '</p>' +
+            '<div class="tags">' + tags + '</div>' +
+            '<div class="add"><code>npx agentskit add ' + esc(a.id) + '</code></div>' +
+            '<a href="https://github.com/AgentsKit-io/agentskit-registry/tree/main/registry/' + encodeURIComponent(a.id) + '">View source →</a>'
+          grid.appendChild(card)
+        })
+        if (!data.agents || !data.agents.length) grid.innerHTML = '<p class="sub">No agents yet.</p>'
+      })
+      .catch(function () {
+        document.getElementById('grid').innerHTML = '<p class="sub">Could not load the registry index.</p>'
+      })
+  </script>
+</body>
+</html>
