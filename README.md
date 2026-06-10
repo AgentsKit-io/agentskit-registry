@@ -2,7 +2,7 @@
 
 **Ready-to-use AI agents for [AgentsKit](https://www.agentskit.io).** Copy the source into your project — you own the code. No new framework dependency, no lock-in.
 
-→ Browse the gallery at **[registry.agentskit.io](https://registry.agentskit.io)**
+→ Browse the gallery at **[agentskit.io/agents](https://www.agentskit.io/agents)**
 
 ## How it works
 
