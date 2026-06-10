@@ -55,10 +55,29 @@ for (const id of ids) {
       }
     : null
 
-  writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...meta, skill, sources: files }, null, 2) + '\n')
+  // A2A AgentCard — makes each agent discoverable/invocable by any A2A system.
+  const a2a = {
+    id: `io.agentskit.registry.${meta.id}`,
+    name: meta.title,
+    description: meta.description,
+    version: meta.version ?? '1.0.0',
+    homepage: `https://registry.agentskit.io`,
+    skills: [
+      {
+        name: meta.id,
+        description: meta.description,
+        capabilities: { streaming: true, cancellation: true, requiresApproval: false },
+      },
+    ],
+  }
+
+  writeFileSync(
+    join(outDir, `${id}.json`),
+    JSON.stringify({ ...meta, skill, a2a, sources: files }, null, 2) + '\n',
+  )
   const { files: _f, ...summary } = meta
   index.push({ ...summary, runnable: skill != null })
 }
 
-writeFileSync(join(outDir, 'index.json'), JSON.stringify({ agents: index }, null, 2) + '\n')
+writeFileSync(join(outDir, 'index.json'), JSON.stringify({ schemaVersion: 1, agents: index }, null, 2) + '\n')
 console.log(`registry built: ${ids.length} agents → public/r/ (${ids.join(', ')})`)
