@@ -24,6 +24,7 @@ const ids = readdirSync(registryDir, { withFileTypes: true })
   .sort()
 
 const index = []
+const full = []
 
 for (const id of ids) {
   const dir = join(registryDir, id)
@@ -77,7 +78,82 @@ for (const id of ids) {
   )
   const { files: _f, ...summary } = meta
   index.push({ ...summary, runnable: skill != null })
+  full.push({
+    id: meta.id,
+    title: meta.title,
+    description: meta.description,
+    category: meta.category,
+    packages: meta.packages,
+    systemPrompt: skill?.systemPrompt ?? null,
+  })
 }
 
 writeFileSync(join(outDir, 'index.json'), JSON.stringify({ schemaVersion: 1, agents: index }, null, 2) + '\n')
-console.log(`registry built: ${ids.length} agents → public/r/ (${ids.join(', ')})`)
+
+// ---------------------------------------------------------------------------
+// Agent-discovery artifacts served from registry.agentskit.io (the gallery UI
+// now lives at agentskit.io/agents; this repo is the data + discovery source).
+// Committed (like public/r/) so they ship without a separate build dependency.
+// ---------------------------------------------------------------------------
+const SITE = 'https://registry.agentskit.io'
+const publicDir = join(root, 'public')
+
+writeFileSync(join(publicDir, 'robots.txt'), `User-agent: *\nAllow: /\n`)
+
+let ecoBlock = ''
+try {
+  const eco = JSON.parse(readFileSync(join(root, 'ecosystem.json'), 'utf8'))
+  ecoBlock =
+    '## The AgentsKit ecosystem\n\n' +
+    eco.properties
+      .filter((p) => p.id !== 'registry')
+      .map((p) => `- [${p.name}](${p.url}) — ${p.tagline} llms.txt: ${p.llms}`)
+      .join('\n') +
+    '\n\n'
+} catch {
+  /* no ecosystem.json — skip */
+}
+
+const llmsHeader =
+  `# AgentsKit Registry\n\n` +
+  `> Ready-to-use AI agents for AgentsKit. Install with \`npx agentskit add <id>\` — ` +
+  `you own the copied source. ${index.length} agents. Browse the gallery at ` +
+  `https://www.agentskit.io/agents.\n\n` +
+  `- Machine index (JSON): ${SITE}/r/index.json\n` +
+  `- Per-agent bundle: ${SITE}/r/<id>.json\n` +
+  `- Full text: ${SITE}/llms-full.txt\n` +
+  `- Built by AgentsKit: https://www.agentskit.io\n\n` +
+  ecoBlock +
+  `## Agents\n\n`
+writeFileSync(
+  join(publicDir, 'llms.txt'),
+  llmsHeader +
+    full
+      .map(
+        (a) =>
+          `- [${a.title}](${SITE}/r/${a.id}.json) — ${a.description} ` +
+          `Category: ${a.category}. Install: \`npx agentskit add ${a.id}\`.`,
+      )
+      .join('\n') +
+    '\n',
+)
+writeFileSync(
+  join(publicDir, 'llms-full.txt'),
+  llmsHeader.replace('## Agents', '## Agents (full)') +
+    full
+      .map((a) =>
+        [
+          `### ${a.title} (\`${a.id}\`)`,
+          `Category: ${a.category}`,
+          `Packages: ${(a.packages ?? []).join(', ')}`,
+          `Install: npx agentskit add ${a.id}`,
+          '',
+          a.description,
+          a.systemPrompt ? `\nSystem prompt:\n\n${a.systemPrompt}` : '',
+        ].join('\n'),
+      )
+      .join('\n\n---\n\n') +
+    '\n',
+)
+
+console.log(`registry built: ${ids.length} agents → public/r/ + llms.txt, llms-full.txt, robots.txt`)
