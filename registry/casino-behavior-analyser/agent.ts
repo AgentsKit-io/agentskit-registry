@@ -83,5 +83,12 @@ export function createBehaviorAnalyserAgent(config: BehaviorAnalyserAgentConfig)
     run(task: string, options?: { signal?: AbortSignal }) {
       return runtime.run(task, { skill, signal: options?.signal })
     },
+    /** AgentHandle for orchestration (supervisor / swarm / hierarchical / blackboard). */
+    asHandle() {
+      return {
+        name: "casino-behavior-analyser",
+        run: (task: string) => runtime.run(task, { skill }).then((r) => r.content),
+      }
+    },
   }
 }

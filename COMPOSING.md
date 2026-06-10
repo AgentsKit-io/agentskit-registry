@@ -60,26 +60,25 @@ createXAgent({
 
 ## Orchestration (multi-agent)
 
-Agents expose `name`; their `run` returns a `RunResult`. Topologies expect a
-handle whose `run` returns a string, so wrap once:
+Each agent exposes `.asHandle()` — an `AgentHandle` ready to drop into any
+topology:
 
 ```ts
 import { supervisor } from '@agentskit/runtime'
-
-const toHandle = (a) => ({ name: a.name, run: (t) => a.run(t).then((r) => r.content) })
 
 const kyc = createKycScreenerAgent({ adapter })
 const fraud = createFraudInvestigatorAgent({ adapter })
 const lead = createTransactionMonitorAgent({ adapter })
 
 const team = supervisor({
-  supervisor: toHandle(lead),
-  workers: [toHandle(kyc), toHandle(fraud)],
+  supervisor: lead.asHandle(),
+  workers: [kyc.asHandle(), fraud.asHandle()],
 })
 await team.run('Investigate account 8842 for the last 30 days')
 ```
 
-`swarm`, `hierarchical`, and `blackboard` follow the same handle shape.
+`swarm`, `hierarchical`, and `blackboard` take the same `.asHandle()` shape. For
+direct use, call `agent.run(task)` (returns the full `RunResult`).
 
 ## Observability
 
