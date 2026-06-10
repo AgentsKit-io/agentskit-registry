@@ -37,7 +37,7 @@ More landing weekly. [Contribute one →](./CONTRIBUTING.md)
 - **[Framework](https://www.agentskit.io)** — the OSS agent toolkit these agents are built on
 - **[Playbook](https://playbook.agentskit.io)** — engineering standards
 - **Registry** — you are here
-- **[AKOS](https://akos.agentskit.io)** — run agents managed (coming soon)
+- **[AKOS](https://akos.agentskit.io)** — the enterprise OS for agents (orchestration, egress, RBAC)
 
 ## License
 
