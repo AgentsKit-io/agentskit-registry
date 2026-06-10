@@ -42,9 +42,22 @@ for (const id of ids) {
     return { path: rel, content: readFileSync(p, 'utf8') }
   })
 
-  writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...meta, sources: files }, null, 2) + '\n')
+  // Extract the inline skill's systemPrompt so the CLI can run the agent as data
+  // (no code execution). Agents that compose an external skill + tools (e.g.
+  // research/pr-review) have no inline prompt → skill stays null (run unsupported).
+  const agentSrc = readFileSync(join(dir, 'agent.ts'), 'utf8')
+  const m = agentSrc.match(/systemPrompt:\s*`((?:\\.|[^`\\])*)`/)
+  const skill = m
+    ? {
+        name: meta.id,
+        description: meta.description,
+        systemPrompt: m[1].replace(/\\`/g, '`').replace(/\\\$\{/g, '${'),
+      }
+    : null
+
+  writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...meta, skill, sources: files }, null, 2) + '\n')
   const { files: _f, ...summary } = meta
-  index.push(summary)
+  index.push({ ...summary, runnable: skill != null })
 }
 
 writeFileSync(join(outDir, 'index.json'), JSON.stringify({ agents: index }, null, 2) + '\n')
