@@ -1,4 +1,4 @@
-import type { AdapterFactory, ChatMemory, Observer, ToolDefinition } from '@agentskit/core'
+import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'
 import { createRuntime } from '@agentskit/runtime'
 import { defineZodTool } from '@agentskit/tools'
 import { z } from 'zod'
@@ -70,7 +70,8 @@ export interface KnowledgePromoterConfig {
   /** Optional: conversation memory, observers, HITL confirm, step cap. */
   memory?: ChatMemory
   observers?: Observer[]
-  onConfirm?: ToolDefinition['onConfirm']
+  /** Per-tool-call confirmation gate (HITL / RBAC) — passed to the runtime. */
+  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>
   maxSteps?: number
 }
 
@@ -108,7 +109,6 @@ export function createKnowledgePromoterAgent(config: KnowledgePromoterConfig) {
       description: `Submit the ${name.replace('submit_', '').replace('_', ' ')} result. Call exactly once.`,
       schema,
       toJsonSchema: toJson,
-      onConfirm: config.onConfirm,
       async execute() {
         return 'recorded'
       },
@@ -126,6 +126,7 @@ export function createKnowledgePromoterAgent(config: KnowledgePromoterConfig) {
       tools: [opts.tool],
       memory: config.memory,
       observers: config.observers,
+      onConfirm: config.onConfirm,
       maxSteps,
     })
     const result = await runtime.run(opts.task, { skill: opts.skill })
