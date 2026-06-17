@@ -47,7 +47,9 @@ Hard rules:
 Follow the HOUSE STYLE block in the task verbatim.
 
 Call \`submit_sanitized\` EXACTLY ONCE with: title, description, type, body (markdown,
-no frontmatter), and droppedForGenerality (what you removed to stay generic). Stop.`,
+no frontmatter), and droppedForGenerality (what you removed to stay generic).
+For \`type\`, use the EXACT document-type vocabulary named in the HOUSE STYLE block —
+not a freeform word like "pattern" or "doc". Stop.`,
   tools: ['submit_sanitized'],
 }
 

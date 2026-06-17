@@ -56,6 +56,18 @@ export interface PromoteOutcome {
   detail: string
 }
 
+export type PromoteStage = 'classify' | 'sanitize' | 'leak-gate' | 'publish'
+
+/** Emitted around each stage so a CLI/UI can render live progress. */
+export interface ProgressEvent {
+  candidateId: string
+  title: string
+  stage: PromoteStage
+  status: 'start' | 'ok' | 'skip' | 'block'
+  detail?: string
+  durationMs?: number
+}
+
 export interface KnowledgePromoterConfig {
   /** Any AgentsKit adapter (anthropic, openai, gemini, …). */
   adapter: AdapterFactory
@@ -72,6 +84,10 @@ export interface KnowledgePromoterConfig {
   observers?: Observer[]
   /** Per-tool-call confirmation gate (HITL / RBAC) — passed to the runtime. */
   onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>
+  /** Independent leak-audit votes; the gate blocks on a MAJORITY of "block". Default 3. */
+  auditVotes?: number
+  /** Live progress callback (per stage) for a fancy CLI / UI. */
+  onProgress?: (event: ProgressEvent) => void
   maxSteps?: number
 }
 
@@ -141,19 +157,33 @@ export function createKnowledgePromoterAgent(config: KnowledgePromoterConfig) {
     return res.text()
   }
 
+  const auditVotes = Math.max(1, config.auditVotes ?? 3)
+
   async function leakGate(text: string): Promise<{ ok: boolean; hits: string[]; note?: string }> {
-    // Layer 1 — regex denylist (deterministic, no tokens).
+    // Layer 1 — regex denylist (deterministic, no tokens). Any hit hard-blocks.
     const hits = [...new Set(config.denylist.flatMap((re) => text.match(new RegExp(re, 'g')) ?? []))]
     if (hits.length) return { ok: false, hits }
-    // Layer 2 — independent adversarial auditor (separate runtime).
-    const verdict = await runStructured({
-      skill: leakAuditor,
-      task: text,
-      tool: submit('submit_leak_verdict', LeakVerdict),
-      schema: LeakVerdict,
-    })
-    if (verdict.verdict !== 'clean') return { ok: false, hits: verdict.identifiers, note: verdict.explanation }
+    // Layer 2 — N independent adversarial auditors (separate runtimes, in parallel).
+    // Block on a MAJORITY of "block" verdicts; each auditor defaults to "block" when unsure.
+    const verdicts = await Promise.all(
+      Array.from({ length: auditVotes }, () =>
+        runStructured({ skill: leakAuditor, task: text, tool: submit('submit_leak_verdict', LeakVerdict), schema: LeakVerdict }),
+      ),
+    )
+    const blocked = verdicts.filter((v) => v.verdict !== 'clean')
+    if (blocked.length * 2 >= auditVotes) {
+      return { ok: false, hits: [...new Set(blocked.flatMap((v) => v.identifiers))], note: blocked[0]?.explanation }
+    }
     return { ok: true, hits: [] }
+  }
+
+  // Times a stage, emitting start → ok progress around it.
+  async function stage<T>(c: Candidate, name: PromoteStage, fn: () => Promise<T>, label: (r: T) => string): Promise<T> {
+    config.onProgress?.({ candidateId: c.id, title: c.title, stage: name, status: 'start' })
+    const t0 = Date.now()
+    const result = await fn()
+    config.onProgress?.({ candidateId: c.id, title: c.title, stage: name, status: 'ok', detail: label(result), durationMs: Date.now() - t0 })
+    return result
   }
 
   async function run(candidates: Candidate[]): Promise<{ outcomes: PromoteOutcome[]; pr?: { pr: number | string; url?: string } }> {
@@ -164,32 +194,32 @@ export function createKnowledgePromoterAgent(config: KnowledgePromoterConfig) {
 
     for (const c of candidates) {
       // 1 — classify (always re-decides; dedup against the live site map).
-      const cls = await runStructured({
-        skill: classifier,
-        task: `SITE MAP:\n${siteMap}\n\nCANDIDATE LESSON (title: ${c.title}):\n${c.lesson}`,
-        tool: submit('submit_classification', Classification),
-        schema: Classification,
-      })
+      const cls = await stage(c, 'classify',
+        () => runStructured({ skill: classifier, task: `SITE MAP:\n${siteMap}\n\nCANDIDATE LESSON (title: ${c.title}):\n${c.lesson}`, tool: submit('submit_classification', Classification), schema: Classification }),
+        (r) => (r.isGeneralizable && !r.alreadyCovered ? `${r.category} · ${r.shape}` : 'skip'))
       if (!cls.isGeneralizable || cls.alreadyCovered) {
-        outcomes.push({ candidate: c, status: 'rejected', detail: cls.alreadyCovered ? `duplicate: ${cls.reason}` : `not generalizable: ${cls.reason}` })
+        const detail = cls.alreadyCovered ? `duplicate: ${cls.reason}` : `not generalizable: ${cls.reason}`
+        config.onProgress?.({ candidateId: c.id, title: c.title, stage: 'classify', status: 'skip', detail })
+        outcomes.push({ candidate: c, status: 'rejected', detail })
         continue
       }
 
       // 2 — sanitize into the target house style.
-      const sani = await runStructured({
-        skill: sanitizer,
-        task: `CATEGORY: ${cls.category}\nSHAPE: ${cls.shape}${cls.targetDoc ? ` (${cls.targetDoc})` : ''}\n\nHOUSE STYLE:\n${config.houseStyle}\n\nLESSON:\n${c.lesson}`,
-        tool: submit('submit_sanitized', Sanitized),
-        schema: Sanitized,
-      })
+      const sani = await stage(c, 'sanitize',
+        () => runStructured({ skill: sanitizer, task: `CATEGORY: ${cls.category}\nSHAPE: ${cls.shape}${cls.targetDoc ? ` (${cls.targetDoc})` : ''}\n\nHOUSE STYLE:\n${config.houseStyle}\n\nLESSON:\n${c.lesson}`, tool: submit('submit_sanitized', Sanitized), schema: Sanitized }),
+        (r) => `"${r.title}"`)
 
-      // 3 — leak gate (regex + adversarial auditor). BOTH must pass.
+      // 3 — leak gate (regex + N adversarial auditors). BOTH layers must pass.
       const markdown = `---\ntype: ${sani.type}\ntitle: '${sani.title.replace(/'/g, "''")}'\ndescription: '${sani.description.replace(/'/g, "''")}'\n---\n\n${sani.body}\n`
+      config.onProgress?.({ candidateId: c.id, title: c.title, stage: 'leak-gate', status: 'start' })
+      const t0 = Date.now()
       const gate = await leakGate(`${sani.title}\n${sani.description}\n${sani.body}`)
       if (!gate.ok) {
+        config.onProgress?.({ candidateId: c.id, title: c.title, stage: 'leak-gate', status: 'block', detail: gate.hits.join(', '), durationMs: Date.now() - t0 })
         outcomes.push({ candidate: c, status: 'blocked', detail: `leak-gate: ${gate.hits.join(', ')}${gate.note ? ` — ${gate.note}` : ''}` })
         continue
       }
+      config.onProgress?.({ candidateId: c.id, title: c.title, stage: 'leak-gate', status: 'ok', detail: `clean (${auditVotes} votes)`, durationMs: Date.now() - t0 })
 
       docs.push({ candidate: c, category: cls.category, shape: cls.shape, targetDoc: cls.targetDoc, markdown, title: sani.title, droppedForGenerality: sani.droppedForGenerality })
       outcomes.push({ candidate: c, status: 'promoted', detail: `${cls.shape} ${cls.category}/${sani.title}` })
@@ -197,7 +227,9 @@ export function createKnowledgePromoterAgent(config: KnowledgePromoterConfig) {
 
     // 4 — one batched draft PR (human gate). Never merges.
     if (docs.length === 0) return { outcomes }
+    config.onProgress?.({ candidateId: '-', title: `${docs.length} doc(s)`, stage: 'publish', status: 'start' })
     const pr = await config.publish(docs)
+    config.onProgress?.({ candidateId: '-', title: `${docs.length} doc(s)`, stage: 'publish', status: 'ok', detail: `PR ${pr.pr}` })
     return { outcomes, pr }
   }
 
