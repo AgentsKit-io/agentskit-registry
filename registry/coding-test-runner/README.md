@@ -1,6 +1,6 @@
 # Test Runner
 
-Parses Vitest stdout/stderr and produces a structured test report with failure details for the PR reviewer.
+Parses Vitest stdout/stderr and produces a structured test report with failure details for the code-review agent.
 
 ```bash
 npx agentskit add coding-test-runner
