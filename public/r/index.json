@@ -155,6 +155,46 @@
       "runnable": true
     },
     {
+      "id": "code-review",
+      "title": "Code Review",
+      "description": "Deep, low-noise code review: 7 focused lenses (correctness, security, performance, maintainability, design, tests, conventions) fan out per file, then every finding is adversarially verified before thresholds apply. Typed findings with applicable patches. Inputs: local git diff, GitHub PR, files, or a snippet. Outputs: Markdown, SARIF, or PR comments. Blocking CI gate.",
+      "category": "coding",
+      "version": "1.0.0",
+      "source": "agentskit-registry",
+      "license": "MIT",
+      "tags": [
+        "code-review",
+        "quality",
+        "security",
+        "static-analysis",
+        "pull-request",
+        "ci",
+        "human-in-the-loop"
+      ],
+      "packages": [
+        "@agentskit/core",
+        "@agentskit/runtime",
+        "@agentskit/tools"
+      ],
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "env": [
+        {
+          "name": "ANTHROPIC_API_KEY",
+          "description": "Or any provider key your adapter needs.",
+          "required": false
+        },
+        {
+          "name": "GITHUB_TOKEN",
+          "description": "Needed only for the github-pr source and the GitHub reporters.",
+          "required": false
+        }
+      ],
+      "runnable": false
+    },
+    {
       "id": "coding-code-qa",
       "title": "Code QA",
       "description": "Runs tests, lint, type-check on a branch and summarises the failures.",
