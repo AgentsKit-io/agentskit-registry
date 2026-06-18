@@ -7,7 +7,7 @@
  * (the gallery + `agentskit list` source). These are served at
  * `https://registry.agentskit.io/r/*`.
  */
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, rmSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -89,6 +89,17 @@ for (const id of ids) {
 }
 
 writeFileSync(join(outDir, 'index.json'), JSON.stringify({ schemaVersion: 1, agents: index }, null, 2) + '\n')
+
+// Prune orphaned per-agent bundles (agent removed/renamed) so the published index
+// never serves a `<id>.json` with no source under registry/ — the failure mode
+// that let stray agent files linger after a rebase.
+const valid = new Set([...ids.map((id) => `${id}.json`), 'index.json'])
+for (const f of readdirSync(outDir)) {
+  if (f.endsWith('.json') && !valid.has(f)) {
+    rmSync(join(outDir, f))
+    console.log(`pruned orphan bundle: public/r/${f}`)
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Agent-discovery artifacts served from registry.agentskit.io (the gallery UI
