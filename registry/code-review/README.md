@@ -47,6 +47,7 @@ if (review.blocking) process.exit(1) // CI gate
 - `lenses` — pass a subset to disable, or add a custom `Lens` (your own `SkillDefinition`).
 - `thresholds` — `{ minSeverity, minConfidence, maxPerFile, suppressNits }`.
 - `auditVotes` — adversarial verify votes (default 3).
+- `consolidate` — merge findings from different lenses that describe the same issue (default `true`; one extra LLM call, best-effort).
 - `validatePatch` — `git apply --check` every suggested patch first.
 - `budget` — `{ maxFiles, concurrency }` (concurrency caps parallel model calls — size it for your machine).
 - `blockingSeverity` — CI gate floor (default `blocker`).
@@ -56,8 +57,8 @@ if (review.blocking) process.exit(1) // CI gate
 
 ```
 ingest (source) → prioritise + budget → fan-out 7 lenses (parallel)
-→ dedupe → adversarial verify (skeptics) → thresholds → [validate patches]
-→ synthesise verdict → emit reporters → review.blocking for CI
+→ dedupe → adversarial verify (skeptics) → thresholds → consolidate duplicates
+→ [validate patches] → synthesise verdict → emit reporters → review.blocking for CI
 ```
 
 The lens and the skeptic are separate skills in separate runtimes — a lens never grades its own homework. Findings are read back from validated `submit_*` tool calls, never free text.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mockAdapter } from '@agentskit/adapters'
 import { createCodeReviewAgent } from './agent'
-import { correctnessLens } from './lenses'
+import { correctnessLens, securityLens } from './lenses'
 
 // The mock answers whichever single tool the current runtime offers: lenses offer
 // `submit_findings`, skeptics offer `submit_verdict`. One lens keeps it deterministic.
@@ -11,11 +11,16 @@ const finding = (over: Record<string, unknown> = {}) => ({
   ],
 })
 
-const respond = (opts: { finding?: Record<string, unknown>; verdict?: unknown } = {}) =>
+const respond = (opts: { finding?: Record<string, unknown>; verdict?: unknown; groups?: unknown } = {}) =>
   mockAdapter({
     response: (req) => {
       const name = req.context?.tools?.[0]?.name ?? ''
-      const payload = name === 'submit_findings' ? (opts.finding ?? finding()) : (opts.verdict ?? { refuted: false, reason: 'real' })
+      const payload =
+        name === 'submit_findings'
+          ? (opts.finding ?? finding())
+          : name === 'submit_duplicate_groups'
+            ? (opts.groups ?? { duplicateGroups: [] })
+            : (opts.verdict ?? { refuted: false, reason: 'real' })
       return [{ type: 'tool_call', toolCall: { id: 't', name, args: JSON.stringify(payload) } }, { type: 'done' }]
     },
   })
@@ -53,6 +58,21 @@ describe('code-review agent', () => {
     const r = await createCodeReviewAgent({ ...base, adapter: respond({ finding: finding({ severity: 'high' }) }), blockingSeverity: 'high' }).run()
     expect(r.verdict).toBe('REQUEST CHANGES')
     expect(r.blocking).toBe(true)
+  })
+
+  it('consolidates duplicate findings from different lenses into one', async () => {
+    // Two lenses each flag the same issue (different category) → consolidator merges [0,1].
+    const r = await createCodeReviewAgent({
+      ...base,
+      lenses: [
+        { key: 'correctness' as const, skill: correctnessLens },
+        { key: 'security' as const, skill: securityLens },
+      ],
+      adapter: respond({ groups: { duplicateGroups: [[0, 1]] } }),
+      auditVotes: 1,
+    }).run()
+    expect(r.findings).toHaveLength(1)
+    expect(r.findings[0]?.rationale).toContain('also flagged by')
   })
 
   it('a malformed verify vote is ignored, not fatal — finding still evaluated', async () => {
