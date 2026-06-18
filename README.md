@@ -12,7 +12,7 @@ that source into your project — shadcn-style — so you can read it, edit it, 
 
 ```bash
 npx agentskit add research      # copies the research agent into ./agents/research/
-npx agentskit add pr-review
+npx agentskit add code-review
 ```
 
 ```ts
@@ -28,7 +28,7 @@ const { content } = await agent.run('What changed in the EU AI Act in 2025?')
 | Agent | Category | What it does |
 |-------|----------|--------------|
 | [`research`](./registry/research) | research | Citation-first web research |
-| [`pr-review`](./registry/pr-review) | coding | Reviews a GitHub PR for correctness/security/conventions |
+| [`code-review`](./registry/code-review) | coding | Deep, low-noise review: 7 lenses + adversarial verify → typed findings & patches; git diff / PR / files; Markdown / SARIF / PR comments; blocking CI gate |
 | [`knowledge-promoter`](./registry/knowledge-promoter) | ops | Turns curated private notes into public docs PRs: classify → sanitize → adversarial leak-gate → draft PR (never merges) |
 
 More landing weekly. [Contribute one →](./CONTRIBUTING.md)
