@@ -17,7 +17,11 @@ jobs:
       - name: Validate agent structure (CONTRIBUTING bar)
         run: npm run validate
       - run: npm run lint
+      - name: Type-check the site (astro check)
+        run: npm run check
       - run: npm test
       - run: npm run build
       - name: Committed index (public/r) is up to date
         run: git diff --exit-code public/r || (echo "public/r is stale — run 'npm run build' and commit." && exit 1)
+      - name: Committed discovery files (llms.txt, robots.txt) are up to date
+        run: git diff --exit-code public/llms.txt public/llms-full.txt public/robots.txt || (echo "discovery files stale — run 'npm run build' and commit." && exit 1)

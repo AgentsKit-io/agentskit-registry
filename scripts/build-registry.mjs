@@ -102,14 +102,17 @@ for (const f of readdirSync(outDir)) {
 }
 
 // ---------------------------------------------------------------------------
-// Agent-discovery artifacts served from registry.agentskit.io (the gallery UI
-// now lives at agentskit.io/agents; this repo is the data + discovery source).
+// Agent-discovery artifacts served from registry.agentskit.io (the browsable
+// gallery + per-agent pages + JSON API all live on this site).
 // Committed (like public/r/) so they ship without a separate build dependency.
 // ---------------------------------------------------------------------------
 const SITE = 'https://registry.agentskit.io'
 const publicDir = join(root, 'public')
 
-writeFileSync(join(publicDir, 'robots.txt'), `User-agent: *\nAllow: /\n`)
+writeFileSync(
+  join(publicDir, 'robots.txt'),
+  `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`,
+)
 
 let ecoBlock = ''
 try {
@@ -128,11 +131,15 @@ try {
 const llmsHeader =
   `# AgentsKit Registry\n\n` +
   `> Ready-to-use AI agents for AgentsKit. Install with \`npx agentskit add <id>\` — ` +
-  `you own the copied source. ${index.length} agents. Browse the gallery at ` +
-  `https://www.agentskit.io/agents.\n\n` +
+  `you own the copied source. ${index.length} agents. Browse them at ` +
+  `https://registry.agentskit.io.\n\n` +
   `- Machine index (JSON): ${SITE}/r/index.json\n` +
-  `- Per-agent bundle: ${SITE}/r/<id>.json\n` +
+  `- Per-agent bundle (JSON): ${SITE}/r/<id>.json\n` +
+  `- Per-agent page (HTML): ${SITE}/agents/<id>\n` +
+  `- Per-agent markdown: ${SITE}/agents/<id>.md\n` +
+  `- MCP endpoint: ${SITE}/api/mcp\n` +
   `- Full text: ${SITE}/llms-full.txt\n` +
+  `- Sitemap: ${SITE}/sitemap.xml\n` +
   `- Built by AgentsKit: https://www.agentskit.io\n\n` +
   ecoBlock +
   `## Agents\n\n`

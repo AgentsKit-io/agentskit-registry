@@ -1,0 +1,36 @@
+---
+import Base from '../../../layouts/Base.astro'
+import AgentDetail from '../../../components/AgentDetail.astro'
+import { getIndex, getAgent, getReadme } from '../../../data/registry'
+import { agentLd } from '../../../data/jsonld'
+import { getLocale, locales } from '../../../i18n/ui'
+
+export function getStaticPaths() {
+  const ids = getIndex().map((a) => a.id)
+  return locales
+    .filter((l) => l !== 'en')
+    .flatMap((lang) => ids.map((id) => ({ params: { lang, id } })))
+}
+
+const { id } = Astro.params as { lang: string; id: string }
+const locale = getLocale(Astro.params.lang)
+const index = getIndex()
+const i = index.findIndex((a) => a.id === id)
+const bundle = getAgent(id)
+const readme = getReadme(id, locale)
+const prev = i > 0 ? index[i - 1] : null
+const next = i < index.length - 1 ? index[i + 1] : null
+const title = `${bundle.title} — AgentsKit Registry`
+const ogImage = `https://registry.agentskit.io/og/${id}.png`
+const jsonLd = agentLd(bundle, locale)
+---
+<Base
+  title={title}
+  description={bundle.description}
+  path={`/agents/${id}`}
+  ogImage={ogImage}
+  type="article"
+  jsonLd={jsonLd}
+>
+  <AgentDetail bundle={bundle} readme={readme} prev={prev} next={next} />
+</Base>

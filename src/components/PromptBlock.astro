@@ -1,0 +1,67 @@
+---
+import Icon from './Icon.astro'
+import CopyButton from './CopyButton.astro'
+import { getLocale, t } from '../i18n/ui'
+
+interface Props {
+  value: string
+  title?: string
+  sub?: string
+}
+const { value, title, sub } = Astro.props
+const locale = getLocale(Astro.currentLocale)
+const tr = t(locale)
+---
+<div class="prompt-block">
+  <div class="pb-head">
+    <span class="pb-label"><Icon name="sparkles" size={15} />{title ?? tr.agent.promptTitle}</span>
+    <CopyButton value={value} label={tr.copy.copy} copied={tr.copy.copied} variant="ghost" />
+  </div>
+  {sub && <p class="pb-sub">{sub}</p>}
+  <pre class="pb-body"><code>{value}</code></pre>
+</div>
+
+<style>
+  .prompt-block {
+    border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--accent-soft), transparent 60%), var(--surface);
+    padding: 16px 18px;
+  }
+  .pb-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .pb-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  .pb-label :global(svg) {
+    color: var(--accent);
+  }
+  .pb-sub {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin: 8px 0 0;
+  }
+  .pb-body {
+    margin: 12px 0 0;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+</style>
