@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 import {
+  consolidator,
   conventionsLens,
   correctnessLens,
   designLens,
@@ -105,6 +106,8 @@ export interface CodeReviewConfig {
   thresholds?: { minSeverity?: Severity; minConfidence?: number; maxPerFile?: number; suppressNits?: boolean }
   /** Independent adversarial verify votes; a finding dies on a MAJORITY of "refuted". Default 3. */
   auditVotes?: number
+  /** Merge findings from different lenses that describe the same issue. Default true. */
+  consolidate?: boolean
   /** Validate suggested patches by `git apply --check` (git-diff/paths sources) before reporting. */
   validatePatch?: boolean
   budget?: { maxFiles?: number; concurrency?: number }
@@ -132,6 +135,7 @@ const FindingSchema = z.object({
 })
 const LensSubmission = z.object({ findings: z.array(FindingSchema) })
 const SkepticVerdict = z.object({ refuted: z.boolean(), reason: z.string() })
+const Consolidation = z.object({ duplicateGroups: z.array(z.array(z.number())) })
 
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 const SEV_RANK: Record<Severity, number> = { blocker: 0, high: 1, med: 2, nit: 3 }
@@ -272,6 +276,41 @@ export function createCodeReviewAgent(config: CodeReviewConfig) {
     return [...best.values()]
   }
 
+  /**
+   * Merge findings that describe the SAME underlying issue across lenses (one LLM call).
+   * Distinct problems that merely share a theme stay separate. Resilient: on any failure
+   * the findings pass through unchanged. Returns the representative of each cluster, with
+   * the merged siblings noted on it.
+   */
+  async function consolidateFindings(findings: Finding[]): Promise<Finding[]> {
+    if (config.consolidate === false || findings.length < 2) return findings
+    const list = findings
+      .map((f, i) => `[${i}] ${f.severity}/${f.category} ${f.file}:${f.line} — ${f.title}: ${f.rationale}`)
+      .join('\n')
+    let groups: number[][]
+    try {
+      const out = await runStructured(consolidator, fenced(list), submit('submit_duplicate_groups', Consolidation), Consolidation)
+      groups = out.duplicateGroups
+    } catch {
+      return findings // consolidation is best-effort, never fatal
+    }
+    const merged = new Set<number>()
+    const result: Finding[] = []
+    for (const raw of groups) {
+      const idx = [...new Set(raw)].filter((i) => Number.isInteger(i) && i >= 0 && i < findings.length && !merged.has(i))
+      if (idx.length < 2) continue
+      // Representative = most severe, then most confident.
+      idx.sort((a, b) => SEV_RANK[findings[a]!.severity] - SEV_RANK[findings[b]!.severity] || findings[b]!.confidence - findings[a]!.confidence)
+      const rep = { ...findings[idx[0]!]! }
+      const others = idx.slice(1).map((i) => findings[i]!)
+      rep.rationale += ` (also flagged by ${others.map((o) => `${o.category}@L${o.line}`).join(', ')})`
+      for (const i of idx) merged.add(i)
+      result.push(rep)
+    }
+    for (let i = 0; i < findings.length; i++) if (!merged.has(i)) result.push(findings[i]!)
+    return result
+  }
+
   async function verify(finding: Finding, target: ReviewTarget | undefined): Promise<boolean> {
     const code = target ? numbered(target) : '(source unavailable)'
     const claim = `FINDING (${finding.severity}/${finding.category}) at ${finding.file}:${finding.line}\nTitle: ${finding.title}\nRationale: ${finding.rationale}\nSuggestion: ${finding.suggestion}`
@@ -380,8 +419,13 @@ export function createCodeReviewAgent(config: CodeReviewConfig) {
     const refuted = judged.filter((j) => !j.survived).map((j) => j.f)
     emit('verify', 'ok', `${survived.length} survived, ${refuted.length} refuted`, Date.now() - t2)
 
-    const { kept, dropped: belowThreshold } = threshold(survived)
+    const { kept: thresholded, dropped: belowThreshold } = threshold(survived)
     const dropped = [...refuted, ...belowThreshold]
+
+    emit('consolidate', 'start', `${thresholded.length} finding(s)`)
+    const tc = Date.now()
+    const kept = await consolidateFindings(thresholded)
+    emit('consolidate', 'ok', `${kept.length} after merge`, Date.now() - tc)
 
     if (config.validatePatch && (config.source.kind === 'git-diff' || config.source.kind === 'paths')) {
       emit('validate-patch', 'start')
@@ -391,7 +435,9 @@ export function createCodeReviewAgent(config: CodeReviewConfig) {
     }
 
     const result = synthesize(kept, dropped, targets.length, droppedFiles)
-    result.droppedNote = `${refuted.length} refuted by skeptics; ${belowThreshold.length} below threshold.`
+    result.droppedNote =
+      `${refuted.length} refuted by skeptics; ${belowThreshold.length} below threshold` +
+      (thresholded.length - kept.length ? `; ${thresholded.length - kept.length} merged as duplicates` : '') + '.'
 
     const reporters = config.reporters ?? [markdownReporter()]
     emit('report', 'start', reporters.map((r) => r.name).join(', '))
