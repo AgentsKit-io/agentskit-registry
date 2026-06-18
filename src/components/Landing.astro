@@ -1,0 +1,521 @@
+---
+import { Code } from 'astro:components'
+import Hero from './Hero.astro'
+import DemoFlow from './DemoFlow.astro'
+import AgentCard from './AgentCard.astro'
+import PromptBlock from './PromptBlock.astro'
+import WorksWith from './WorksWith.astro'
+import StarCta from './StarCta.astro'
+import Icon from './Icon.astro'
+import { getLocale, t, categoryMeta } from '../i18n/ui'
+import { getIndex, agentPrompt } from '../data/registry'
+import { getCategories } from '../data/categories'
+
+const locale = getLocale(Astro.currentLocale)
+const tr = t(locale)
+const agents = getIndex()
+const categories = getCategories()
+const sampleIds = ['research', 'code-review', 'support-triage-bot', 'legal-contract-reviewer'].filter((id) =>
+  agents.some((a) => a.id === id),
+)
+const grouped = categories.map((c) => ({
+  cat: c,
+  meta: categoryMeta(locale, c.id),
+  agents: agents.filter((a) => a.category === c.id),
+}))
+
+// A diverse slice for the demo's cycling list (one wrap = multiples of the 5 rows).
+const demoOrder = [
+  'research',
+  'code-review',
+  'marketing-copy-author',
+  'legal-contract-reviewer',
+  'support-triage-bot',
+  'fintech-fraud-investigator',
+  'clinical-intake-triage',
+  'agency-deck-builder',
+  'coding-code-qa',
+  'marketing-competitor-researcher',
+  'legal-discovery-reviewer',
+  'support-kb-searcher',
+  'fintech-kyc-screener',
+  'knowledge-promoter',
+  'coding-prd-author',
+]
+const demoAgents = demoOrder.map((id) => agents.find((a) => a.id === id)).filter((a): a is (typeof agents)[number] => !!a)
+
+const features = [
+  { icon: 'lock', t: tr.what.b1t, d: tr.what.b1d },
+  { icon: 'layers', t: tr.what.b2t, d: tr.what.b2d },
+  { icon: 'sparkles', t: tr.what.b3t, d: tr.what.b3d },
+]
+
+const wireCode = `import { openai } from '@agentskit/adapters'
+import { createResearchAgent } from './agents/research/agent'
+
+const agent = createResearchAgent({
+  adapter: openai({ apiKey: process.env.OPENAI_API_KEY! }),
+})`
+const runCode = `const { content } = await agent.run(
+  'What changed in the EU AI Act in 2025?',
+)
+console.log(content)`
+
+const samplePrompt = agentPrompt(agents.find((a) => a.id === sampleIds[0]) ?? agents[0])
+---
+<Hero agentCount={agents.length} categoryCount={categories.length} sampleIds={sampleIds} />
+
+<DemoFlow agents={demoAgents} agentCount={agents.length} categoryCount={categories.length} />
+
+<!-- What -->
+<section class="section what">
+  <div class="container">
+    <span class="eyebrow reveal">{tr.hero.badge}</span>
+    <h2 class="section-title reveal">{tr.what.title}</h2>
+    <p class="section-sub reveal">{tr.what.body}</p>
+    <div class="grid grid-3 what-grid">
+      {
+        features.map((f) => (
+          <div class="card feature reveal">
+            <div class="feat-icon"><Icon name={f.icon} size={20} /></div>
+            <h3>{f.t}</h3>
+            <p>{f.d}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Browse by category — the cards ARE the filter -->
+<section class="section browse" id="agents">
+  <div class="container">
+    <span class="eyebrow">{tr.categories.title}</span>
+    <h2 class="section-title">{tr.categories.title}</h2>
+    <p class="section-sub">{tr.categories.sub}</p>
+
+    <div class="cat-filter" role="tablist" aria-label={tr.tabs.label}>
+      {
+        grouped.map((g, i) => (
+          <button
+            class:list={['card cat-card', i === 0 && 'active']}
+            role="tab"
+            id={`tab-${g.cat.id}`}
+            data-tab={g.cat.id}
+            aria-controls={`panel-${g.cat.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            type="button"
+          >
+            <span class="cat-icon"><Icon name={g.cat.icon} size={20} /></span>
+            <span class="cat-body">
+              <span class="cat-head">
+                <span class="cat-name">{g.meta.label}</span>
+                <span class="cat-count">{g.agents.length} {tr.categories.agents}</span>
+              </span>
+              <span class="cat-blurb">{g.meta.blurb}</span>
+            </span>
+            <span class="cat-check"><Icon name="check" size={15} /></span>
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      grouped.map((g, i) => (
+        <div
+          class="tab-panel"
+          role="tabpanel"
+          id={`panel-${g.cat.id}`}
+          data-panel={g.cat.id}
+          aria-labelledby={`tab-${g.cat.id}`}
+          hidden={i !== 0}
+        >
+          <div class="grid grid-3">
+            {g.agents.map((a) => (
+              <AgentCard agent={a} />
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<!-- Install — 3 didactic steps, stacked -->
+<section class="section install">
+  <div class="container">
+    <span class="eyebrow reveal">{tr.install.title}</span>
+    <h2 class="section-title reveal">{tr.install.title}</h2>
+    <p class="section-sub reveal">{tr.install.sub}</p>
+
+    <ol class="steps">
+      <li class="step reveal">
+        <div class="step-side">
+          <div class="step-n">1</div>
+          <h3 class="step-t">{tr.install.s1t}</h3>
+          <p class="step-d">{tr.install.s1d}</p>
+        </div>
+        <div class="step-code">
+          <Code code={`npx agentskit add research`} lang="bash" theme="github-dark" />
+        </div>
+      </li>
+
+      <li class="step reveal">
+        <div class="step-side">
+          <div class="step-n">2</div>
+          <h3 class="step-t">{tr.install.s2t}</h3>
+          <p class="step-d">{tr.install.s2d}</p>
+        </div>
+        <div class="step-code">
+          <Code code={wireCode} lang="ts" theme="github-dark" />
+        </div>
+      </li>
+
+      <li class="step reveal">
+        <div class="step-side">
+          <div class="step-n step-n-run">3</div>
+          <h3 class="step-t">{tr.install.s3t}</h3>
+          <p class="step-d">{tr.install.s3d}</p>
+        </div>
+        <div class="step-code">
+          <Code code={runCode} lang="ts" theme="github-dark" />
+          <div class="run-term" id="run-term" data-running={tr.install.running} data-done={tr.install.done}>
+            <div class="rt-bar">
+              <span class="tdot" style="background:#ff5f56"></span>
+              <span class="tdot" style="background:#ffbd2e"></span>
+              <span class="tdot" style="background:#27c93f"></span>
+              <span class="rt-where"><Icon name="terminal" size={13} /> {tr.install.yourCode}</span>
+            </div>
+            <div class="rt-body">
+              <div class="rt-line"><span class="rt-prompt">$</span> npx tsx research.ts</div>
+              <div class="rt-line rt-statusline">
+                <span class="rt-spinner" aria-hidden="true"></span>
+                <span class="rt-check" aria-hidden="true"><Icon name="check" size={14} /></span>
+                <span class="rt-msg"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<WorksWith />
+
+<!-- Prompt -->
+<section class="section prompt-section">
+  <div class="container">
+    <span class="eyebrow reveal">{tr.prompt.title}</span>
+    <h2 class="section-title reveal">{tr.prompt.title}</h2>
+    <p class="section-sub reveal" style="margin-bottom:24px">{tr.prompt.sub}</p>
+    <div class="reveal"><PromptBlock value={samplePrompt} /></div>
+  </div>
+</section>
+
+<StarCta />
+
+<style>
+  .feature {
+    padding: 24px;
+  }
+  .what-grid {
+    margin-top: 30px;
+  }
+  .feat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+    margin-bottom: 14px;
+  }
+  .feature h3 {
+    font-size: 1.1rem;
+    margin-bottom: 7px;
+  }
+  .feature p {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 0;
+  }
+
+  /* Category filter (cards act as tabs) */
+  .browse {
+    scroll-margin-top: 70px;
+  }
+  .cat-filter {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 30px 0 28px;
+  }
+  .cat-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    text-align: left;
+    font: inherit;
+    color: var(--text);
+    cursor: pointer;
+    padding: 18px;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+  .cat-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    box-shadow: var(--shadow);
+  }
+  .cat-card.active {
+    border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+    background: linear-gradient(180deg, var(--accent-soft), transparent 70%), var(--surface);
+  }
+  .cat-icon {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  }
+  .cat-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .cat-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .cat-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  .cat-count {
+    color: var(--faint);
+    font-size: 0.76rem;
+    white-space: nowrap;
+  }
+  .cat-blurb {
+    display: block;
+    color: var(--muted);
+    font-size: 0.86rem;
+    margin-top: 5px;
+  }
+  .cat-check {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--accent-ink);
+    background: var(--accent);
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .cat-card.active .cat-check {
+    opacity: 1;
+    transform: none;
+  }
+  .tab-panel[hidden] {
+    display: none;
+  }
+  @media (max-width: 860px) {
+    .cat-filter {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 540px) {
+    .cat-filter {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Install — stacked steps */
+  .steps {
+    list-style: none;
+    counter-reset: none;
+    margin: 32px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 18px;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 26px;
+    align-items: start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+  }
+  .step-n {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    color: var(--accent-ink);
+    background: var(--accent);
+    margin-bottom: 14px;
+  }
+  .step-n-run {
+    background: linear-gradient(135deg, var(--accent), var(--green));
+  }
+  .step-t {
+    font-size: 1.2rem;
+    margin: 0 0 8px;
+  }
+  .step-d {
+    color: var(--muted);
+    margin: 0;
+    font-size: 0.94rem;
+  }
+  .step-code {
+    min-width: 0;
+    overflow: hidden;
+  }
+  /* Uniform fixed height across all three code boxes. */
+  .step-code :global(pre.astro-code) {
+    height: 168px;
+    box-sizing: border-box;
+  }
+
+  /* Step 3 run terminal */
+  .run-term {
+    margin-top: 14px;
+    border: 1px solid color-mix(in srgb, var(--green) 35%, var(--border));
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .rt-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .rt-where {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--faint);
+    font-size: 0.74rem;
+  }
+  .rt-body {
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    display: grid;
+    gap: 8px;
+  }
+  .rt-prompt {
+    color: var(--accent);
+  }
+  .rt-statusline {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--muted);
+    min-height: 18px;
+  }
+  .rt-spinner {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin 0.7s linear infinite;
+  }
+  .rt-check {
+    display: none;
+    color: var(--green);
+  }
+  .run-term.done .rt-spinner {
+    display: none;
+  }
+  .run-term.done .rt-check {
+    display: inline-flex;
+  }
+  .run-term.done .rt-msg {
+    color: var(--green);
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @media (max-width: 760px) {
+    .step {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .step-code :global(pre.astro-code) {
+      height: auto;
+      min-height: 60px;
+    }
+  }
+</style>
+
+<script>
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.cat-card[role="tab"]'))
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('.tab-panel'))
+  const activate = (id: string) => {
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === id
+      t.classList.toggle('active', on)
+      t.setAttribute('aria-selected', on ? 'true' : 'false')
+    })
+    panels.forEach((p) => {
+      p.hidden = p.dataset.panel !== id
+    })
+  }
+  tabs.forEach((t) => t.addEventListener('click', () => activate(t.dataset.tab!)))
+  // Deep link from another page: /#cat-<id> opens that category on load.
+  const m = location.hash.match(/^#cat-(.+)$/)
+  if (m && tabs.some((t) => t.dataset.tab === m[1])) {
+    activate(m[1])
+    document.getElementById('agents')?.scrollIntoView()
+  }
+
+  // Step 3 "run it anywhere" loop: running… → done, repeat.
+  const rt = document.getElementById('run-term')
+  if (rt) {
+    const msg = rt.querySelector<HTMLElement>('.rt-msg')!
+    const running = rt.dataset.running || 'running…'
+    const done = rt.dataset.done || 'done'
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      rt.classList.add('done')
+      msg.textContent = done
+    } else {
+      const cycle = () => {
+        rt.classList.remove('done')
+        msg.textContent = running
+        window.setTimeout(() => {
+          rt.classList.add('done')
+          msg.textContent = done
+        }, 1900)
+      }
+      cycle()
+      window.setInterval(cycle, 3800)
+    }
+  }
+</script>

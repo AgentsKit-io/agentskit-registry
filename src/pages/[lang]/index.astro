@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro'
+import Landing from '../../components/Landing.astro'
+import { getLocale, t, locales } from '../../i18n/ui'
+import { getIndex } from '../../data/registry'
+import { websiteLd } from '../../data/jsonld'
+
+export function getStaticPaths() {
+  return locales.filter((l) => l !== 'en').map((lang) => ({ params: { lang } }))
+}
+
+const locale = getLocale(Astro.params.lang)
+const tr = t(locale)
+const jsonLd = websiteLd(locale, getIndex())
+---
+<Base title={tr.metaTitle} description={tr.metaDescription} path="/" jsonLd={jsonLd}>
+  <Landing />
+</Base>

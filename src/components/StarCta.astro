@@ -1,0 +1,77 @@
+---
+import Icon from './Icon.astro'
+import { getLocale, t } from '../i18n/ui'
+
+const locale = getLocale(Astro.currentLocale)
+const tr = t(locale)
+const repo = 'https://github.com/AgentsKit-io/agentskit-registry'
+---
+<section class="section star-cta">
+  <div class="container">
+    <div class="star-card reveal">
+      <div class="star-glow"></div>
+      <div class="star-icon"><Icon name="github" size={26} /></div>
+      <h2 class="star-title">{tr.starCta.title}</h2>
+      <p class="star-sub">{tr.starCta.sub}</p>
+      <div class="star-actions">
+        <a class="btn btn-primary" href={repo} rel="noopener" target="_blank">
+          <Icon name="github" size={17} />{tr.starCta.button}
+        </a>
+        <a class="btn btn-ghost" href="https://www.agentskit.io" rel="noopener">
+          {tr.starCta.ecosystem}<Icon name="arrow-right" size={16} />
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .star-card {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+    border-radius: 20px;
+    background: var(--surface);
+    padding: 48px 28px;
+  }
+  .star-glow {
+    position: absolute;
+    top: -60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 520px;
+    height: 320px;
+    background: radial-gradient(circle, var(--accent-soft), transparent 70%);
+    pointer-events: none;
+  }
+  .star-icon {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  }
+  .star-title {
+    position: relative;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+  }
+  .star-sub {
+    position: relative;
+    color: var(--muted);
+    max-width: 460px;
+    margin: 12px auto 24px;
+  }
+  .star-actions {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>

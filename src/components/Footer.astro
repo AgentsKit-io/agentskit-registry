@@ -1,0 +1,114 @@
+---
+import Logo from './Logo.astro'
+import Icon from './Icon.astro'
+import { getLocale, t } from '../i18n/ui'
+import eco from '../../ecosystem.json'
+
+const locale = getLocale(Astro.currentLocale)
+const tr = t(locale)
+const ecosystem = (eco.properties as Array<{ id: string; name: string; url: string; tagline: string }>).filter(
+  (p) => p.id !== 'registry',
+)
+const resources = [
+  { label: 'JSON index', href: '/r/index.json' },
+  { label: 'llms.txt', href: '/llms.txt' },
+  { label: 'llms-full.txt', href: '/llms-full.txt' },
+  { label: 'MCP endpoint', href: '/api/mcp' },
+  { label: 'GitHub', href: 'https://github.com/AgentsKit-io/agentskit-registry' },
+]
+const year = 2026
+---
+<footer class="footer">
+  <div class="container foot-inner">
+    <div class="foot-brand">
+      <span class="foot-mark"><Logo size={30} /></span>
+      <p class="foot-tag">{tr.footer.tagline}</p>
+      <a class="foot-built" href="https://www.agentskit.io" rel="noopener">{tr.footer.builtBy} <Icon name="arrow-right" size={14} /></a>
+    </div>
+    <div class="foot-col">
+      <h4>{tr.footer.ecosystem}</h4>
+      <ul>
+        {ecosystem.map((p) => <li><a href={p.url} rel="noopener">{p.name}</a></li>)}
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>{tr.footer.resources}</h4>
+      <ul>
+        {resources.map((r) => <li><a href={r.href} rel="noopener">{r.label}</a></li>)}
+      </ul>
+    </div>
+  </div>
+  <div class="container foot-bottom">
+    <span>© {year} AgentsKit · MIT</span>
+    <span class="foot-eco-tag">registry.agentskit.io</span>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border-soft);
+    background: var(--bg-grad);
+    margin-top: 40px;
+    padding: 56px 0 28px;
+  }
+  .foot-inner {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 32px;
+  }
+  .foot-mark {
+    color: var(--accent);
+    display: inline-flex;
+  }
+  .foot-tag {
+    color: var(--muted);
+    max-width: 280px;
+    margin: 12px 0;
+  }
+  .foot-built {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .foot-col h4 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--faint);
+    margin: 4px 0 14px;
+  }
+  .foot-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .foot-col a {
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .foot-col a:hover {
+    color: var(--accent);
+  }
+  .foot-bottom {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-soft);
+    color: var(--faint);
+    font-size: 0.85rem;
+  }
+  @media (max-width: 720px) {
+    .foot-inner {
+      grid-template-columns: 1fr 1fr;
+    }
+    .foot-brand {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
