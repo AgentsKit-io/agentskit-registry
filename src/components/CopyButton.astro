@@ -1,0 +1,77 @@
+---
+import Icon from './Icon.astro'
+interface Props {
+  value: string
+  label?: string
+  copied?: string
+  variant?: 'solid' | 'ghost' | 'icon'
+}
+const { value, label = 'Copy', copied = 'Copied!', variant = 'ghost' } = Astro.props
+---
+<button
+  class:list={['copy-btn', `cb-${variant}`]}
+  data-copy={value}
+  data-copied={copied}
+  data-label={label}
+  type="button"
+  aria-label={label}
+>
+  <span class="cb-icons">
+    <Icon name="copy" size={15} class="cb-copy" />
+    <Icon name="check" size={15} class="cb-check" />
+  </span>
+  {variant !== 'icon' && <span class="cb-text">{label}</span>}
+</button>
+
+<style>
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 7px 12px;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .copy-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .cb-icon {
+    padding: 7px;
+  }
+  .cb-icons {
+    position: relative;
+    display: inline-flex;
+    width: 15px;
+    height: 15px;
+  }
+  .cb-icons :global(svg) {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .cb-check {
+    opacity: 0;
+    transform: scale(0.6);
+    color: var(--green);
+  }
+  .copy-btn.is-copied {
+    color: var(--green);
+    border-color: color-mix(in srgb, var(--green) 50%, var(--border));
+  }
+  .copy-btn.is-copied .cb-copy {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  .copy-btn.is-copied .cb-check {
+    opacity: 1;
+    transform: none;
+  }
+</style>

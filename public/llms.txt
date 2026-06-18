@@ -1,10 +1,14 @@
 # AgentsKit Registry
 
-> Ready-to-use AI agents for AgentsKit. Install with `npx agentskit add <id>` — you own the copied source. 40 agents. Browse the gallery at https://www.agentskit.io/agents.
+> Ready-to-use AI agents for AgentsKit. Install with `npx agentskit add <id>` — you own the copied source. 39 agents. Browse them at https://registry.agentskit.io.
 
 - Machine index (JSON): https://registry.agentskit.io/r/index.json
-- Per-agent bundle: https://registry.agentskit.io/r/<id>.json
+- Per-agent bundle (JSON): https://registry.agentskit.io/r/<id>.json
+- Per-agent page (HTML): https://registry.agentskit.io/agents/<id>
+- Per-agent markdown: https://registry.agentskit.io/agents/<id>.md
+- MCP endpoint: https://registry.agentskit.io/api/mcp
 - Full text: https://registry.agentskit.io/llms-full.txt
+- Sitemap: https://registry.agentskit.io/sitemap.xml
 - Built by AgentsKit: https://www.agentskit.io
 
 ## The AgentsKit ecosystem
@@ -24,14 +28,14 @@
 - [SOAP Generator](https://registry.agentskit.io/r/clinical-note-summariser.json) — Produces SOAP-format summaries from clinician dictation. Category: clinical. Install: `npx agentskit add clinical-note-summariser`.
 - [Patient Summary](https://registry.agentskit.io/r/clinical-patient-summary.json) — Drafts a one-page summary of a patient chart for the next visit. Category: clinical. Install: `npx agentskit add clinical-patient-summary`.
 - [Referral Router](https://registry.agentskit.io/r/clinical-referral-router.json) — Reads inbound referral packets, identifies the receiving specialty, and queues the case for the relevant clinician. Category: clinical. Install: `npx agentskit add clinical-referral-router`.
+- [Code Review](https://registry.agentskit.io/r/code-review.json) — Deep, low-noise code review: 7 focused lenses (correctness, security, performance, maintainability, design, tests, conventions) fan out per file, then every finding is adversarially verified before thresholds apply. Typed findings with applicable patches. Inputs: local git diff, GitHub PR, files, or a snippet. Outputs: Markdown, SARIF, or PR comments. Blocking CI gate. Category: coding. Install: `npx agentskit add code-review`.
 - [Code QA](https://registry.agentskit.io/r/coding-code-qa.json) — Runs tests, lint, type-check on a branch and summarises the failures. Category: coding. Install: `npx agentskit add coding-code-qa`.
 - [Dev Implementer](https://registry.agentskit.io/r/coding-dev-implementer.json) — Implements QA specs by generating a typed patch and opening a draft GitHub PR against the target branch. Category: coding. Install: `npx agentskit add coding-dev-implementer`.
 - [Issue Creator](https://registry.agentskit.io/r/coding-issue-creator.json) — Converts each PRD acceptance criterion into a well-formed GitHub issue with title, body, and labels. Category: coding. Install: `npx agentskit add coding-issue-creator`.
-- [PR Reviewer](https://registry.agentskit.io/r/coding-pr-reviewer.json) — Reviews the implementation diff for correctness, style, and test coverage, then posts structured inline GitHub review comments. Category: coding. Install: `npx agentskit add coding-pr-reviewer`.
 - [PRD Author](https://registry.agentskit.io/r/coding-prd-author.json) — Transforms free-form product descriptions into structured, acceptance-criteria-driven PRDs ready for engineering hand-off. Category: coding. Install: `npx agentskit add coding-prd-author`.
 - [QA Author](https://registry.agentskit.io/r/coding-qa-author.json) — Produces Vitest spec stubs from acceptance criteria so a test skeleton is committed alongside implementation. Category: coding. Install: `npx agentskit add coding-qa-author`.
 - [Release Notes Drafter](https://registry.agentskit.io/r/coding-release-notes-drafter.json) — Drafts release notes from the merged PRs since the last tag. Category: coding. Install: `npx agentskit add coding-release-notes-drafter`.
-- [Test Runner](https://registry.agentskit.io/r/coding-test-runner.json) — Parses Vitest stdout/stderr and produces a structured test report with failure details for the PR reviewer. Category: coding. Install: `npx agentskit add coding-test-runner`.
+- [Test Runner](https://registry.agentskit.io/r/coding-test-runner.json) — Parses Vitest stdout/stderr and produces a structured test report with failure details for the code-review agent. Category: coding. Install: `npx agentskit add coding-test-runner`.
 - [Docs Chat](https://registry.agentskit.io/r/docs-chat.json) — Provider-agnostic chat over your own docs — grounded RAG answers from retrieved pages, never invented. Category: productivity. Install: `npx agentskit add docs-chat`.
 - [Fraud Investigator](https://registry.agentskit.io/r/fintech-fraud-investigator.json) — Surfaces anomalous transaction clusters and drafts case files. Category: fintech. Install: `npx agentskit add fintech-fraud-investigator`.
 - [KYC Screener](https://registry.agentskit.io/r/fintech-kyc-screener.json) — Cross-references customer records against sanctions + PEP lists. Category: fintech. Install: `npx agentskit add fintech-kyc-screener`.
@@ -50,7 +54,6 @@
 - [Competitor Researcher](https://registry.agentskit.io/r/marketing-competitor-researcher.json) — Fetches competitor web content via webhook.post, diffs it against the RAG competitor baseline, and produces a structured competitive landscape summary with positioning gaps and messaging opportunities. Category: marketing. Install: `npx agentskit add marketing-competitor-researcher`.
 - [Copy Author](https://registry.agentskit.io/r/marketing-copy-author.json) — Produces three distinct copy variants — bold/challenger, warm/story-led, and precise/evidence-based — from the structured brief and competitive context. Every variant targets a specific persona and channel. Category: marketing. Install: `npx agentskit add marketing-copy-author`.
 - [Social Publisher](https://registry.agentskit.io/r/marketing-social-publisher.json) — Posts approved copy to Discord and Slack. Formats messages for each platform's conventions and confirms delivery. Runs only after HITL approval. Category: marketing. Install: `npx agentskit add marketing-social-publisher`.
-- [PR Review Agent](https://registry.agentskit.io/r/pr-review.json) — Reviews a GitHub pull request for correctness, security, performance, and conventions, then posts feedback. Category: coding. Install: `npx agentskit add pr-review`.
 - [Research Agent](https://registry.agentskit.io/r/research.json) — Citation-first research agent. Searches the web, reads sources, and answers with every claim anchored to a URL. Category: research. Install: `npx agentskit add research`.
 - [Escalation Drafter](https://registry.agentskit.io/r/support-escalation-drafter.json) — Drafts an internal escalation summary for engineering / account teams. Category: support. Install: `npx agentskit add support-escalation-drafter`.
 - [KB Searcher](https://registry.agentskit.io/r/support-kb-searcher.json) — Searches the knowledge base for the relevant article(s) given a ticket. Category: support. Install: `npx agentskit add support-kb-searcher`.

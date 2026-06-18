@@ -11,7 +11,7 @@ import { createRuntime, type DelegateConfig } from '@agentskit/runtime'
 
 const skill: SkillDefinition = {
   name: 'test-runner',
-  description: 'Parses Vitest stdout/stderr and produces a structured test report with failure details for the PR reviewer.',
+  description: 'Parses Vitest stdout/stderr and produces a structured test report with failure details for the code-review agent.',
   systemPrompt: `You are Test Runner. Your sole job is to analyse Vitest run output and produce a structured test report.
 You receive raw Vitest stdout/stderr and the list of spec files run. Extract: total tests, passed, failed, skipped, and per-failure details.
 For each failure: test name, file path, assertion message, and a one-sentence root-cause hypothesis.

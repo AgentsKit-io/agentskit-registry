@@ -1,0 +1,467 @@
+---
+import { Code } from 'astro:components'
+import { renderMarkdown } from '../data/markdown'
+import Icon from './Icon.astro'
+import CopyButton from './CopyButton.astro'
+import PromptBlock from './PromptBlock.astro'
+import { getLocale, t, localizedPath, categoryMeta } from '../i18n/ui'
+import {
+  type AgentBundle,
+  type AgentSummary,
+  installCommand,
+  bundleUrl,
+  getSource,
+  agentPrompt,
+} from '../data/registry'
+
+interface Props {
+  bundle: AgentBundle
+  readme: string | null
+  prev: AgentSummary | null
+  next: AgentSummary | null
+}
+const { bundle, readme, prev, next } = Astro.props
+const locale = getLocale(Astro.currentLocale)
+const tr = t(locale)
+const cat = categoryMeta(locale, bundle.category)
+const cmd = installCommand(bundle.id)
+const url = bundleUrl(bundle.id)
+const curl = `curl -s ${url}`
+const source = getSource(bundle, 'agent.ts') ?? ''
+const prompt = agentPrompt(bundle)
+const env = bundle.env ?? []
+
+// README rendered to HTML; first remove the leading H1 (the page already shows the title).
+let readmeHtml = ''
+if (readme) {
+  const body = readme.replace(/^#\s+.+\n+/, '')
+  readmeHtml = await renderMarkdown(body)
+}
+const lt = (p: string) => localizedPath(p, locale)
+---
+<section class="ad">
+  <div class="aurora ad-aurora"></div>
+  <div class="container">
+    <a class="ad-back" href={lt('/#agents')}><Icon name="arrow-right" size={15} class="flip" />{tr.agent.back}</a>
+
+    <header class="ad-head">
+      <div class="ad-badges">
+        <a class="badge ac-cat" href={`${lt('/#cat-' + bundle.category)}`}>{cat.label}</a>
+        {
+          bundle.runnable ? (
+            <span class="badge badge-green"><span class="rdot" />{tr.agent.runnable}</span>
+          ) : (
+            <span class="badge">{tr.agent.notRunnable}</span>
+          )
+        }
+        {bundle.version && <span class="badge">v{bundle.version}</span>}
+        {bundle.license && <span class="badge">{bundle.license}</span>}
+      </div>
+      <h1 class="ad-title">{bundle.title}</h1>
+      <p class="ad-desc">{bundle.description}</p>
+      <p class="ad-hint">{bundle.runnable ? tr.agent.runnableHint : tr.agent.notRunnableHint}</p>
+    </header>
+
+    <div class="ad-grid">
+      <div class="ad-main">
+        <!-- Install -->
+        <div class="card block">
+          <div class="block-head">
+            <span class="block-label"><Icon name="terminal" size={16} />{tr.agent.install}</span>
+          </div>
+          <p class="block-sub">{tr.agent.installSub}</p>
+          <div class="cmd-row">
+            <code class="cmd">{cmd}</code>
+            <CopyButton value={cmd} label={tr.copy.copy} copied={tr.copy.copied} variant="ghost" />
+          </div>
+        </div>
+
+        <!-- Source -->
+        <div class="card block">
+          <div class="block-head">
+            <span class="block-label"><Icon name="code" size={16} />{tr.agent.source} <code class="fname">agent.ts</code></span>
+            <CopyButton value={source} label={tr.copy.copy} copied={tr.copy.copied} variant="ghost" />
+          </div>
+          <div class="code-wrap">
+            <Code code={source} lang="ts" theme="github-dark" />
+          </div>
+        </div>
+
+        <!-- README prose -->
+        {readmeHtml && <article class="card block prose" set:html={readmeHtml} />}
+
+        <!-- Prompt -->
+        <PromptBlock value={prompt} title={tr.agent.promptTitle} sub={tr.agent.promptSub} />
+
+        <!-- prev / next -->
+        <nav class="ad-nav">
+          {
+            prev ? (
+              <a class="ad-navlink" href={lt(`/agents/${prev.id}`)}>
+                <Icon name="arrow-right" size={15} class="flip" />
+                <span>{prev.title}</span>
+              </a>
+            ) : (
+              <span />
+            )
+          }
+          {
+            next && (
+              <a class="ad-navlink right" href={lt(`/agents/${next.id}`)}>
+                <span>{next.title}</span>
+                <Icon name="arrow-right" size={15} />
+              </a>
+            )
+          }
+        </nav>
+      </div>
+
+      <aside class="ad-side">
+        <!-- Fetch JSON -->
+        <div class="card side-block">
+          <span class="block-label"><Icon name="link" size={15} />{tr.agent.fetch}</span>
+          <p class="block-sub">{tr.agent.fetchSub}</p>
+          <div class="cmd-row sm">
+            <code class="cmd">{curl}</code>
+            <CopyButton value={curl} label={tr.copy.copy} copied={tr.copy.copied} variant="icon" />
+          </div>
+          <a class="side-link" href={url} rel="noopener">{tr.agent.viewBundle}<Icon name="external-link" size={13} /></a>
+        </div>
+
+        <!-- Packages -->
+        {
+          bundle.packages?.length && (
+            <div class="card side-block">
+              <span class="block-label"><Icon name="package" size={15} />{tr.agent.packages}</span>
+              <ul class="chips">
+                {bundle.packages.map((p) => <li><code>{p}</code></li>)}
+              </ul>
+            </div>
+          )
+        }
+
+        <!-- Env -->
+        {
+          env.length > 0 && (
+            <div class="card side-block">
+              <span class="block-label"><Icon name="key" size={15} />{tr.agent.env}</span>
+              <ul class="env-list">
+                {env.map((e) => (
+                  <li>
+                    <code>{e.name}</code>
+                    <span class:list={['badge', e.required ? 'badge-accent' : '']}>
+                      {e.required ? tr.agent.required : tr.agent.optional}
+                    </span>
+                    {e.description && <p class="env-desc">{e.description}</p>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        <!-- Tags -->
+        {
+          bundle.tags?.length && (
+            <div class="card side-block">
+              <span class="block-label">{tr.agent.tags}</span>
+              <ul class="chips">
+                {bundle.tags.map((tg) => <li class="tag">{tg}</li>)}
+              </ul>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ad {
+    position: relative;
+    padding-top: 40px;
+    isolation: isolate;
+  }
+  .ad-aurora {
+    opacity: 0.4;
+    height: 320px;
+    bottom: auto;
+  }
+  .ad-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 22px;
+  }
+  .ad-back:hover {
+    color: var(--accent);
+  }
+  :global(.flip) {
+    transform: rotate(180deg);
+  }
+  .ad-head {
+    margin-bottom: 30px;
+  }
+  .ad-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .ac-cat {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  }
+  .rdot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .ad-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+  }
+  .ad-desc {
+    color: var(--text);
+    font-size: 1.15rem;
+    margin: 12px 0 6px;
+    max-width: 640px;
+  }
+  .ad-hint {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 0;
+    max-width: 640px;
+  }
+  .ad-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 22px;
+    align-items: start;
+  }
+  .ad-main {
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+  }
+  .block {
+    padding: 18px 20px;
+  }
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .block-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .block-label :global(svg) {
+    color: var(--accent);
+  }
+  .fname {
+    color: var(--faint);
+    font-size: 0.8rem;
+  }
+  .block-sub {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin: 6px 0 12px;
+  }
+  .cmd-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 8px 8px 8px 14px;
+  }
+  .cmd-row.sm {
+    padding: 6px 6px 6px 12px;
+  }
+  .cmd {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--text);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .cmd-row.sm .cmd {
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
+  .code-wrap {
+    margin-top: 12px;
+    max-height: 460px;
+    overflow: auto;
+    border-radius: var(--radius-sm);
+  }
+  .ad-side {
+    display: grid;
+    gap: 16px;
+    position: sticky;
+    top: 76px;
+  }
+  .side-block {
+    padding: 16px 18px;
+  }
+  .side-block .block-label {
+    margin-bottom: 4px;
+  }
+  .side-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-top: 12px;
+  }
+  .chips {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .chips code,
+  .tag {
+    font-size: 0.76rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 7px;
+    padding: 3px 8px;
+    color: var(--muted);
+  }
+  .tag {
+    list-style: none;
+  }
+  .env-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    display: grid;
+    gap: 12px;
+  }
+  .env-list code {
+    font-size: 0.82rem;
+    color: var(--text);
+    margin-right: 8px;
+  }
+  .env-desc {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin: 5px 0 0;
+  }
+  .ad-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  .ad-navlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    max-width: 48%;
+  }
+  .ad-navlink span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ad-navlink:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .ad-navlink.right {
+    margin-left: auto;
+  }
+  @media (max-width: 900px) {
+    .ad-grid {
+      grid-template-columns: 1fr;
+    }
+    .ad-side {
+      position: static;
+    }
+  }
+
+  /* prose (rendered README) */
+  .prose {
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .prose :global(h2) {
+    font-size: 1.3rem;
+    margin: 24px 0 10px;
+  }
+  .prose :global(h3) {
+    font-size: 1.08rem;
+    margin: 20px 0 8px;
+  }
+  .prose :global(p) {
+    color: var(--muted);
+    margin: 10px 0;
+  }
+  .prose :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    color: var(--muted);
+    padding-left: 22px;
+  }
+  .prose :global(li) {
+    margin: 5px 0;
+  }
+  .prose :global(pre) {
+    background: #0d1117 !important;
+    border: 1px solid #222b38;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+  }
+  .prose :global(pre code) {
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 14px 0;
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    text-align: left;
+  }
+  .prose :global(th) {
+    background: var(--surface-2);
+  }
+</style>

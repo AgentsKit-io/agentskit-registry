@@ -155,6 +155,46 @@
       "runnable": true
     },
     {
+      "id": "code-review",
+      "title": "Code Review",
+      "description": "Deep, low-noise code review: 7 focused lenses (correctness, security, performance, maintainability, design, tests, conventions) fan out per file, then every finding is adversarially verified before thresholds apply. Typed findings with applicable patches. Inputs: local git diff, GitHub PR, files, or a snippet. Outputs: Markdown, SARIF, or PR comments. Blocking CI gate.",
+      "category": "coding",
+      "version": "1.0.0",
+      "source": "agentskit-registry",
+      "license": "MIT",
+      "tags": [
+        "code-review",
+        "quality",
+        "security",
+        "static-analysis",
+        "pull-request",
+        "ci",
+        "human-in-the-loop"
+      ],
+      "packages": [
+        "@agentskit/core",
+        "@agentskit/runtime",
+        "@agentskit/tools"
+      ],
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "env": [
+        {
+          "name": "ANTHROPIC_API_KEY",
+          "description": "Or any provider key your adapter needs.",
+          "required": false
+        },
+        {
+          "name": "GITHUB_TOKEN",
+          "description": "Needed only for the github-pr source and the GitHub reporters.",
+          "required": false
+        }
+      ],
+      "runnable": false
+    },
+    {
       "id": "coding-code-qa",
       "title": "Code QA",
       "description": "Runs tests, lint, type-check on a branch and summarises the failures.",
@@ -192,23 +232,6 @@
       "id": "coding-issue-creator",
       "title": "Issue Creator",
       "description": "Converts each PRD acceptance criterion into a well-formed GitHub issue with title, body, and labels.",
-      "category": "coding",
-      "version": "1.0.0",
-      "source": "AKOS",
-      "license": "MIT",
-      "tags": [
-        "coding"
-      ],
-      "packages": [
-        "@agentskit/core",
-        "@agentskit/runtime"
-      ],
-      "runnable": true
-    },
-    {
-      "id": "coding-pr-reviewer",
-      "title": "PR Reviewer",
-      "description": "Reviews the implementation diff for correctness, style, and test coverage, then posts structured inline GitHub review comments.",
       "category": "coding",
       "version": "1.0.0",
       "source": "AKOS",
@@ -276,7 +299,7 @@
     {
       "id": "coding-test-runner",
       "title": "Test Runner",
-      "description": "Parses Vitest stdout/stderr and produces a structured test report with failure details for the PR reviewer.",
+      "description": "Parses Vitest stdout/stderr and produces a structured test report with failure details for the code-review agent.",
       "category": "coding",
       "version": "1.0.0",
       "source": "AKOS",
@@ -625,40 +648,6 @@
         "@agentskit/runtime"
       ],
       "runnable": true
-    },
-    {
-      "id": "pr-review",
-      "title": "PR Review Agent",
-      "description": "Reviews a GitHub pull request for correctness, security, performance, and conventions, then posts feedback.",
-      "category": "coding",
-      "version": "1.0.0",
-      "source": "AKOS",
-      "license": "MIT",
-      "tags": [
-        "code-review",
-        "github",
-        "ci",
-        "quality"
-      ],
-      "packages": [
-        "@agentskit/core",
-        "@agentskit/runtime",
-        "@agentskit/skills",
-        "@agentskit/tools"
-      ],
-      "env": [
-        {
-          "name": "GITHUB_TOKEN",
-          "description": "GitHub token with repo read access.",
-          "required": true
-        },
-        {
-          "name": "ANTHROPIC_API_KEY",
-          "description": "Or any provider key your adapter needs.",
-          "required": false
-        }
-      ],
-      "runnable": false
     },
     {
       "id": "research",
