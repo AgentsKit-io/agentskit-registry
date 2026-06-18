@@ -29,7 +29,6 @@ const { content } = await agent.run('What changed in the EU AI Act in 2025?')
 |-------|----------|--------------|
 | [`research`](./registry/research) | research | Citation-first web research |
 | [`pr-review`](./registry/pr-review) | coding | Reviews a GitHub PR for correctness/security/conventions |
-| [`knowledge-promoter`](./registry/knowledge-promoter) | ops | Turns curated private notes into public docs PRs: classify → sanitize → adversarial leak-gate → draft PR (never merges) |
 
 More landing weekly. [Contribute one →](./CONTRIBUTING.md)
 
