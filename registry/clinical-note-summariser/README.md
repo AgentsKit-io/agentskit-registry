@@ -1,32 +1,24 @@
 # SOAP Generator
 
-Produces SOAP-format summaries from clinician dictation.
+Turns clinician dictation into a **typed SOAP note** (Subjective / Objective / Assessment / Plan) — each section addressable, missing sections surfaced (never invented), always a draft for sign-off.
 
 ```bash
 npx agentskit add clinical-note-summariser
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createNoteSummariserAgent } from './agents/clinical-note-summariser/agent'
 
-const agent = createNoteSummariserAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const { note, missingFields, requiresClinicianSignoff } = await createNoteSummariserAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+}).run(dictationText)
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed output** — `{ subjective, objective, assessment, plan }` via `invokeStructured` + zod, not one blob; downstream tooling can address each section.
+- **Never invents** — uncovered sections go to `missingFields` (left blank) for the clinician to fill.
+- **Always a draft** — `requiresClinicianSignoff` is always true. Untrusted dictation is **fenced**; facts preserved verbatim.
 
-## Capabilities
+`run(dictation)` → `NoteResult { note, missingFields[], requiresClinicianSignoff }`. `asHandle()` is JSON-out.
 
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+See [composing agents](../../COMPOSING.md).

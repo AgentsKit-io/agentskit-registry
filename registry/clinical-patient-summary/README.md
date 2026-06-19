@@ -1,32 +1,24 @@
 # Patient Summary
 
-Drafts a one-page summary of a patient chart for the next visit.
+Drafts a **typed one-page pre-visit summary** from chart excerpts — structured fields, never invents values, always a draft for the clinician to confirm.
 
 ```bash
 npx agentskit add clinical-patient-summary
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createPatientSummaryAgent } from './agents/clinical-patient-summary/agent'
 
-const agent = createPatientSummaryAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const { summary } = await createPatientSummaryAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+}).run(chartExcerpts)
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed output** — `{ reasonForVisit, activeProblems[], medications[], allergies[], vitalsTrend, followUps[], openQuestions[] }` via `invokeStructured` + zod (active problems capped at 5).
+- **Never invents** — gaps become `"not in chart"` / empty arrays, never guessed.
+- **Always a draft** — `requiresClinicianSignoff` is always true. Untrusted chart text is **fenced**.
 
-## Capabilities
+`run(chart)` → `PatientSummaryResult { summary, requiresClinicianSignoff }`. `asHandle()` is JSON-out.
 
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+See [composing agents](../../COMPOSING.md). Sibling: [`clinical-note-summariser`](../clinical-note-summariser).
