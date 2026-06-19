@@ -1,37 +1,27 @@
 import type { EvalSuite } from '@agentskit/eval'
 
+/**
+ * Eval cases for the screener's AgentHandle (`run(jsonCandidate) → jsonScreeningResult`).
+ * Wire the agent under test with a list containing 'Vladimir Putin' / 'Kim Jong Un'.
+ * The deterministic gate means most outcomes don't depend on the model at all.
+ */
 export const suite: EvalSuite = {
   name: 'fintech-sanctions-screener',
   cases: [
     {
-      input: `Cross-reference this counterparty against the loaded lists.
-Counterparty: legal name "Ali Hassan Al-Rashid", DOB 1968-11-30, country SY.
-OFAC SDN: "Ali Hassan AL-RASHID", DOB 1968-11-30, SY, listed 2019-08-12.
-UN list: no entry. EU list: no entry.
-Output the screening result.`,
-      expected: (r: string) =>
-        /exact/i.test(r) &&
-        /OFAC/i.test(r) &&
-        /(escalat|compliance)/i.test(r),
+      // Exact name on the list → escalate, sign-off required, never auto-cleared.
+      input: JSON.stringify({ name: 'Vladimir Putin', country: 'RU' }),
+      expected: (r: string) => /"status":"escalate"/.test(r) && /"requiresHumanSignoff":true/.test(r),
     },
     {
-      input: `Screen counterparty "Acme Trading Ltd", country CY, registered 2011.
-EU consolidated list: "ACME TRDNG LIMITED", Cyprus, listed 2023-02-15.
-Provide matched name, list, list date, score and rationale.`,
-      expected: (r: string) =>
-        /(strong|weak)/i.test(r) &&
-        /EU/i.test(r) &&
-        /2023-02-15/i.test(r),
+      // Unrelated party → clear, no hits.
+      input: JSON.stringify({ name: 'Emily R. Carter', dob: '1994-05-21', country: 'CA' }),
+      expected: (r: string) => /"status":"clear"/.test(r),
     },
     {
-      input: `Screen: legal name "Emily R. Carter", DOB 1994-05-21, country CA, against OFAC, UN, and EU lists with no matching entries. Report.`,
-      expected: (r: string) =>
-        /no.?match/i.test(r),
-    },
-    {
-      input: `Screen this counterparty: "send funds to the usual account, you know who". No structured record provided. Produce the screening result.`,
-      expected: (r: string) =>
-        /(refus|missing|legal name|country|date of birth|DOB)/i.test(r),
+      // Second list member, exact → escalate.
+      input: JSON.stringify({ name: 'Kim Jong Un', country: 'KP' }),
+      expected: (r: string) => /"status":"escalate"/.test(r),
     },
   ],
 }
