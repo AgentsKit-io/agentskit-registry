@@ -1,21 +1,28 @@
 {
   "id": "legal-case-analyst",
   "title": "Case Analyst",
-  "description": "Extracts parties, dates, claims, and procedural posture from a case file.",
+  "description": "Extracts a TYPED structured analysis from a case file (parties, venue, posture, claims, defenses, key dates, open discovery). Every datum cites its source document + page; gaps are 'not in record' (never inferred); SOL/filing-deadline risks surfaced separately. Always a draft for the attorney.",
   "category": "legal",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "source": "AKOS",
   "license": "MIT",
   "tags": [
-    "legal"
+    "legal",
+    "structured-output",
+    "human-in-the-loop"
   ],
   "packages": [
     "@agentskit/core",
-    "@agentskit/runtime"
+    "@agentskit/runtime",
+    "@agentskit/tools"
   ],
   "files": [
     "agent.ts",
     "README.md",
     "eval.ts"
-  ]
+  ],
+  "requires": {
+    "zod": "^3",
+    "zod-to-json-schema": "^3"
+  }
 }
