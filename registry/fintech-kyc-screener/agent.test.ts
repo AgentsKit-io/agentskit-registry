@@ -36,6 +36,11 @@ describe('fintech-kyc-screener', () => {
     expect(r.hits).toHaveLength(0)
   })
 
+  it('rejects thresholds that could defeat the gate', () => {
+    expect(() => createKycScreenerAgent({ adapter: adj('true-match'), lists: LISTS, strongThreshold: 2 })).toThrow(/threshold/)
+    expect(() => createKycScreenerAgent({ adapter: adj('true-match'), lists: LISTS, strongThreshold: 0.5, screenThreshold: 0.9 })).toThrow(/threshold/)
+  })
+
   it('FAIL-SAFE: a failed adjudication of a weak hit escalates', async () => {
     const r = await createKycScreenerAgent({ adapter: adj('silent'), lists: LISTS, strongThreshold: 0.999, screenThreshold: 0.6 }).run({ name: 'Vladimir Putin Jr', dob: '1990-01-01', country: 'RU' })
     expect(r.riskTier).toBe('escalate')
