@@ -43,18 +43,25 @@ for (const id of ids) {
     return { path: rel, content: readFileSync(p, 'utf8') }
   })
 
-  // Extract the inline skill's systemPrompt so the CLI can run the agent as data
-  // (no code execution). Agents that compose an external skill + tools (e.g.
-  // research/pr-review) have no inline prompt → skill stays null (run unsupported).
-  const agentSrc = readFileSync(join(dir, 'agent.ts'), 'utf8')
-  const m = agentSrc.match(/systemPrompt:\s*`((?:\\.|[^`\\])*)`/)
-  const skill = m
-    ? {
-        name: meta.id,
-        description: meta.description,
-        systemPrompt: m[1].replace(/\\`/g, '`').replace(/\\\$\{/g, '${'),
-      }
-    : null
+  // Extract the inline skill's systemPrompt so the CLI/AKOS can run the agent as
+  // data (no code execution). Scan EVERY copied source file (not just agent.ts) so
+  // a single skill defined in a separate file (e.g. skills.ts) is still found.
+  //
+  // A single systemPrompt → that's the skill. ZERO (composes an external skill +
+  // tools, e.g. research) or MULTIPLE (a multi-stage PIPELINE like code-review /
+  // knowledge-promoter) → skill stays null: a pipeline is not one prompt and must
+  // be consumed via flow decomposition, not run as a single skill.
+  const prompts = files
+    .filter((f) => f.path.endsWith('.ts'))
+    .flatMap((f) => [...f.content.matchAll(/systemPrompt:\s*`((?:\\.|[^`\\])*)`/g)].map((mm) => mm[1]))
+  const skill =
+    prompts.length === 1
+      ? {
+          name: meta.id,
+          description: meta.description,
+          systemPrompt: prompts[0].replace(/\\`/g, '`').replace(/\\\$\{/g, '${'),
+        }
+      : null
 
   // A2A AgentCard — makes each agent discoverable/invocable by any A2A system.
   const a2a = {
