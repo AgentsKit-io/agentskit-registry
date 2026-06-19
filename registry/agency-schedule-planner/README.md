@@ -1,32 +1,23 @@
 # Schedule Planner
 
-Plans a multi-channel content calendar from approved drafts.
+Drafts a **typed multi-channel publish schedule** from approved drafts + channel constraints — flags conflicts instead of dropping items, never schedules itself.
 
 ```bash
 npx agentskit add agency-schedule-planner
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createSchedulePlannerAgent } from './agents/agency-schedule-planner/agent'
 
-const agent = createSchedulePlannerAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createSchedulePlannerAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+}).run(`DRAFTS:\n${drafts}\n\nCONSTRAINTS:\n${windows}`)
+// → { schedule: [{ date, channel, assetId, rationale }], conflicts: [{ type, assetIds[], detail }], requiresApproval }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed schedule** — `invokeStructured` + zod; each slot carries a cadence rationale.
+- **Flags, never drops** — window collisions, embargo breaches, and frequency-cap violations land in `conflicts` (with the asset ids), not silently discarded.
+- **Never auto-publishes** — `requiresApproval` always true; the plan is for the account lead to confirm before any post goes out. Untrusted input is **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(draftsAndConstraints)` → `ScheduleResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md).
