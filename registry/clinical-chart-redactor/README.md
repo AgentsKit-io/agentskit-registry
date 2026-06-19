@@ -1,32 +1,41 @@
 # Chart Redactor
 
-Applies the hipaa-strict PII profile (names, MRN, dates of birth, contact details) before any cross-tenant export.
+Redacts HIPAA identifiers from a clinical chart before cross-tenant export — with a **deterministic backstop** so no structured identifier can slip through, even if the model misses it.
 
 ```bash
 npx agentskit add clinical-chart-redactor
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createChartRedactorAgent } from './agents/clinical-chart-redactor/agent'
 
-const agent = createChartRedactorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const agent = createChartRedactorAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+  extraRules: [{ name: 'mrn', pattern: /\bMRN[-:\s]?\d{6,}\b/gi, replacer: '[REDACTED_MRN]' }],
+})
+
+const { redacted, log, status } = await agent.run(chartText)
 ```
 
-Swap the adapter for any provider — no lock-in.
+## Why it's safe
 
-## Capabilities
+A prompt-only redactor trusts the model to have caught everything. This one doesn't:
 
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
+1. **Model redaction** — does the bulk (names, free-text, dates) → typed `{ redacted, log }`.
+2. **Deterministic backstop** — `createPIIRedactor` (`@agentskit/core/security`) re-scans the model's output and strips any structured identifier left behind (email, phone, SSN, IP, credit-card, UUID + your `extraRules` for MRN/DOB/known names). The emitted chart is **always clean of those patterns**, regardless of the model.
+3. **Flagged** — anything the backstop catches is logged with `backstop: true` (the model under-redacted), so misses are visible, never silent.
+4. Clinical findings/medications are preserved; untrusted chart text is **fenced**.
+
+## Config
 
 | Option | Purpose |
 |--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
+| `extraRules` | institution-specific deterministic patterns (MRN, known patient names, ids) |
+| `observers`, `memory`, `onConfirm`, `maxSteps` | standard runtime options |
 
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(chart)` → `{ redacted, log[], status: 'clean'|'backstop-applied' }`. `asHandle()` returns the redacted chart text.
+
+> Names/free-text PHI rely on the model + your `extraRules`. The deterministic backstop guarantees the *structured* identifier classes; supply name/MRN patterns via `extraRules` for full coverage.
+
+See [composing agents](../../COMPOSING.md).
