@@ -629,34 +629,44 @@
     {
       "id": "marketing-calendar-digest-author",
       "title": "Calendar Digest Author",
-      "description": "Aggregates scheduled social posts for the week and produces a digest summary for Slack. Used by the social-calendar satellite flow.",
+      "description": "Turns the week's scheduled social posts into a TYPED digest (per-channel groups + a ready-to-paste Slack markdown block). Delivery is optional and HITL-gated — reported delivered only when the transport really returned an id; never fakes a post.",
       "category": "marketing",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "marketing"
+        "marketing",
+        "human-in-the-loop",
+        "summarization"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
       "runnable": true
     },
     {
       "id": "marketing-competitor-researcher",
       "title": "Competitor Researcher",
-      "description": "Fetches competitor web content via webhook.post, diffs it against the RAG competitor baseline, and produces a structured competitive landscape summary with positioning gaps and messaging opportunities.",
+      "description": "Searches + fetches competitor web content (webSearch / fetchUrl), diffs it against the RAG competitor baseline, and produces a structured competitive-landscape report. Hardened: fetched pages are treated as attacker-controlled data (prompt-injection defense), and unfetchable sources are flagged, never fabricated.",
       "category": "marketing",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "marketing"
+        "marketing",
+        "research",
+        "prompt-injection-defense"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
       "runnable": true
     },
@@ -680,18 +690,25 @@
     {
       "id": "marketing-social-publisher",
       "title": "Social Publisher",
-      "description": "Posts approved copy to Discord and Slack. Formats messages for each platform's conventions and confirms delivery. Runs only after HITL approval.",
+      "description": "Formats one approved copy variant per platform and DELIVERS it through caller-injected transports. Real delivery or honest failure (no faked sends), fail-closed HITL (nothing posts without explicit approval), typed result with the real provider id per platform.",
       "category": "marketing",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "marketing"
+        "marketing",
+        "human-in-the-loop",
+        "delivery"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
       "runnable": true
     },
     {
