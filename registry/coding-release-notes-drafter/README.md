@@ -1,32 +1,23 @@
 # Release Notes Drafter
 
-Drafts release notes from the merged PRs since the last tag.
+Turns merged PRs since the last tag into **typed, grouped release notes** + a markdown block — every entry cites its PR number.
 
 ```bash
 npx agentskit add coding-release-notes-drafter
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createReleaseNotesDrafterAgent } from './agents/coding-release-notes-drafter/agent'
 
-const agent = createReleaseNotesDrafterAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createReleaseNotesDrafterAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+}).run(mergedPrList)
+// → { groups: [{ type, entries: [{ text, pr }] }], markdown, requiresReview }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed groups** — `invokeStructured` + zod; `type` is an enum (`Feature | Fix | Performance | Docs | Internal`), user-facing changes first.
+- **Cited, never invented** — every entry carries its PR number; no merge appears that isn't in the input.
+- **Always a draft** — `requiresReview` always true; plus a ready-to-paste `markdown` block. Untrusted PR text is **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(mergedPrs)` → `ReleaseNotesResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md).
