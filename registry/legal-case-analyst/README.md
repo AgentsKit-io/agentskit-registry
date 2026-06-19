@@ -1,32 +1,23 @@
 # Case Analyst
 
-Extracts parties, dates, claims, and procedural posture from a case file.
+Extracts a **typed, cited analysis** from a case file — every datum cites its source, gaps are "not in record", deadline risks surfaced at the top.
 
 ```bash
 npx agentskit add legal-case-analyst
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createCaseAnalystAgent } from './agents/legal-case-analyst/agent'
 
-const agent = createCaseAnalystAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createCaseAnalystAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+}).run(caseFile)
+// → { analysis: { parties[], jurisdictionVenue, proceduralPosture, claims[], defenses[], keyDates[], openDiscovery[] }, deadlineRisks[], requiresAttorneyReview }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed + cited** — `invokeStructured` + zod; every field is a `{ value, citation }` pair (source document + page).
+- **Never infers** — a field the record is silent on is `"not in record"` for both value and citation, never guessed.
+- **Deadline-first** — statute-of-limitations / filing-deadline risks are pulled into `deadlineRisks` for the attorney. Always a draft; untrusted file text is **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(caseFile)` → `CaseAnalysisResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Feeds [`legal-doc-drafter`](../legal-doc-drafter) and [`legal-case-summariser`](../legal-case-summariser).
