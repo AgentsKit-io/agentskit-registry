@@ -56,6 +56,11 @@ describe('fintech-sanctions-screener', () => {
     expect(r.hits[0]?.autoCleared).toBe(false)
   })
 
+  it('rejects thresholds that could defeat the gate', () => {
+    expect(() => createSanctionsScreenerAgent({ adapter: adj('true-match'), sanctionsList: LIST, strongThreshold: 2 })).toThrow(/threshold/)
+    expect(() => createSanctionsScreenerAgent({ adapter: adj('true-match'), sanctionsList: LIST, strongThreshold: 0.5, screenThreshold: 0.9 })).toThrow(/threshold/)
+  })
+
   it('refuses a candidate with no legal name', async () => {
     await expect(
       createSanctionsScreenerAgent({ adapter: adj('true-match'), sanctionsList: LIST }).run({ name: '  ' }),

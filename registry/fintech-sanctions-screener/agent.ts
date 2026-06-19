@@ -109,6 +109,11 @@ const nameOf = (e: string | SanctionsEntry): string => (typeof e === 'string' ? 
 export function createSanctionsScreenerAgent(config: SanctionsScreenerConfig) {
   const strong = config.strongThreshold ?? 0.92
   const screen = config.screenThreshold ?? 0.85
+  // Guard the thresholds: a bad value (e.g. strong > 1) would silently route every
+  // hit to the model — which could then clear it. The gate must never be defeatable.
+  if (!(screen > 0 && screen <= 1 && strong > 0 && strong <= 1 && strong >= screen)) {
+    throw new Error(`invalid thresholds: require 0 < screenThreshold (${screen}) <= strongThreshold (${strong}) <= 1`)
+  }
   const names = config.sanctionsList.map(nameOf)
   const entryByName = new Map(config.sanctionsList.map((e) => [nameOf(e), typeof e === 'string' ? undefined : e]))
 
