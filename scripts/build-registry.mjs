@@ -63,6 +63,21 @@ for (const id of ids) {
         }
       : null
 
+  // Optional Tier-B FLOW decomposition (flow.json). A gated/pipeline agent whose
+  // deterministic safety gate lives in code (sanctions fuzzy-gate, PII backstop) can
+  // ship a FlowConfig that decomposes it into tool/condition/agent nodes, so AKOS runs
+  // the gate in its flow engine — not just the extracted skill. Absent ⇒ Tier A
+  // (single skill, run as-is). Validated against AKOS @agentskit/os-core on import.
+  const flowPath = join(dir, 'flow.json')
+  let flow = null
+  if (existsSync(flowPath)) {
+    flow = JSON.parse(readFileSync(flowPath, 'utf8'))
+    for (const key of ['id', 'entry', 'nodes', 'edges']) {
+      if (flow[key] == null) throw new Error(`${id}: flow.json missing required field "${key}"`)
+    }
+    if (!Array.isArray(flow.nodes) || flow.nodes.length === 0) throw new Error(`${id}: flow.json needs a non-empty nodes[]`)
+  }
+
   // A2A AgentCard — makes each agent discoverable/invocable by any A2A system.
   const a2a = {
     id: `io.agentskit.registry.${meta.id}`,
@@ -81,10 +96,10 @@ for (const id of ids) {
 
   writeFileSync(
     join(outDir, `${id}.json`),
-    JSON.stringify({ ...meta, skill, a2a, sources: files }, null, 2) + '\n',
+    JSON.stringify({ ...meta, skill, flow, a2a, sources: files }, null, 2) + '\n',
   )
   const { files: _f, ...summary } = meta
-  index.push({ ...summary, runnable: skill != null })
+  index.push({ ...summary, runnable: skill != null, decomposable: flow != null })
   full.push({
     id: meta.id,
     title: meta.title,

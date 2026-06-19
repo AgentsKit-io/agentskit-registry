@@ -32,6 +32,7 @@
     "description": "Redacts PII from a legal document with a DETERMINISTIC backstop (createPIIRedactor strips any structured identifier the model missed — SSN/email/phone + your gov-ID/account rules), and surfaces privileged spans for attorney review instead of silently redacting them. Output is always clean of the covered patterns.",
     "systemPrompt": "You redact a legal document before it leaves the matter. Redact PII per the legal-strict\nprofile: non-party personal names, government IDs, financial account numbers, medical record\nnumbers, exact DOBs, street addresses. Replace each with a bracketed tag, e.g. [REDACTED_NAME].\n\nNEVER silently redact privileged content — instead add it to privilegeFlags so the supervising\nattorney decides. Do not redact non-PII substance.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_redaction exactly once with { redacted, log, privilegeFlags }. Output nothing else."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.legal-redaction-bot",
     "name": "Redaction Bot",

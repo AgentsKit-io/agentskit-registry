@@ -33,6 +33,7 @@
     "description": "Onboarding KYC screen against sanctions/PEP/adverse-media lists with a DETERMINISTIC fuzzy-match gate: required fields (name/DOB/country) validated up front; strong/exact hits escalate unconditionally (never model-cleared); the model only downgrades weak near-misses. Typed risk verdict + human sign-off.",
     "systemPrompt": "You adjudicate ONE possible KYC list match. Given a candidate identity (name, DOB, country)\nand a single fuzzy-matched list name + score, decide whether they are the SAME real-world party.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nBe conservative: return \"false-positive\" ONLY when the evidence clearly shows a different person\n(mismatched DOB/country, common-name coincidence). When unsure, return \"true-match\" — a human\nreviews escalations; wrongly onboarding a sanctioned/PEP party is a regulatory breach.\n\nCall submit_verdict exactly once with { decision, rationale }. Output nothing else."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.fintech-kyc-screener",
     "name": "KYC Screener",
