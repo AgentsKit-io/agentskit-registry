@@ -158,18 +158,26 @@
     {
       "id": "clinical-referral-router",
       "title": "Referral Router",
-      "description": "Reads inbound referral packets, identifies the receiving specialty, and queues the case for the relevant clinician.",
+      "description": "Routes a referral packet to the receiving specialty + urgency with typed output. Incomplete packets are NOT assigned — missing critical fields (reason/meds/prior workup) are surfaced and the case escalates to a human coordinator. Fail-safe on error.",
       "category": "clinical",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "clinical"
+        "clinical",
+        "routing",
+        "classification",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
       "runnable": true
     },
     {
