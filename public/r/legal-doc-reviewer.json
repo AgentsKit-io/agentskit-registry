@@ -1,0 +1,67 @@
+{
+  "id": "legal-doc-reviewer",
+  "title": "Legal Doc Reviewer",
+  "description": "One configurable legal-review agent (mode: contract | discovery | privilege) that supersedes the separate contract-reviewer, discovery-reviewer, and privilege-spotter. Produces typed findings via structured output; privileged/high findings require attorney review.",
+  "category": "legal",
+  "version": "1.0.0",
+  "source": "agentskit-registry",
+  "license": "MIT",
+  "tags": [
+    "legal",
+    "contract-review",
+    "discovery",
+    "privilege",
+    "human-in-the-loop"
+  ],
+  "packages": [
+    "@agentskit/core",
+    "@agentskit/runtime",
+    "@agentskit/tools"
+  ],
+  "requires": {
+    "zod": "^3",
+    "zod-to-json-schema": "^3"
+  },
+  "files": [
+    "agent.ts",
+    "README.md",
+    "eval.ts"
+  ],
+  "skill": {
+    "name": "legal-doc-reviewer",
+    "description": "One configurable legal-review agent (mode: contract | discovery | privilege) that supersedes the separate contract-reviewer, discovery-reviewer, and privilege-spotter. Produces typed findings via structured output; privileged/high findings require attorney review.",
+    "systemPrompt": "You are a senior legal reviewer. ${FOCUS[mode]}\n\nYou do NOT give legal advice or make final determinations — you surface findings for a supervising\nattorney. Anchor each finding to a location (clause/section/page) when possible.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_findings exactly once with a \"findings\" array; each finding:\n{ id, severity (critical|high|medium|low|info), category, title, detail, location?, recommendation? }.\nReport only defensible findings. Output nothing else."
+  },
+  "a2a": {
+    "id": "io.agentskit.registry.legal-doc-reviewer",
+    "name": "Legal Doc Reviewer",
+    "description": "One configurable legal-review agent (mode: contract | discovery | privilege) that supersedes the separate contract-reviewer, discovery-reviewer, and privilege-spotter. Produces typed findings via structured output; privileged/high findings require attorney review.",
+    "version": "1.0.0",
+    "homepage": "https://registry.agentskit.io",
+    "skills": [
+      {
+        "name": "legal-doc-reviewer",
+        "description": "One configurable legal-review agent (mode: contract | discovery | privilege) that supersedes the separate contract-reviewer, discovery-reviewer, and privilege-spotter. Produces typed findings via structured output; privileged/high findings require attorney review.",
+        "capabilities": {
+          "streaming": true,
+          "cancellation": true,
+          "requiresApproval": false
+        }
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "agent.ts",
+      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport type { Severity } from '@agentskit/core/finding'\nimport { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * Legal Doc Reviewer — one configurable agent for the three legal-review modes that\n * used to be separate agents (contract / discovery / privilege). Each mode is a focused\n * reviewer producing TYPED findings (shared `Finding` shape) via `invokeStructured`, so\n * the output is interoperable with dashboards and downstream steps.\n *\n *   - mode 'contract'   — clause-by-clause risk review (risky language, missing terms).\n *   - mode 'discovery'  — flag privileged + responsive material in a document.\n *   - mode 'privilege'  — privilege-only classification pass (second-look over discovery).\n *\n * ```ts\n * const r = await createLegalDocReviewerAgent({ adapter, mode: 'discovery' }).run(documentText)\n * r.findings.forEach((f) => routeForAttorneyReview(f))\n * ```\n */\n\nexport type LegalReviewMode = 'contract' | 'discovery' | 'privilege'\n\nexport interface LegalFinding {\n  id: string\n  severity: Severity\n  /** Mode-specific: 'risky-clause' | 'missing-term' | 'privileged' | 'responsive'. */\n  category: string\n  title: string\n  detail: string\n  /** Clause/section/page locator. */\n  location?: string\n  recommendation?: string\n}\n\nexport interface LegalReviewResult {\n  mode: LegalReviewMode\n  findings: LegalFinding[]\n  /** Any privileged/blocker finding → an attorney must review before the doc moves. */\n  requiresAttorneyReview: boolean\n}\n\nexport interface LegalDocReviewerConfig {\n  adapter: AdapterFactory\n  mode: LegalReviewMode\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst Finding = z.object({\n  id: z.string(),\n  severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),\n  category: z.string(),\n  title: z.string(),\n  detail: z.string(),\n  location: z.string().optional(),\n  recommendation: z.string().optional(),\n})\nconst Submission = z.object({ findings: z.array(Finding) })\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\nconst FOCUS: Record<LegalReviewMode, string> = {\n  contract: `Review the contract clause by clause. Flag risky language, one-sided terms, missing\nstandard protections (indemnity, limitation of liability, termination, governing law), and\nambiguous obligations. category: \"risky-clause\" | \"missing-term\".`,\n  discovery: `Review the document for DISCOVERY. Flag spans that are privileged (attorney-client,\nwork-product) and spans that are responsive to the matter. category: \"privileged\" | \"responsive\".`,\n  privilege: `Privilege second-pass: re-read for ANY attorney-client or work-product privileged\ncontent that a first review may have missed. category: \"privileged\". Be over-inclusive — a missed\nprivilege waiver is irreversible.`,\n}\n\nexport function createLegalDocReviewerAgent(config: LegalDocReviewerConfig) {\n  const mode = config.mode\n  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {\n    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })\n  }\n\n  const skill = {\n    name: `legal-doc-reviewer-${mode}`,\n    description: `Legal document review (${mode} mode) producing typed findings.`,\n    systemPrompt: `You are a senior legal reviewer. ${FOCUS[mode]}\n\nYou do NOT give legal advice or make final determinations — you surface findings for a supervising\nattorney. Anchor each finding to a location (clause/section/page) when possible.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_findings exactly once with a \"findings\" array; each finding:\n{ id, severity (critical|high|medium|low|info), category, title, detail, location?, recommendation? }.\nReport only defensible findings. Output nothing else.`,\n    tools: ['submit_findings'],\n  }\n\n  const submit = (): ToolDefinition =>\n    defineZodTool({ name: 'submit_findings', description: 'Submit the review findings. Call exactly once.', schema: Submission, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition\n\n  async function run(document: string): Promise<LegalReviewResult> {\n    if (!document?.trim()) throw new Error('legal doc reviewer requires non-empty document text')\n    emit(mode, 'start')\n    let findings: LegalFinding[]\n    try {\n      const sub = await invokeStructured({\n        adapter: config.adapter,\n        tool: submit(),\n        task: `DOCUMENT (${mode} review):\\n${fenceUntrustedContent(document)}`,\n        parse: (a) => Submission.parse(a),\n        skill,\n        memory: config.memory,\n        observers: config.observers,\n        onConfirm: config.onConfirm,\n        maxSteps: config.maxSteps ?? 3,\n      })\n      findings = sub.findings\n    } catch {\n      // Fail safe — an unreviewable doc escalates to an attorney rather than passing clean.\n      findings = [{ id: 'review-failed', severity: 'high', category: 'review-error', title: 'Automated review unavailable', detail: 'failed safe — route to attorney review' }]\n    }\n    const requiresAttorneyReview = findings.some((f) => f.category === 'privileged' || f.severity === 'critical' || f.severity === 'high')\n    emit(mode, 'ok', `${findings.length} finding(s)`)\n    return { mode, findings, requiresAttorneyReview }\n  }\n\n  return {\n    name: 'legal-doc-reviewer',\n    run,\n    asHandle() {\n      return { name: 'legal-doc-reviewer', run: async (task: string) => JSON.stringify(await run(task)) }\n    },\n  }\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# Legal Doc Reviewer\n\nOne configurable legal-review agent — supersedes the separate `contract-reviewer`, `discovery-reviewer`, and `privilege-spotter` (they were single-pass prompts with no structural difference). Pick a `mode`:\n\n| mode | what it does |\n|---|---|\n| `contract` | clause-by-clause risk review (risky language, missing standard terms) |\n| `discovery` | flags privileged + responsive material |\n| `privilege` | privilege-only second-pass (over-inclusive — a missed waiver is irreversible) |\n\n```bash\nnpx agentskit add legal-doc-reviewer\n```\n\n```ts\nimport { anthropic } from '@agentskit/adapters'\nimport { createLegalDocReviewerAgent } from './agents/legal-doc-reviewer/agent'\n\nconst r = await createLegalDocReviewerAgent({\n  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),\n  mode: 'discovery',\n}).run(documentText)\n\nif (r.requiresAttorneyReview) routeForReview(r.findings)\n```\n\n## Why it's gold standard\n\n- **Typed findings** — each `{ id, severity, category, title, detail, location?, recommendation? }` via `invokeStructured` + zod (shared `Finding` shape), not free text.\n- **Attorney gate** — any privileged or critical/high finding sets `requiresAttorneyReview`; the agent never makes a final legal determination.\n- **Fail-safe** — a failed review escalates to an attorney, never passes clean. Untrusted document text is **fenced**.\n\n`run(document)` → `LegalReviewResult { mode, findings[], requiresAttorneyReview }`. `asHandle()` is JSON-out.\n\nSee [composing agents](../../COMPOSING.md).\n"
+    },
+    {
+      "path": "eval.ts",
+      "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/** Eval cases for the reviewer AgentHandle (`run(document) → jsonLegalReviewResult`). */\nexport const suite: EvalSuite = {\n  name: 'legal-doc-reviewer',\n  cases: [\n    {\n      input: 'Vendor shall indemnify Client for any and all losses without limitation. No cap on liability.',\n      expected: (r: string) => /\"findings\":\\[/.test(r),\n    },\n  ],\n}\n"
+    }
+  ]
+}
