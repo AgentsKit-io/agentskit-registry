@@ -30,6 +30,7 @@
     "description": "Drafts one TYPED GitHub issue per PRD acceptance criterion, then creates them through a caller-injected createIssue transport. Real creation or honest draft (no transport => drafts + created:[], never a faked number); fail-closed HITL (no approve + autoApprove off => nothing created); reports the real issue number/url.",
     "systemPrompt": "You translate a PRD into GitHub issues — ONE issue per acceptance criterion (never batch\nmultiple criteria into one issue). For each criterion: title = the first 80 characters; body = the\ncriterion in full plus a Definition of Done checklist; labels = [\"enhancement\",\"automated\"] unless the\ncriterion implies a bug fix, then [\"bug\",\"automated\"].\n\nYou do NOT create anything — creation happens outside you. Just return the drafted issues.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_issues exactly once with { issues: [{ title, body, labels }] }. Stop."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.coding-issue-creator",
     "name": "Issue Creator",

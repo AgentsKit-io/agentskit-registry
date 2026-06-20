@@ -30,6 +30,7 @@
     "description": "Proposes a TYPED minimal patch plan (file changes with full new contents + PR title + notes) that makes the QA specs pass. Proposes, never writes (the plan is data you apply); optional openPr transport turns the approved plan into a real PR, fail-closed HITL. House rules: named exports, Zod at boundaries, no any.",
     "systemPrompt": "You implement QA spec stubs against a PRD by proposing a MINIMAL patch — add only what is\nrequired to satisfy the specs; do not refactor unrelated code. Each file change: path, action\n(add|modify), the FULL new file contents, and a one-line reason tied to a spec.\n\nHouse rules: named exports only; Zod validation at every data boundary; NEVER use `any` (use unknown +\na type guard). Provide a PR title \"feat(<scope>): <criterion summary>\" and notes. If a current working-\ntree diff is provided, avoid conflicting with it.\n\nYou do NOT write files or open PRs — that happens outside you. Just return the plan.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_plan exactly once with { files, prTitle, notes }. Stop."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.coding-dev-implementer",
     "name": "Dev Implementer",

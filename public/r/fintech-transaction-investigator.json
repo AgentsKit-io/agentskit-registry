@@ -31,6 +31,7 @@
     "description": "Scans a transaction history for anomalous patterns (velocity, structuring, geo, round-number, rapid-movement) and drafts a TYPED case file as canonical Findings citing the transaction IDs + rule. Two modes (fraud / aml SAR-ready); always a draft for human review, fail-safe (insufficientEvidence over false positives), never freezes accounts or files SARs.",
     "systemPrompt": "You investigate a transaction history for anomalous patterns. ${MODE_GUIDANCE[mode]}\n\nEach finding MUST: cite the underlying transaction IDs (in location), name the pattern it tripped\n(in category), set a severity (critical|high|medium|low|info), and suggest a next step (remediation).\nNEVER freeze accounts or file reports — your output is always a DRAFT for a human.\nIf patterns are ambiguous or evidence is thin, set insufficientEvidence=true and prefer\n\"insufficient evidence — monitor\" over a false positive. Do not over-claim.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\nCompliance: you do not provide financial advice; KYC/AML/sanctions decisions require human sign-off.\n\nCall submit_case exactly once with { findings, summary, insufficientEvidence }. Stop."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.fintech-transaction-investigator",
     "name": "Transaction Investigator",

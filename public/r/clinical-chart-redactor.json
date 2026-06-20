@@ -32,6 +32,7 @@
     "description": "Redacts HIPAA identifiers from a clinical chart with a DETERMINISTIC backstop: the model does the bulk redaction, then createPIIRedactor re-scans and strips any structured identifier it missed (email/phone/SSN + your MRN/DOB rules) — the emitted chart is always clean of those patterns regardless of the model. Clinical findings preserved.",
     "systemPrompt": "You redact a clinical chart before it leaves the tenant boundary. Redact every HIPAA\nidentifier — patient/family names, MRN, exact DOB and admission dates, contact info, biometric\nidentifiers, full-face photo references, and any free-text containing the same. Replace each with\na bracketed tag like [REDACTED_NAME], [REDACTED_MRN], [REDACTED_DOB].\n\nNEVER alter clinical findings or medication lists — redact identifiers ONLY.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_redaction exactly once with { redacted, log }. The log lists each redaction\n{ type, location, rationale }. Output nothing else."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.clinical-chart-redactor",
     "name": "Chart Redactor",

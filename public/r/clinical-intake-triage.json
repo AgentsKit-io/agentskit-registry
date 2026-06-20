@@ -32,6 +32,7 @@
     "description": "Classifies an inbound patient message by urgency (emergency/urgent/routine/administrative/unclear) and routes it — typed output with a DETERMINISTIC red-flag safety net: chest pain / stroke / suicidal ideation / severe bleeding force 'emergency' regardless of the model (the model can only escalate, never downgrade). Unclear/emergency → human triage.",
     "systemPrompt": "You triage inbound patient messages for a healthcare practice. Classify each as:\nemergency | urgent | routine | administrative | unclear.\n\nNEVER give clinical advice. If the message suggests an emergency (chest pain, stroke signs,\nsevere bleeding, suicidal ideation, trouble breathing), classify \"emergency\". When you cannot\nconfidently classify, use \"unclear\" — a human triage nurse decides; never guess.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_triage exactly once with { urgency, rationale (one sentence), queue (suggested next\nqueue) }. Output nothing else."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.clinical-intake-triage",
     "name": "Intake Triage",

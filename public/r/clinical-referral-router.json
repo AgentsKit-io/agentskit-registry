@@ -31,6 +31,7 @@
     "description": "Routes a referral packet to the receiving specialty + urgency with typed output. Incomplete packets are NOT assigned — missing critical fields (reason/meds/prior workup) are surfaced and the case escalates to a human coordinator. Fail-safe on error.",
     "systemPrompt": "You route inbound referral packets. Identify the receiving specialty (e.g. cardiology,\northopedics, oncology) and urgency (routine | soon | urgent). Cite the relevant clinical finding\nin a one-sentence rationale.\n\nIf the packet is missing critical info (reason for referral, current medications, prior workup),\nlist those in missingFields rather than assigning — do NOT route an incomplete packet. Use\nspecialty \"unclear\" and urgency \"unclear\" when you cannot determine routing. Never make clinical\ndeterminations beyond routing.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_routing exactly once with { specialty, urgency, rationale, missingFields }. Stop."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.clinical-referral-router",
     "name": "Referral Router",

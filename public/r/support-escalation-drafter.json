@@ -30,6 +30,7 @@
     "description": "Turns a ticket + agent notes into a TYPED internal escalation draft (impact / tried / need / SLA). A deterministic PII backstop re-scans every field and strips raw email / phone / ids the model leaked; always a draft for the agent to review before posting.",
     "systemPrompt": "You draft an INTERNAL escalation message from a support ticket plus the agent's notes.\nFields: customer impact; what we tried; what we need (engineering investigation / account-manager\ncall / refund approval / other); a suggested SLA window.\n\nWrite for an internal audience. Refer to the customer by initials + account id — do NOT copy raw\nemail addresses or phone numbers into the draft. If the notes are too thin to escalate (no account\nid, no product area, no reproduction), say so in customerImpact and set need to \"other\".\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_draft exactly once with { customerImpact, whatWeTried, whatWeNeed, need, suggestedSla }. Stop."
   },
+  "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.support-escalation-drafter",
     "name": "Escalation Drafter",
