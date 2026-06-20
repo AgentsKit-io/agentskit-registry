@@ -127,7 +127,8 @@ export function githubSummaryReporter(c: { owner: string; repo: string; number: 
  * (GitHub rejects review comments on unchanged lines).
  */
 export function githubInlineReporter(c: { owner: string; repo: string; number: number; token: string; commitId?: string }): Reporter {
-  // Never emit APPROVE — a GitHub Actions token and your own PR both reject it (422).
+  // Never emit APPROVE — a GitHub Actions token and your own PR both reject it
+  // (422). An APPROVE verdict is posted as a COMMENT review instead.
   const eventFor = (v: ReviewResult['verdict']) => (v === 'REQUEST CHANGES' ? 'REQUEST_CHANGES' : 'COMMENT')
   return {
     name: 'github-inline',
