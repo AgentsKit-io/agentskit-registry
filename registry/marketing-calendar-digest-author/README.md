@@ -1,32 +1,28 @@
 # Calendar Digest Author
 
-Aggregates scheduled social posts for the week and produces a digest summary for Slack. Used by the social-calendar satellite flow.
+Turns the week's scheduled social posts into a **typed digest** + a ready-to-paste Slack markdown block. Delivery is optional and **HITL-gated**.
 
 ```bash
 npx agentskit add marketing-calendar-digest-author
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createCalendarDigestAuthorAgent } from './agents/marketing-calendar-digest-author/agent'
 
-const agent = createCalendarDigestAuthorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createCalendarDigestAuthorAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+  // optional: auto-deliver, gated
+  transport: { send: (md) => slack.post(CHANNEL, md), maxChars: 3000 },
+  approve: (md) => ui.confirm('Post weekly digest?', md),
+}).run(scheduledPosts)
+// → { digest: { weekOf, channels[], totalPosts }, markdown, delivery? }
 ```
 
-Swap the adapter for any provider — no lock-in.
+> The previous version told the model to call `slack.chat.postMessage` but wired no tools. Now the digest text is the product; delivery is real, optional, and gated.
 
-## Capabilities
+- **Typed digest** — `invokeStructured` + zod: per-channel groups (`date / headline / persona`) + total count, plus a `markdown` Slack block. The text is useful with **no** transport.
+- **Honest, gated delivery** — pass `transport` to auto-post; reported delivered only when it returns a real id. Fail-closed: no `approve` + `autoApprove` off ⇒ held back (`delivery.skipped`).
+- Untrusted post list is **fenced**.
 
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(scheduledPosts)` → `DigestResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md).

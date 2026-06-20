@@ -43,18 +43,40 @@ for (const id of ids) {
     return { path: rel, content: readFileSync(p, 'utf8') }
   })
 
-  // Extract the inline skill's systemPrompt so the CLI can run the agent as data
-  // (no code execution). Agents that compose an external skill + tools (e.g.
-  // research/pr-review) have no inline prompt → skill stays null (run unsupported).
-  const agentSrc = readFileSync(join(dir, 'agent.ts'), 'utf8')
-  const m = agentSrc.match(/systemPrompt:\s*`((?:\\.|[^`\\])*)`/)
-  const skill = m
-    ? {
-        name: meta.id,
-        description: meta.description,
-        systemPrompt: m[1].replace(/\\`/g, '`').replace(/\\\$\{/g, '${'),
-      }
-    : null
+  // Extract the inline skill's systemPrompt so the CLI/AKOS can run the agent as
+  // data (no code execution). Scan EVERY copied source file (not just agent.ts) so
+  // a single skill defined in a separate file (e.g. skills.ts) is still found.
+  //
+  // A single systemPrompt → that's the skill. ZERO (composes an external skill +
+  // tools, e.g. research) or MULTIPLE (a multi-stage PIPELINE like code-review /
+  // knowledge-promoter) → skill stays null: a pipeline is not one prompt and must
+  // be consumed via flow decomposition, not run as a single skill.
+  const prompts = files
+    .filter((f) => f.path.endsWith('.ts'))
+    .flatMap((f) => [...f.content.matchAll(/systemPrompt:\s*`((?:\\.|[^`\\])*)`/g)].map((mm) => mm[1]))
+  const skill =
+    prompts.length === 1
+      ? {
+          name: meta.id,
+          description: meta.description,
+          systemPrompt: prompts[0].replace(/\\`/g, '`').replace(/\\\$\{/g, '${'),
+        }
+      : null
+
+  // Optional Tier-B FLOW decomposition (flow.json). A gated/pipeline agent whose
+  // deterministic safety gate lives in code (sanctions fuzzy-gate, PII backstop) can
+  // ship a FlowConfig that decomposes it into tool/condition/agent nodes, so AKOS runs
+  // the gate in its flow engine — not just the extracted skill. Absent ⇒ Tier A
+  // (single skill, run as-is). Validated against AKOS @agentskit/os-core on import.
+  const flowPath = join(dir, 'flow.json')
+  let flow = null
+  if (existsSync(flowPath)) {
+    flow = JSON.parse(readFileSync(flowPath, 'utf8'))
+    for (const key of ['id', 'entry', 'nodes', 'edges']) {
+      if (flow[key] == null) throw new Error(`${id}: flow.json missing required field "${key}"`)
+    }
+    if (!Array.isArray(flow.nodes) || flow.nodes.length === 0) throw new Error(`${id}: flow.json needs a non-empty nodes[]`)
+  }
 
   // A2A AgentCard — makes each agent discoverable/invocable by any A2A system.
   const a2a = {
@@ -74,10 +96,10 @@ for (const id of ids) {
 
   writeFileSync(
     join(outDir, `${id}.json`),
-    JSON.stringify({ ...meta, skill, a2a, sources: files }, null, 2) + '\n',
+    JSON.stringify({ ...meta, skill, flow, a2a, sources: files }, null, 2) + '\n',
   )
   const { files: _f, ...summary } = meta
-  index.push({ ...summary, runnable: skill != null })
+  index.push({ ...summary, runnable: skill != null, decomposable: flow != null })
   full.push({
     id: meta.id,
     title: meta.title,

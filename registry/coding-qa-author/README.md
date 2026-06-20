@@ -1,32 +1,24 @@
 # QA Author
 
-Produces Vitest spec stubs from acceptance criteria so a test skeleton is committed alongside implementation.
+Turns a PRD's acceptance criteria into **typed Vitest spec stubs** — one+ block per criterion, with coverage tracking.
 
 ```bash
 npx agentskit add coding-qa-author
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createQaAuthorAgent } from './agents/coding-qa-author/agent'
 
-const agent = createQaAuthorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createQaAuthorAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+  criteriaCount: 5, // optional — enables uncovered-criteria tracking
+}).run(prdJson)
+// → { specs: [{ path, body, criteria[] }], uncovered[], requiresReview }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed specs** — `invokeStructured` + zod; each spec records which criterion number(s) it covers, so the file can be written verbatim.
+- **Coverage tracking** — supply `criteriaCount` and any criterion with no spec is surfaced in `uncovered`, never silently dropped.
+- Untrusted PRD text is **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(prd)` → `QaResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`coding-prd-author`](../coding-prd-author); feeds [`coding-dev-implementer`](../coding-dev-implementer).

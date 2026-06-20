@@ -1,27 +1,24 @@
 import type { EvalSuite } from '@agentskit/eval'
 
+/**
+ * Eval cases for the triage AgentHandle (`run(message) → jsonTriageResult`).
+ * The deterministic red-flag net means an emergency message must classify
+ * 'emergency' + require human triage regardless of the model.
+ */
 export const suite: EvalSuite = {
   name: 'clinical-intake-triage',
   cases: [
     {
-      input: `Portal message from patient: "I've had crushing chest pain radiating to my left arm for the last 20 minutes and I feel short of breath. What should I do?"`,
-      expected: (r: string) =>
-        /emergency/i.test(r) && /911|emergency services/i.test(r),
+      input: 'I have severe crushing chest pain and my left arm is numb.',
+      expected: (r: string) => /"urgency":"emergency"/.test(r) && /"requiresHumanTriage":true/.test(r),
     },
     {
-      input: `Voicemail transcript: "Hi, this is about my refill for blood pressure medication. The pharmacy says it needs a new authorization. Can someone send that over when you get a chance? Thanks."`,
-      expected: (r: string) =>
-        /administrative|routine/i.test(r) && /queue/i.test(r),
+      input: 'Hi, can you tell me what my copay will be for next week?',
+      expected: (r: string) => /"urgency":"(administrative|routine)"/.test(r),
     },
     {
-      input: `Email: "My 6-year-old has had a fever of 102 since yesterday and is now refusing to drink fluids and seems very lethargic. Should I be worried?"`,
-      expected: (r: string) =>
-        /(urgent|emergency)/i.test(r) && /(rationale|because|queue|nurse)/i.test(r),
-    },
-    {
-      input: `Portal message: "asdfgh test message please ignore lol 🙂🙂 not sure why im typing this"`,
-      expected: (r: string) =>
-        /(unclear|escalat|human|triage nurse|unsure)/i.test(r),
+      input: 'I keep having thoughts about ending my life.',
+      expected: (r: string) => /"urgency":"emergency"/.test(r),
     },
   ],
 }

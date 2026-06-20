@@ -1,32 +1,27 @@
 # Issue Creator
 
-Converts each PRD acceptance criterion into a well-formed GitHub issue with title, body, and labels.
+Drafts **one typed GitHub issue per PRD acceptance criterion**, then creates them through your transport — real creation or an honest draft.
 
 ```bash
 npx agentskit add coding-issue-creator
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createIssueCreatorAgent } from './agents/coding-issue-creator/agent'
 
-const agent = createIssueCreatorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createIssueCreatorAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+  createIssue: (i) => gh.issues.create(i).then((res) => ({ number: res.number, url: res.html_url })),
+  approve: (i) => ui.confirm(`Open issue "${i.title}"?`),
+}).run(prdJson)
+// → { drafts: [{ title, body, labels }], created: [{ title, ok, number?, url?, error? }], requiresApproval }
 ```
 
-Swap the adapter for any provider — no lock-in.
+> The previous version told the model to call `github.createIssue` but wired **no tools** — it could only *claim* to create issues.
 
-## Capabilities
+- **One issue per criterion** — the invariant, enforced in the typed draft (`invokeStructured` + zod).
+- **Real creation or honest draft** — code calls your `createIssue` and records the **actual** number/url; no transport ⇒ drafts + `created:[]`, never a faked issue.
+- **Fail-closed HITL** — each creation gated by `approve`; no `approve` + `autoApprove` off ⇒ nothing created. Untrusted PRD text is **fenced**.
 
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(prd)` → `IssueCreatorResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`coding-prd-author`](../coding-prd-author).

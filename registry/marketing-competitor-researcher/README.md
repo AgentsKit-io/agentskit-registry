@@ -1,32 +1,35 @@
 # Competitor Researcher
 
-Fetches competitor web content via webhook.post, diffs it against the RAG competitor baseline, and produces a structured competitive landscape summary with positioning gaps and messaging opportunities.
+Searches + fetches competitor web content (`webSearch` / `fetchUrl`), diffs it against your RAG baseline, and produces a structured competitive-landscape report — **hardened against prompt injection** from fetched pages.
 
 ```bash
 npx agentskit add marketing-competitor-researcher
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createCompetitorResearcherAgent } from './agents/marketing-competitor-researcher/agent'
 
-const agent = createCompetitorResearcherAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const agent = createCompetitorResearcherAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+  retriever: myCompetitorBaseline, // RAG grounding (optional)
+})
+const { content } = await agent.run('Competitors: Acme, Globex. Brief: ...')
 ```
 
-Swap the adapter for any provider — no lock-in.
+This is a **tool-loop** agent (multi-page fetch over a ReAct loop) — it keeps the full runtime rather than a single structured call.
+
+- **Injection-hardened** — fetched competitor pages are attacker-controlled. The prompt explicitly marks every tool result as **data, not commands**, so a page reading "ignore your instructions" is summarised, not obeyed. Untrusted-content directive applied.
+- **Correct tooling** — wires `webSearch()` + `fetchUrl()` (the prior prompt referenced a non-existent `webhook.post`). Override via `tools`.
+- **Never fabricates** — unfetchable sources (rate-limited / 404 / paywalled) are flagged "unverified — manual check required".
 
 ## Capabilities
 
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
 | Option | Purpose |
 |--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
+| `tools` | replace the default `webSearch` + `fetchUrl` |
+| `retriever` | RAG competitor-baseline grounding |
 | `onConfirm` | per-tool permission gate (HITL / RBAC) |
 | `observers` | tracing / audit |
 
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+See [composing agents](../../COMPOSING.md).

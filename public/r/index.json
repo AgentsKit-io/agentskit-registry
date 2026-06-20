@@ -3,156 +3,234 @@
   "agents": [
     {
       "id": "agency-brief-generator",
-      "title": "Brief Expander",
-      "description": "Drafts creative briefs from client kickoff notes.",
+      "title": "Brief Generator",
+      "description": "Drafts a TYPED creative brief from client kickoff notes (client/product, audience, insight, proposition, mandatories, tone, deliverables, timeline). Pulls facts only from the notes — never invents; gaps become 'to be confirmed' and are listed in toBeConfirmed. Always a draft.",
       "category": "agency",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "agency"
+        "agency",
+        "structured-output",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "agency-copy-reviewer",
       "title": "Copy Reviewer",
-      "description": "Reads draft creative, flags brand-voice misalignment, and suggests rewrites. Routes contentious calls to a human.",
+      "description": "Reads draft creative against a brand-voice guide and returns TYPED misalignments (line, current text, suggested rewrite, rationale) + an overall assessment. Suggests, never imposes (never rewrites the whole piece); contentious brand-intent calls set routeToHuman for the account lead.",
       "category": "agency",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "agency"
+        "agency",
+        "review",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "agency-deck-builder",
       "title": "Deck Builder",
-      "description": "Generates pitch + status deck drafts from project artifacts (brief, KPIs, milestone notes).",
+      "description": "Drafts a TYPED pitch/status deck (typed slides with bullets + citations) from project artifacts. Every number must cite its source artifact — uncited metrics are flagged in uncitedMetrics, missing data becomes 'data to be confirmed'. Configurable sections; always a draft.",
       "category": "agency",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "agency"
+        "agency",
+        "structured-output",
+        "grounding"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "agency-schedule-planner",
       "title": "Schedule Planner",
-      "description": "Plans a multi-channel content calendar from approved drafts.",
+      "description": "Drafts a TYPED multi-channel publish schedule (date/channel/asset/rationale) from approved drafts + channel constraints. Flags conflicts (window collisions, embargoes, frequency-cap breaches) instead of silently dropping items; never schedules jobs itself — always requiresApproval by the account lead.",
       "category": "agency",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "agency"
+        "agency",
+        "scheduling",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "clinical-chart-redactor",
       "title": "Chart Redactor",
-      "description": "Applies the hipaa-strict PII profile (names, MRN, dates of birth, contact details) before any cross-tenant export.",
+      "description": "Redacts HIPAA identifiers from a clinical chart with a DETERMINISTIC backstop: the model does the bulk redaction, then createPIIRedactor re-scans and strips any structured identifier it missed (email/phone/SSN + your MRN/DOB rules) — the emitted chart is always clean of those patterns regardless of the model. Clinical findings preserved.",
       "category": "clinical",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "clinical"
+        "clinical",
+        "hipaa",
+        "pii-redaction",
+        "deterministic-gate",
+        "phi"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "clinical-intake-triage",
       "title": "Intake Triage",
-      "description": "Classifies inbound patient messages by urgency and routes to the right queue.",
+      "description": "Classifies an inbound patient message by urgency (emergency/urgent/routine/administrative/unclear) and routes it — typed output with a DETERMINISTIC red-flag safety net: chest pain / stroke / suicidal ideation / severe bleeding force 'emergency' regardless of the model (the model can only escalate, never downgrade). Unclear/emergency → human triage.",
       "category": "clinical",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "clinical"
+        "clinical",
+        "triage",
+        "classification",
+        "safety-net",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "clinical-note-summariser",
       "title": "SOAP Generator",
-      "description": "Produces SOAP-format summaries from clinician dictation.",
+      "description": "Converts clinician dictation into a TYPED SOAP note (Subjective/Objective/Assessment/Plan) via structured output; preserves facts verbatim, surfaces missing sections instead of inventing them, always a draft for clinician sign-off.",
       "category": "clinical",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "clinical"
+        "clinical",
+        "soap",
+        "summarization",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "clinical-patient-summary",
       "title": "Patient Summary",
-      "description": "Drafts a one-page summary of a patient chart for the next visit.",
+      "description": "Drafts a TYPED one-page pre-visit summary from chart excerpts (reason, active problems, meds, allergies, vitals trend, follow-ups, open questions); never invents values, always a draft for clinician confirmation.",
       "category": "clinical",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "clinical"
+        "clinical",
+        "summarization",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "clinical-referral-router",
       "title": "Referral Router",
-      "description": "Reads inbound referral packets, identifies the receiving specialty, and queues the case for the relevant clinician.",
+      "description": "Routes a referral packet to the receiving specialty + urgency with typed output. Incomplete packets are NOT assigned — missing critical fields (reason/meds/prior workup) are surfaced and the case escalates to a human coordinator. Fail-safe on error.",
       "category": "clinical",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "clinical"
+        "clinical",
+        "routing",
+        "classification",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "code-review",
@@ -192,194 +270,297 @@
           "required": false
         }
       ],
-      "runnable": false
+      "runnable": false,
+      "decomposable": false
     },
     {
       "id": "coding-code-qa",
       "title": "Code QA",
-      "description": "Runs tests, lint, type-check on a branch and summarises the failures.",
+      "description": "Runs the project's test/lint/type-check commands through a caller-injected runner, then turns the REAL captured output into a TYPED failure report (shortest reproducer, message, root cause), grouped by cause. Execution stays in YOUR sandbox (no shell spawned by the agent); reports, never fixes.",
       "category": "coding",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "coding"
+        "coding",
+        "testing",
+        "structured-output"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "coding-dev-implementer",
       "title": "Dev Implementer",
-      "description": "Implements QA specs by generating a typed patch and opening a draft GitHub PR against the target branch.",
+      "description": "Proposes a TYPED minimal patch plan (file changes with full new contents + PR title + notes) that makes the QA specs pass. Proposes, never writes (the plan is data you apply); optional openPr transport turns the approved plan into a real PR, fail-closed HITL. House rules: named exports, Zod at boundaries, no any.",
       "category": "coding",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "coding"
+        "coding",
+        "human-in-the-loop",
+        "structured-output"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "coding-issue-creator",
       "title": "Issue Creator",
-      "description": "Converts each PRD acceptance criterion into a well-formed GitHub issue with title, body, and labels.",
+      "description": "Drafts one TYPED GitHub issue per PRD acceptance criterion, then creates them through a caller-injected createIssue transport. Real creation or honest draft (no transport => drafts + created:[], never a faked number); fail-closed HITL (no approve + autoApprove off => nothing created); reports the real issue number/url.",
       "category": "coding",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "coding"
+        "coding",
+        "human-in-the-loop",
+        "github"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "coding-prd-author",
       "title": "PRD Author",
-      "description": "Transforms free-form product descriptions into structured, acceptance-criteria-driven PRDs ready for engineering hand-off.",
+      "description": "Transforms a free-form product description into a TYPED PRD (problem, users, 3-5 testable acceptance criteria, out-of-scope, open questions). Never invents business logic — anything absent from the input becomes an open question. Always a draft.",
       "category": "coding",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "coding"
+        "coding",
+        "structured-output",
+        "planning"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "coding-qa-author",
       "title": "QA Author",
-      "description": "Produces Vitest spec stubs from acceptance criteria so a test skeleton is committed alongside implementation.",
+      "description": "Turns a PRD's acceptance criteria into TYPED Vitest spec stubs (one+ describe/it block per criterion, each referencing its number). Returns { specs: [{ path, body, criteria }] } and flags uncovered criteria rather than silently dropping coverage.",
       "category": "coding",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "coding"
+        "coding",
+        "structured-output",
+        "testing"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "coding-release-notes-drafter",
       "title": "Release Notes Drafter",
-      "description": "Drafts release notes from the merged PRs since the last tag.",
+      "description": "Turns the list of merged PRs since the last tag into TYPED, grouped release notes (Feature/Fix/Performance/Docs/Internal) + a ready-to-paste markdown block. Every entry cites its PR number; never invents a merge not in the input. Always a draft for the release manager.",
       "category": "coding",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "coding"
+        "coding",
+        "structured-output",
+        "release"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "coding-test-runner",
       "title": "Test Runner",
-      "description": "Parses Vitest stdout/stderr and produces a structured test report with failure details for the code-review agent.",
+      "description": "Parses raw Vitest stdout/stderr into a TYPED test report: totals + per-failure details (test, file, message, one-sentence root-cause hypothesis), grouped by suspected cause. Analyses captured output; does not execute anything itself. Reports only what the output shows, never invents.",
       "category": "coding",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "coding"
+        "coding",
+        "structured-output",
+        "testing"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
-      "id": "fintech-fraud-investigator",
-      "title": "Fraud Investigator",
-      "description": "Surfaces anomalous transaction clusters and drafts case files.",
-      "category": "fintech",
-      "version": "1.0.0",
-      "source": "AKOS",
+      "id": "docs-chat",
+      "title": "Docs Chat",
+      "description": "Provider-agnostic chat over your own docs — grounded RAG answers from retrieved pages, never invented. Retrieved text + user input are treated as untrusted data (prompt-injection defense), never as instructions.",
+      "category": "productivity",
+      "version": "1.1.0",
+      "source": "AgentsKit",
       "license": "MIT",
       "tags": [
-        "fintech"
+        "rag",
+        "docs",
+        "retrieval",
+        "grounded",
+        "chat",
+        "prompt-injection-defense"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/rag",
+        "@agentskit/memory"
       ],
-      "runnable": true
+      "env": [
+        {
+          "name": "OPENROUTER_API_KEY",
+          "description": "Optional — or any provider key your adapter needs. The agent is provider-agnostic; you pass the adapter.",
+          "required": false
+        }
+      ],
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "fintech-kyc-screener",
       "title": "KYC Screener",
-      "description": "Cross-references customer records against sanctions + PEP lists.",
+      "description": "Onboarding KYC screen against sanctions/PEP/adverse-media lists with a DETERMINISTIC fuzzy-match gate: required fields (name/DOB/country) validated up front; strong/exact hits escalate unconditionally (never model-cleared); the model only downgrades weak near-misses. Typed risk verdict + human sign-off.",
       "category": "fintech",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "fintech"
+        "fintech",
+        "compliance",
+        "kyc",
+        "pep",
+        "deterministic-gate",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "fintech-sanctions-screener",
       "title": "Sanctions Screener",
-      "description": "Continuously cross-references customer + counterparty records against OFAC, UN, EU, and locally-loaded sanctions lists.",
+      "description": "Screens a customer/counterparty against a sanctions list with a DETERMINISTIC fuzzy-match gate: strong/exact hits escalate unconditionally (never model-cleared), the model only adjudicates weak near-misses (and can only make screening stricter). Typed verdict + human sign-off.",
       "category": "fintech",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "fintech"
+        "fintech",
+        "compliance",
+        "sanctions",
+        "kyc",
+        "deterministic-gate",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": true
     },
     {
-      "id": "fintech-transaction-monitor",
-      "title": "Transaction Monitor",
-      "description": "Surfaces unusual patterns (velocity spikes, structuring, geo-anomalies) and drafts SAR-ready case files.",
+      "id": "fintech-transaction-investigator",
+      "title": "Transaction Investigator",
+      "description": "Scans a transaction history for anomalous patterns (velocity, structuring, geo, round-number, rapid-movement) and drafts a TYPED case file as canonical Findings citing the transaction IDs + rule. Two modes (fraud / aml SAR-ready); always a draft for human review, fail-safe (insufficientEvidence over false positives), never freezes accounts or files SARs.",
       "category": "fintech",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "fintech"
+        "fintech",
+        "aml",
+        "fraud",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "knowledge-promoter",
@@ -413,225 +594,273 @@
           "required": false
         }
       ],
-      "runnable": false
+      "runnable": false,
+      "decomposable": false
     },
     {
       "id": "legal-case-analyst",
       "title": "Case Analyst",
-      "description": "Extracts parties, dates, claims, and procedural posture from a case file.",
+      "description": "Extracts a TYPED structured analysis from a case file (parties, venue, posture, claims, defenses, key dates, open discovery). Every datum cites its source document + page; gaps are 'not in record' (never inferred); SOL/filing-deadline risks surfaced separately. Always a draft for the attorney.",
       "category": "legal",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "legal"
+        "legal",
+        "structured-output",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "legal-case-summariser",
       "title": "Case Summariser",
-      "description": "Produces matter-level summaries from a set of reviewed documents.",
+      "description": "Produces a TYPED, court-ready matter summary from reviewed documents + reviewer notes. Every factual claim cites the underlying document ID; inconsistent notes are flagged as conflicts (competing positions surfaced) rather than resolved by picking a side. Always a draft for the attorney.",
       "category": "legal",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "legal"
+        "legal",
+        "summarization",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
-    },
-    {
-      "id": "legal-contract-reviewer",
-      "title": "Contract Reviewer",
-      "description": "Reviews uploaded contracts clause-by-clause for risky language.",
-      "category": "legal",
-      "version": "1.0.0",
-      "source": "AKOS",
-      "license": "MIT",
-      "tags": [
-        "legal"
-      ],
-      "packages": [
-        "@agentskit/core",
-        "@agentskit/runtime"
-      ],
-      "runnable": true
-    },
-    {
-      "id": "legal-discovery-reviewer",
-      "title": "Discovery Reviewer",
-      "description": "Reads documents, highlights privileged + responsive material, drafts case notes for human approval.",
-      "category": "legal",
-      "version": "1.0.0",
-      "source": "AKOS",
-      "license": "MIT",
-      "tags": [
-        "legal"
-      ],
-      "packages": [
-        "@agentskit/core",
-        "@agentskit/runtime"
-      ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "legal-doc-drafter",
       "title": "Doc Drafter",
-      "description": "Drafts memos, motions, and client correspondence from approved facts.",
+      "description": "Drafts a legal document (memo / motion / demand-letter / client-update) from an approved fact pattern. Cites every factual claim to its source record; flags every inference inline + in a typed list for attorney verification; ALWAYS a draft (never final, never a signature) ending with open questions for sign-off.",
       "category": "legal",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "legal"
+        "legal",
+        "drafting",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
-      "id": "legal-privilege-spotter",
-      "title": "Privilege Spotter",
-      "description": "Re-checks the discovery output for missed attorney-client / work-product material before release.",
+      "id": "legal-doc-reviewer",
+      "title": "Legal Doc Reviewer",
+      "description": "One configurable legal-review agent (mode: contract | discovery | privilege) that supersedes the separate contract-reviewer, discovery-reviewer, and privilege-spotter. Produces typed findings via structured output; privileged/high findings require attorney review.",
       "category": "legal",
       "version": "1.0.0",
-      "source": "AKOS",
+      "source": "agentskit-registry",
       "license": "MIT",
       "tags": [
-        "legal"
+        "legal",
+        "contract-review",
+        "discovery",
+        "privilege",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "legal-redaction-bot",
       "title": "Redaction Bot",
-      "description": "Applies the legal-strict PII profile — names, account numbers, SSN, medical IDs — before any export.",
+      "description": "Redacts PII from a legal document with a DETERMINISTIC backstop (createPIIRedactor strips any structured identifier the model missed — SSN/email/phone + your gov-ID/account rules), and surfaces privileged spans for attorney review instead of silently redacting them. Output is always clean of the covered patterns.",
       "category": "legal",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "legal"
+        "legal",
+        "pii-redaction",
+        "privilege",
+        "deterministic-gate",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "marketing-brief-analyst",
       "title": "Brief Analyst",
-      "description": "Reads campaign briefs and extracts structured objectives, audience segments, key messages, and success metrics. Anchors all downstream work to brand voice and persona knowledge.",
+      "description": "Reads an incoming campaign brief and produces a TYPED structured brief (objective/audience/key messages/tone/channels/timeline/mandatories) downstream agents reference. Never invents client details; missing required fields listed in gaps (ask, don't guess); optional voice guide flags conflicting language.",
       "category": "marketing",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "marketing"
+        "marketing",
+        "structured-output",
+        "intake"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "marketing-calendar-digest-author",
       "title": "Calendar Digest Author",
-      "description": "Aggregates scheduled social posts for the week and produces a digest summary for Slack. Used by the social-calendar satellite flow.",
+      "description": "Turns the week's scheduled social posts into a TYPED digest (per-channel groups + a ready-to-paste Slack markdown block). Delivery is optional and HITL-gated — reported delivered only when the transport really returned an id; never fakes a post.",
       "category": "marketing",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "marketing"
+        "marketing",
+        "human-in-the-loop",
+        "summarization"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "marketing-competitor-researcher",
       "title": "Competitor Researcher",
-      "description": "Fetches competitor web content via webhook.post, diffs it against the RAG competitor baseline, and produces a structured competitive landscape summary with positioning gaps and messaging opportunities.",
+      "description": "Searches + fetches competitor web content (webSearch / fetchUrl), diffs it against the RAG competitor baseline, and produces a structured competitive-landscape report. Hardened: fetched pages are treated as attacker-controlled data (prompt-injection defense), and unfetchable sources are flagged, never fabricated.",
       "category": "marketing",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "marketing"
+        "marketing",
+        "research",
+        "prompt-injection-defense"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "marketing-copy-author",
       "title": "Copy Author",
-      "description": "Produces three distinct copy variants — bold/challenger, warm/story-led, and precise/evidence-based — from the structured brief and competitive context. Every variant targets a specific persona and channel.",
+      "description": "Produces exactly THREE distinct TYPED copy variants (bold / warm / precise) from a structured brief + competitive context — each with headline/subheadline/body/cta/channel/persona/rationale. Every metric must come from the brief (no invented numbers); over-length bodies flagged, not silently cut.",
       "category": "marketing",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "marketing"
+        "marketing",
+        "structured-output",
+        "copywriting"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "marketing-social-publisher",
       "title": "Social Publisher",
-      "description": "Posts approved copy to Discord and Slack. Formats messages for each platform's conventions and confirms delivery. Runs only after HITL approval.",
+      "description": "Formats one approved copy variant per platform and DELIVERS it through caller-injected transports. Real delivery or honest failure (no faked sends), fail-closed HITL (nothing posts without explicit approval), typed result with the real provider id per platform.",
       "category": "marketing",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "marketing"
+        "marketing",
+        "human-in-the-loop",
+        "delivery"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "research",
       "title": "Research Agent",
-      "description": "Citation-first research agent. Searches the web, reads sources, and answers with every claim anchored to a URL.",
+      "description": "Citation-first research agent. Searches the web, reads sources, and answers with every claim anchored to a URL. Hardened: fetched pages are treated as attacker-controlled data (prompt-injection defense), never as instructions.",
       "category": "research",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "source": "agentskit-registry",
       "license": "MIT",
       "tags": [
         "research",
         "web-search",
         "citations",
-        "rag"
+        "rag",
+        "prompt-injection-defense"
       ],
       "packages": [
         "@agentskit/core",
@@ -646,58 +875,83 @@
           "required": false
         }
       ],
-      "runnable": false
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "support-escalation-drafter",
       "title": "Escalation Drafter",
-      "description": "Drafts an internal escalation summary for engineering / account teams.",
+      "description": "Turns a ticket + agent notes into a TYPED internal escalation draft (impact / tried / need / SLA). A deterministic PII backstop re-scans every field and strips raw email / phone / ids the model leaked; always a draft for the agent to review before posting.",
       "category": "support",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "support"
+        "support",
+        "pii-redaction",
+        "human-in-the-loop"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "support-kb-searcher",
       "title": "KB Searcher",
-      "description": "Searches the knowledge base for the relevant article(s) given a ticket.",
+      "description": "Matches a support ticket to the top knowledge-base articles as TYPED hits with a 1-5 confidence score. Optional retriever grounds answers in YOUR corpus — only retrieved candidates can be cited; never invents an article (returns noMatch + a suggested topic instead).",
       "category": "support",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "support"
+        "support",
+        "rag",
+        "grounding"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     },
     {
       "id": "support-triage-bot",
       "title": "Triage Bot",
-      "description": "Classifies inbound tickets by topic + severity and suggests a queue.",
+      "description": "Classifies an inbound support ticket by topic + severity (P1-P4) + queue with TYPED output, and a deterministic red-flag net that forces P1 on outage / data-loss / security language (the model can only raise severity, never bury a P1).",
       "category": "support",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "AKOS",
       "license": "MIT",
       "tags": [
-        "support"
+        "support",
+        "classification",
+        "safety-net"
       ],
       "packages": [
         "@agentskit/core",
-        "@agentskit/runtime"
+        "@agentskit/runtime",
+        "@agentskit/tools"
       ],
-      "runnable": true
+      "requires": {
+        "zod": "^3",
+        "zod-to-json-schema": "^3"
+      },
+      "runnable": true,
+      "decomposable": false
     }
   ]
 }

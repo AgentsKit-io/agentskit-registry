@@ -127,8 +127,8 @@ export function githubSummaryReporter(c: { owner: string; repo: string; number: 
  * (GitHub rejects review comments on unchanged lines).
  */
 export function githubInlineReporter(c: { owner: string; repo: string; number: number; token: string; commitId?: string }): Reporter {
-  // NB: never emit APPROVE — a GitHub Actions token cannot approve PRs (422). An
-  // APPROVE verdict is posted as a COMMENT review instead.
+  // Never emit APPROVE — a GitHub Actions token and your own PR both reject it
+  // (422). An APPROVE verdict is posted as a COMMENT review instead.
   const eventFor = (v: ReviewResult['verdict']) => (v === 'REQUEST CHANGES' ? 'REQUEST_CHANGES' : 'COMMENT')
   return {
     name: 'github-inline',
@@ -143,12 +143,22 @@ export function githubInlineReporter(c: { owner: string; repo: string; number: n
       const body =
         `## Code review — ${review.verdict}\n\n${review.summary}` +
         (outOfDiff.length ? `\n\n### Findings outside the diff\n${groupBySeverity(outOfDiff)}` : '')
-      await githubPost(c.token, `/repos/${c.owner}/${c.repo}/pulls/${c.number}/reviews`, {
-        event: eventFor(review.verdict),
+      const payload = {
         body,
         ...(c.commitId ? { commit_id: c.commitId } : {}),
         ...(comments.length ? { comments } : {}),
-      })
+      }
+      const path = `/repos/${c.owner}/${c.repo}/pulls/${c.number}/reviews`
+      try {
+        await githubPost(c.token, path, { event: eventFor(review.verdict), ...payload })
+      } catch (e) {
+        // APPROVE / REQUEST_CHANGES are rejected on your OWN PR and for a GitHub
+        // Actions token (422). The verdict is in the body anyway — fall back to a
+        // plain COMMENT review so the findings still post.
+        const msg = e instanceof Error ? e.message : String(e)
+        if (msg.includes('422')) await githubPost(c.token, path, { event: 'COMMENT', ...payload })
+        else throw e
+      }
     },
   }
 }

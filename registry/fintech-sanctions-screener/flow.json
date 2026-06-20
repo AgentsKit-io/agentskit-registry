@@ -1,0 +1,38 @@
+{
+  "id": "fintech-sanctions-screener",
+  "name": "Sanctions Screener (decomposed)",
+  "description": "Tier-B decomposition: deterministic fuzzy gate runs as a flow tool, a threshold condition escalates strong hits to a human unconditionally, and the model only adjudicates weak hits (downgrade-only) on the false branch.",
+  "entry": "screen",
+  "nodes": [
+    {
+      "id": "screen",
+      "kind": "tool",
+      "tool": "fuzzy.matchList",
+      "outputKey": "screen",
+      "input": { "query": "state.input.name", "candidates": "state.input.sanctionsList", "threshold": 0.85 }
+    },
+    {
+      "id": "strong",
+      "kind": "condition",
+      "expression": "state.screen.score >= 0.92"
+    },
+    {
+      "id": "escalate",
+      "kind": "human",
+      "label": "Confirm sanctions escalation",
+      "prompt": "Strong sanctions match (score >= 0.92). Confirm escalation — never auto-clear.",
+      "quorum": 1
+    },
+    {
+      "id": "adjudicate",
+      "kind": "agent",
+      "agent": "fintech-sanctions-screener",
+      "input": { "candidate": "state.screen.matches" }
+    }
+  ],
+  "edges": [
+    { "from": "screen", "to": "strong", "on": "success" },
+    { "from": "strong", "to": "escalate", "on": "true" },
+    { "from": "strong", "to": "adjudicate", "on": "false" }
+  ]
+}

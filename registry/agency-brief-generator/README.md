@@ -1,32 +1,23 @@
-# Brief Expander
+# Brief Generator
 
-Drafts creative briefs from client kickoff notes.
+Drafts a **typed creative brief** from client kickoff notes — pulls facts only from the notes, never invents.
 
 ```bash
 npx agentskit add agency-brief-generator
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createBriefGeneratorAgent } from './agents/agency-brief-generator/agent'
 
-const agent = createBriefGeneratorAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createBriefGeneratorAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+}).run(kickoffNotes)
+// → { brief: { clientAndProduct, audience, keyInsight, singleMindedProposition, mandatories[], tone, deliverables[], timeline }, toBeConfirmed[], requiresReview }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed brief** — `invokeStructured` + zod; every section is an addressable field.
+- **Never invents** — a field without input is set to `"to be confirmed with the client"` and surfaced in `toBeConfirmed` so the team knows what to chase.
+- **Always a draft** — `requiresReview` always true. Untrusted notes are **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(notes)` → `BriefResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Feeds [`agency-deck-builder`](../agency-deck-builder).

@@ -1,32 +1,23 @@
 # Escalation Drafter
 
-Drafts an internal escalation summary for engineering / account teams.
+Turns a ticket + the support agent's notes into a **typed internal escalation draft** — with a deterministic **PII backstop** so customer PII never rides into the internal channel.
 
 ```bash
 npx agentskit add support-escalation-drafter
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createEscalationDrafterAgent } from './agents/support-escalation-drafter/agent'
 
-const agent = createEscalationDrafterAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createEscalationDrafterAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+}).run(ticketAndNotes)
+// → { draft: { customerImpact, whatWeTried, whatWeNeed, need, suggestedSla }, piiStripped, requiresAgentReview }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed draft** — `invokeStructured` + zod; `need` is an enum (`engineering-investigation` | `account-manager-call` | `refund-approval` | `other`).
+- **PII backstop** — `createPIIRedactor` re-scans every drafted field and strips raw email / phone / structured ids the model leaked; `piiStripped` reports the count. Layer your own rules with `extraRules`.
+- **Always a draft** — `requiresAgentReview` is always true; the agent reviews before posting. Untrusted ticket + notes are **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(ticketAndNotes)` → `EscalationResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`support-triage-bot`](../support-triage-bot).

@@ -1,32 +1,23 @@
 # Case Summariser
 
-Produces matter-level summaries from a set of reviewed documents.
+Produces a **typed, court-ready matter summary** from reviewed documents + reviewer notes — every fact cited, conflicts flagged not resolved.
 
 ```bash
 npx agentskit add legal-case-summariser
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createCaseSummariserAgent } from './agents/legal-case-summariser/agent'
 
-const agent = createCaseSummariserAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createCaseSummariserAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+}).run(`${reviewedDocs}\n\n${reviewerNotes}`)
+// → { summary: { partiesAndCounsel, proceduralPosture, keyFacts: [{ fact, citation }], openIssues[] }, conflicts: [{ issue, positions[] }], requiresAttorneyReview }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed + cited** — `invokeStructured` + zod; every key fact cites its underlying document ID.
+- **Flags conflicts** — inconsistent notes are recorded in `conflicts` with the competing positions, never silently resolved by picking a side.
+- **Neutral & always a draft** — no editorialising; `requiresAttorneyReview` always true. Untrusted input is **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(docsAndNotes)` → `CaseSummaryResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Pairs with [`legal-case-analyst`](../legal-case-analyst).
