@@ -1,32 +1,28 @@
 # Dev Implementer
 
-Implements QA specs by generating a typed patch and opening a draft GitHub PR against the target branch.
+Proposes a **typed, minimal patch plan** that makes the QA specs pass — proposes, never writes your working tree.
 
 ```bash
 npx agentskit add coding-dev-implementer
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createDevImplementerAgent } from './agents/coding-dev-implementer/agent'
 
-const agent = createDevImplementerAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createDevImplementerAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+  currentDiff: await git.diff(),         // grounds the plan against working-tree state
+  openPr: (plan) => gh.openPr(plan),     // optional, gated
+  approve: (plan) => ui.confirm(plan.prTitle),
+}).run(`${prdJson}\n\n${qaSpecs}`)
+// → { plan: { files: [{ path, action, contents, reason }], prTitle, notes }, pr?, requiresApproval }
 ```
 
-Swap the adapter for any provider — no lock-in.
+> The previous version told the model to call `git.diff` / `github.createPR` but wired no tools.
 
-## Capabilities
+- **Proposes, never writes** — the plan is data you apply; the agent mutates nothing. Each file change is a **full new file** with a spec-tied reason (`invokeStructured` + zod).
+- **House rules** — named exports, Zod at every boundary, no `any`, minimal diff (no unrelated refactors).
+- **Fail-closed PR** — pass `openPr` to turn the approved plan into a real PR (reports the real url); no `approve` + `autoApprove` off ⇒ nothing opened. Untrusted specs/diff are **fenced**.
 
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(specsAndPrd)` → `DevImplementerResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`coding-qa-author`](../coding-qa-author).

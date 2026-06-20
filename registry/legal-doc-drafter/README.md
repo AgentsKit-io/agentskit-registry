@@ -1,32 +1,24 @@
 # Doc Drafter
 
-Drafts memos, motions, and client correspondence from approved facts.
+Drafts a legal document (memo / motion / demand-letter / client-update) from an approved fact pattern — **every inference flagged, always a draft**.
 
 ```bash
 npx agentskit add legal-doc-drafter
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createDocDrafterAgent } from './agents/legal-doc-drafter/agent'
 
-const agent = createDocDrafterAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createDocDrafterAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+  docType: 'demand-letter', // memo | motion | demand-letter | client-update
+}).run(approvedFactPattern)
+// → { docType, document, inferences: [{ text, basis }], openQuestions[], requiresAttorneyReview }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed output** — `invokeStructured` + zod; configurable `docType`.
+- **Inferences surfaced** — every inference is flagged inline with `[inference]` **and** pulled into `inferences` (with its basis) for attorney verification — no quiet leaps.
+- **Always a draft** — never final, never a signature; ends with `openQuestions` the attorney must resolve before sign-off. Untrusted facts are **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(facts)` → `DocDraftResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`legal-case-analyst`](../legal-case-analyst).

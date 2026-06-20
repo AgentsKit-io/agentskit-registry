@@ -1,32 +1,24 @@
 # Brief Analyst
 
-Reads campaign briefs and extracts structured objectives, audience segments, key messages, and success metrics. Anchors all downstream work to brand voice and persona knowledge.
+The intake step of a campaign studio — reads an incoming brief and produces a **typed structured brief** downstream agents reference.
 
 ```bash
 npx agentskit add marketing-brief-analyst
 ```
 
 ```ts
-import { openai } from '@agentskit/adapters'
+import { anthropic } from '@agentskit/adapters'
 import { createBriefAnalystAgent } from './agents/marketing-brief-analyst/agent'
 
-const agent = createBriefAnalystAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('…')
+const r = await createBriefAnalystAgent({
+  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),
+  voiceGuide,  // optional — flags conflicting brief language
+}).run(incomingBrief)
+// → { brief: { clientProduct, objective, audience, keyMessages[], tone, channels[], timeline, mandatories[], voiceFlags[] }, gaps[], requiresReview }
 ```
 
-Swap the adapter for any provider — no lock-in.
+- **Typed brief** — `invokeStructured` + zod; `objective` is an enum (`awareness | conversion | retention | unspecified`); key messages capped at 3.
+- **Never invents** — missing required fields land in `gaps` to clarify, never guessed.
+- **Voice-aware** — pass `voiceGuide` and brief language conflicting with it is flagged in `voiceFlags`. Untrusted brief text is **fenced**.
 
-## Capabilities
-
-The factory accepts optional config to wire the full runtime — all optional, zero-config still works:
-
-| Option | Purpose |
-|--------|---------|
-| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |
-| `memory` | conversation context / persistence |
-| `retriever` | RAG grounding |
-| `delegates` | sub-agents to delegate to |
-| `onConfirm` | per-tool permission gate (HITL / RBAC) |
-| `observers` | tracing / audit |
-
-See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and multi-agent orchestration.
+`run(brief)` → `BriefAnalysisResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Feeds [`marketing-copy-author`](../marketing-copy-author).
