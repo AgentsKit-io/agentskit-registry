@@ -1,0 +1,452 @@
+---
+const endpoint = import.meta.env.PUBLIC_ASK_ENDPOINT || 'https://ask.agentskit.io/v1/ask?corpus=registry'
+---
+
+<div class="ak-ask" data-endpoint={endpoint}>
+  <button type="button" class="ak-ask-fab" aria-label="Ask Registry" data-ak-open>
+    <svg width="16" height="14" viewBox="0 0 72 64" fill="none" aria-hidden="true">
+      <line x1="12" y1="52" x2="36" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+      <line x1="36" y1="12" x2="60" y2="52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+      <line x1="12" y1="52" x2="60" y2="52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+      <circle cx="36" cy="12" r="6" fill="currentColor"></circle>
+      <circle cx="12" cy="52" r="6" fill="currentColor"></circle>
+      <circle cx="60" cy="52" r="6" fill="currentColor"></circle>
+    </svg>
+    <span>Ask Registry</span>
+  </button>
+
+  <section class="ak-ask-panel" aria-label="Ask Registry" hidden>
+    <header class="ak-ask-head">
+      <div class="ak-ask-title">
+        <svg width="18" height="16" viewBox="0 0 72 64" fill="none" aria-hidden="true">
+          <line x1="12" y1="52" x2="36" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+          <line x1="36" y1="12" x2="60" y2="52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+          <line x1="12" y1="52" x2="60" y2="52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+          <circle cx="36" cy="12" r="6" fill="currentColor"></circle>
+          <circle cx="12" cy="52" r="6" fill="currentColor"></circle>
+          <circle cx="60" cy="52" r="6" fill="currentColor"></circle>
+        </svg>
+        <span>Ask Registry</span>
+      </div>
+      <div class="ak-ask-actions">
+        <button type="button" data-ak-clear>clear</button>
+        <button type="button" aria-label="Close" data-ak-close>x</button>
+      </div>
+    </header>
+
+    <div class="ak-ask-body" data-ak-body>
+      <p class="ak-ask-empty" data-ak-empty>
+        Ask about available AgentsKit registry agents, when to use them, and where their docs or source live.
+      </p>
+    </div>
+
+    <footer class="ak-ask-foot">
+      <form class="ak-ask-compose" data-ak-form>
+        <textarea rows="2" placeholder="Ask about an agent..." data-ak-input></textarea>
+        <button type="submit" data-ak-send>send</button>
+      </form>
+      <div class="ak-ask-links">
+        <a href="/agents">
+          <svg width="12" height="11" viewBox="0 0 72 64" fill="none" aria-hidden="true">
+            <line x1="12" y1="52" x2="36" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+            <line x1="36" y1="12" x2="60" y2="52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+            <line x1="12" y1="52" x2="60" y2="52" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line>
+            <circle cx="36" cy="12" r="6" fill="currentColor"></circle>
+            <circle cx="12" cy="52" r="6" fill="currentColor"></circle>
+            <circle cx="60" cy="52" r="6" fill="currentColor"></circle>
+          </svg>
+          Browse registry agents ->
+        </a>
+      </div>
+    </footer>
+  </section>
+</div>
+
+<style>
+  .ak-ask-fab {
+    --ask-bg: var(--surface);
+    --ask-bg-elevated: var(--surface-2);
+    --ask-bg-input: var(--surface-2);
+    --ask-border: var(--border);
+    --ask-text: var(--text);
+    --ask-muted: var(--muted);
+    --ask-danger: #d1242f;
+    --ask-shadow: var(--shadow);
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 80;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--ask-border);
+    border-radius: 999px;
+    background: var(--ask-bg);
+    color: var(--ask-text);
+    padding: 10px 16px;
+    box-shadow: var(--ask-shadow);
+    font: 700 12px/1 var(--mono);
+    cursor: pointer;
+    transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  }
+  .ak-ask-fab:hover {
+    border-color: var(--accent);
+    box-shadow: var(--ask-shadow), 0 0 28px color-mix(in srgb, var(--accent) 22%, transparent);
+    transform: translateY(-1px);
+  }
+  .ak-ask-panel {
+    --ask-bg: var(--surface);
+    --ask-bg-elevated: var(--surface-2);
+    --ask-bg-input: var(--surface-2);
+    --ask-border: var(--border);
+    --ask-text: var(--text);
+    --ask-muted: var(--muted);
+    --ask-danger: #d1242f;
+    --ask-shadow: var(--shadow);
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 80;
+    display: flex;
+    width: min(440px, calc(100vw - 32px));
+    height: min(620px, calc(100vh - 32px));
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--ask-border);
+    border-radius: 12px;
+    background: var(--ask-bg);
+    color: var(--ask-text);
+    box-shadow: var(--ask-shadow);
+  }
+  .ak-ask-panel[hidden] {
+    display: none;
+  }
+  .ak-ask-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--ask-border);
+    background: linear-gradient(135deg, var(--ask-bg-elevated), var(--ask-bg));
+    padding: 10px 14px;
+  }
+  .ak-ask-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ask-muted);
+    font: 500 12px/1 var(--mono);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .ak-ask-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ak-ask-actions button {
+    border: 0;
+    background: transparent;
+    color: var(--ask-muted);
+    font: 700 10px/1 var(--mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .ak-ask-actions button:hover {
+    color: var(--ask-text);
+  }
+  .ak-ask-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px;
+  }
+  .ak-ask-empty {
+    margin: 0;
+    color: var(--ask-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .ak-ask-message {
+    width: fit-content;
+    max-width: 92%;
+    margin: 0 0 12px;
+    border-radius: 10px;
+    padding: 9px 11px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .ak-ask-message a {
+    color: #77b7ff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .ak-ask-message-user {
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+    background: rgba(88, 166, 255, 0.12);
+    color: var(--ask-text);
+  }
+  .ak-ask-message-assistant {
+    margin-right: auto;
+    background: transparent;
+    color: var(--ask-text);
+  }
+  .ak-ask-error {
+    border: 1px solid rgba(248, 81, 73, 0.45);
+    border-radius: 8px;
+    background: rgba(248, 81, 73, 0.08);
+    color: var(--ask-danger);
+    padding: 8px;
+    font-size: 12px;
+  }
+  .ak-ask-foot {
+    border-top: 1px solid var(--ask-border);
+    padding: 8px;
+  }
+  .ak-ask-compose {
+    display: flex;
+    gap: 8px;
+  }
+  .ak-ask-compose textarea {
+    min-width: 0;
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--ask-border);
+    border-radius: 6px;
+    background: var(--ask-bg-input);
+    color: var(--ask-text);
+    outline: none;
+    padding: 10px;
+    font: 500 12px/1.4 var(--mono);
+  }
+  .ak-ask-compose textarea:focus {
+    border-color: var(--accent);
+  }
+  .ak-ask-compose button {
+    border: 0;
+    border-radius: 6px;
+    background: var(--text);
+    color: var(--bg);
+    padding: 0 13px;
+    font: 700 12px/1 var(--mono);
+    cursor: pointer;
+  }
+  .ak-ask-compose button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  .ak-ask-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 0 4px;
+  }
+  .ak-ask-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ask-muted);
+    font: 500 10px/1.2 var(--mono);
+    text-decoration: none;
+  }
+  .ak-ask-links a:hover {
+    color: #77b7ff;
+  }
+  @media (max-width: 520px) {
+    .ak-ask-panel {
+      right: 8px;
+      bottom: 8px;
+      width: calc(100vw - 16px);
+      height: min(620px, calc(100vh - 16px));
+    }
+    .ak-ask-fab {
+      right: 12px;
+      bottom: 12px;
+    }
+  }
+</style>
+
+<script is:inline>
+  const roots = document.querySelectorAll('.ak-ask')
+
+  const makeId = () => {
+    if ('crypto' in window && 'randomUUID' in window.crypto) return window.crypto.randomUUID()
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  }
+
+  const parseLine = (line) => {
+    const trimmed = line.trim()
+    if (!trimmed) return null
+    const payload = trimmed.startsWith('data:') ? trimmed.slice(5).trim() : trimmed
+    if (!payload || payload === '[DONE]') return null
+    try {
+      const event = JSON.parse(payload)
+      if (event.type === 'error') return { error: event.message || 'The assistant returned an error.' }
+      if (typeof event.delta === 'string') return { text: event.delta }
+      if (typeof event.text === 'string') return { text: event.text }
+      if (event.type === 'tool' && event.name) return { text: `\n[${event.name}]\n` }
+      return null
+    } catch {
+      return { text: payload }
+    }
+  }
+
+  const renderText = (target, text) => {
+    target.textContent = ''
+    const pattern = /\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]+)\)|(https?:\/\/[^\s)]+)/g
+    let cursor = 0
+    for (const match of text.matchAll(pattern)) {
+      const index = match.index || 0
+      if (index > cursor) target.append(document.createTextNode(text.slice(cursor, index)))
+      const link = document.createElement('a')
+      link.href = match[2] || match[3] || ''
+      link.target = '_blank'
+      link.rel = 'noreferrer'
+      link.textContent = match[1] || match[3] || ''
+      target.append(link)
+      cursor = index + match[0].length
+    }
+    if (cursor < text.length) target.append(document.createTextNode(text.slice(cursor)))
+  }
+
+  roots.forEach((root) => {
+    if (root.dataset.ready === 'true') return
+    root.dataset.ready = 'true'
+
+    const endpoint = root.dataset.endpoint || 'https://ask.agentskit.io/v1/ask?corpus=registry'
+    const fab = root.querySelector('[data-ak-open]')
+    const panel = root.querySelector('.ak-ask-panel')
+    const close = root.querySelector('[data-ak-close]')
+    const clear = root.querySelector('[data-ak-clear]')
+    const form = root.querySelector('[data-ak-form]')
+    const input = root.querySelector('[data-ak-input]')
+    const body = root.querySelector('[data-ak-body]')
+    const empty = root.querySelector('[data-ak-empty]')
+    const send = root.querySelector('[data-ak-send]')
+    const storageKey = 'ak:ask-thread:registry'
+    let messages = []
+    let aborter = null
+
+    const appendMessage = (role, text) => {
+      const message = { id: makeId(), role, text }
+      messages.push(message)
+      const item = document.createElement('div')
+      item.className = `ak-ask-message ak-ask-message-${role}`
+      item.dataset.id = message.id
+      renderText(item, text)
+      body.append(item)
+      body.scrollTop = body.scrollHeight
+      if (empty) empty.hidden = true
+      return item
+    }
+
+    const save = () => {
+      try {
+        window.sessionStorage.setItem(storageKey, JSON.stringify(messages.slice(-20)))
+      } catch {
+        // Ignore storage failures.
+      }
+    }
+
+    const restore = () => {
+      try {
+        const raw = window.sessionStorage.getItem(storageKey)
+        messages = raw ? JSON.parse(raw) : []
+        if (!Array.isArray(messages)) messages = []
+      } catch {
+        messages = []
+      }
+      const restored = messages.slice()
+      messages = []
+      restored.forEach((message) => appendMessage(message.role, message.text))
+      save()
+    }
+
+    fab.addEventListener('click', () => {
+      fab.hidden = true
+      panel.hidden = false
+      input.focus()
+    })
+
+    close.addEventListener('click', () => {
+      panel.hidden = true
+      fab.hidden = false
+    })
+
+    clear.addEventListener('click', () => {
+      messages = []
+      body.querySelectorAll('.ak-ask-message,.ak-ask-error').forEach((node) => node.remove())
+      if (empty) empty.hidden = false
+      save()
+    })
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      const question = input.value.trim()
+      if (!question || aborter) return
+      appendMessage('user', question)
+      input.value = ''
+      const assistantEl = appendMessage('assistant', 'Searching the docs...')
+      let answer = ''
+      let buffer = ''
+      aborter = new AbortController()
+      send.textContent = 'stop'
+      save()
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          signal: aborter.signal,
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ messages: messages.map((message) => ({ role: message.role, content: message.text })) }),
+        })
+        if (!res.ok || !res.body) throw new Error(`${res.status} ${res.statusText}`.trim())
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
+        while (true) {
+          const { value, done } = await reader.read()
+          if (done) break
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split(/\r?\n/)
+          buffer = lines.pop() || ''
+          for (const line of lines) {
+            const parsed = parseLine(line)
+            if (!parsed) continue
+            if (parsed.error) throw new Error(parsed.error)
+            if (parsed.text) {
+              answer += parsed.text
+              renderText(assistantEl, answer)
+            }
+          }
+        }
+        const tail = parseLine(buffer)
+        if (tail && tail.text) {
+          answer += tail.text
+          renderText(assistantEl, answer)
+        }
+        messages[messages.length - 1].text = answer
+        save()
+      } catch (caught) {
+        const err = document.createElement('p')
+        err.className = 'ak-ask-error'
+        err.textContent = caught instanceof Error ? caught.message : String(caught)
+        body.append(err)
+      } finally {
+        aborter = null
+        send.textContent = 'send'
+      }
+    })
+
+    send.addEventListener('click', (event) => {
+      if (aborter) {
+        event.preventDefault()
+        aborter.abort()
+      }
+    })
+
+    restore()
+  })
+</script>
