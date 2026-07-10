@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "coding-test-runner",
     "description": "Parses raw Vitest stdout/stderr into a TYPED test report: totals + per-failure details (test, file, message, one-sentence root-cause hypothesis), grouped by suspected cause. Analyses captured output; does not execute anything itself. Reports only what the output shows, never invents.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'coding-test-runner',\n  cases: [\n    {\n      input: `Spec files run: src/cart/total.test.ts. Vitest output:\n FAIL  src/cart/total.test.ts > cartTotal > applies the 10% discount\nAssertionError: expected 90 to be 81\n ❯ src/cart/total.test.ts:23:25\n Test Files  1 failed (1)\n      Tests  1 failed | 4 passed (5)\n   Duration  1.92s\nProduce the structured report.`,\n      expected: (r: string) => /total\\.test\\.ts/i.test(r) && /(rootCause|root cause|cause|hypothes)/i.test(r),\n    },\n    {\n      input: `Spec files run: src/api/users.test.ts, src/api/orders.test.ts. Vitest output:\n Test Files  2 passed (2)\n      Tests  17 passed (17)\n   Duration  3.41s\nProduce the structured report.`,\n      expected: (r: string) => /17/.test(r) && /3\\.41/.test(r) && /(passed|\"passed\")/i.test(r),\n    },\n    {\n      input: `Spec files run: src/parse/date.test.ts. Vitest output:\n FAIL  src/parse/date.test.ts > parseDate > ISO string\nTypeError: Cannot read properties of undefined (reading 'getTime')\n ❯ src/parse/date.test.ts:11:34\n FAIL  src/parse/date.test.ts > parseDate > unix epoch\nTypeError: Cannot read properties of undefined (reading 'getTime')\n ❯ src/parse/date.test.ts:18:34\n      Tests  2 failed | 1 passed (3)\n   Duration  0.88s\nGroup failures by suspected root cause.`,\n      expected: (r: string) => /date\\.test\\.ts/i.test(r) && /(undefined|getTime|TypeError)/i.test(r),\n    },\n    {\n      input: `Spec files run: src/queue/worker.test.ts. The Vitest process was killed before producing any summary line — the output is truncated mid-run with no totals. Produce the report.`,\n      expected: (r: string) => /(incomplete|truncat|no (summary|total)|cannot|killed|unable|missing|escalat)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

@@ -35,6 +35,7 @@
     "skills.ts",
     "README.md"
   ],
+  "status": "validated",
   "skill": null,
   "flow": null,
   "a2a": {
@@ -68,5 +69,6 @@
       "path": "README.md",
       "content": "# Knowledge Promoter Agent\n\nTurns curated **private notes** into **public documentation PRs** — safely.\n\nPipeline: **classify → sanitize → leak-gate → publish (one draft PR).**\n\n- The **sanitizer** (writer) and the **leak auditor** are separate agents in separate\n  runtimes — the writer never grades its own homework.\n- The **leak gate is deterministic**: a regex denylist *plus* the adversarial auditor,\n  both run by orchestration code — never a step the model can skip.\n- It **never merges**. A human reviews the draft PR.\n\nReusable for any \"private notes → public docs\" flow: inject your site map, house style,\ndenylist, and a `publish` function.\n\n```bash\nnpx agentskit add knowledge-promoter\n```\n\n```ts\nimport { anthropic } from '@agentskit/adapters'\nimport { createKnowledgePromoterAgent } from './agents/knowledge-promoter/agent'\n\nconst agent = createKnowledgePromoterAgent({\n  adapter: anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, model: 'claude-opus-4-8' }),\n  siteMapUrl: 'https://docs.example.com/llms.txt',\n  houseStyle: '`# Title` → `## TL;DR (human)` → `## For agents` → `### See also`',\n  denylist: [/\\bACME-\\d+\\b/, /\\binternal-[a-z]+\\b/],\n  publish: async (docs) => {\n    // write each doc into a checkout, then `gh pr create --draft`. Return { pr, url }.\n    return { pr: 123, url: 'https://github.com/org/docs/pull/123' }\n  },\n})\n\nconst { outcomes, pr } = await agent.run([\n  { id: 'n1', title: 'Equalize columns by layout, not text', lesson: '…raw lesson, internal context allowed…' },\n])\n```\n\n## Config\n\n| Field | Required | What |\n|---|---|---|\n| `adapter` | ✓ | Any AgentsKit adapter (anthropic/openai/gemini/…) |\n| `siteMapUrl` | ✓ | Target docs' machine-readable map (e.g. `/llms.txt`) — used to dedup |\n| `houseStyle` | ✓ | Injected verbatim into the sanitizer (frontmatter + section order) |\n| `denylist` | ✓ | `RegExp[]` — the deterministic first leak layer; any hit hard-blocks |\n| `publish` | ✓ | `(docs) => { pr, url }` — opens ONE draft PR. **Never merges.** |\n| `onConfirm` | | Per-tool HITL gate |\n| `memory`, `observers`, `maxSteps` | | Standard runtime options |\n\n## `run(candidates)` → `{ outcomes, pr? }`\n\nEach candidate ends as `promoted` (in the PR), `rejected` (not generalizable / duplicate),\nor `blocked` (leak gate). One batched draft PR per run.\n\n## Safety model\n\nTwo independent leak layers, both must pass: regex denylist **and** a separate auditor\nagent that defaults to *block* when uncertain. The `publish` function should use a token\n**without merge permission**, so the human gate is enforced at the token, not just policy.\n\n## Built on\n\n`@agentskit/runtime` (ReAct + structured tool-call capture), `@agentskit/tools`\n(`defineZodTool`), `@agentskit/adapters`. Skills are plain `SkillDefinition`s in `skills.ts`.\n"
     }
-  ]
+  ],
+  "installable": true
 }

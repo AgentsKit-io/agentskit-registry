@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "agency-copy-reviewer",
     "description": "Reads draft creative against a brand-voice guide and returns TYPED misalignments (line, current text, suggested rewrite, rationale) + an overall assessment. Suggests, never imposes (never rewrites the whole piece); contentious brand-intent calls set routeToHuman for the account lead.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'agency-copy-reviewer',\n  cases: [\n    {\n      input: `Brand voice guide — Client: Solace Skincare. Tone: warm, plain-spoken, science-backed. Banned words: \"miracle\", \"anti-aging\", \"flawless\". Audience: women 30-50 who distrust hype.\nDraft copy to review:\nL1: \"This miracle serum erases wrinkles overnight.\"\nL2: \"Clinically tested on 120 participants over 8 weeks.\"\nL3: \"Get flawless skin or your money back.\"\nReview against the guide.`,\n      expected: (r: string) =>\n        /(miracle|flawless)/i.test(r) && /(rewrite|suggest)/i.test(r) && /(rationale|guide|banned)/i.test(r),\n    },\n    {\n      input: `Brand voice guide — Client: Forge Fitness. Tone: blunt, motivating, no corporate fluff. Vocabulary: short sentences, active voice. Banned: \"synergy\", \"leverage\", \"best-in-class\".\nDraft copy:\nL1: \"Leverage our best-in-class equipment to maximize synergy in your fitness journey.\"\nL2: \"Show up. Lift. Repeat.\"\nFlag misalignments and assess overall.`,\n      expected: (r: string) =>\n        /(leverage|synergy|best-in-class)/i.test(r) && /(assessment|overall)/i.test(r),\n    },\n    {\n      input: `Brand voice guide — Client: Nimbus Cloud, dev-tool brand. Tone: technical, peer-to-peer, never condescending. Audience: senior engineers.\nDraft copy:\nL1: \"Even non-techies can deploy in one click — it's that easy!\"\nL2: \"Ship to production with a single command.\"\nReview the lines against the guide.`,\n      expected: (r: string) =>\n        /(condescend|non-techies|tone)/i.test(r) && /(rewrite|suggest)/i.test(r),\n    },\n    {\n      input: `Please review this draft tagline for our client and tell me if it's on-brand: \"Bold moves, brighter futures.\" We're a consumer energy company. (No brand voice guide attached.)`,\n      expected: (r: string) =>\n        /(brand guide|guide|provide|ask|cannot|can't)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

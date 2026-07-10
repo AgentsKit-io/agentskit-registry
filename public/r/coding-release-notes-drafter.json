@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "coding-release-notes-drafter",
     "description": "Turns the list of merged PRs since the last tag into TYPED, grouped release notes (Feature/Fix/Performance/Docs/Internal) + a ready-to-paste markdown block. Every entry cites its PR number; never invents a merge not in the input. Always a draft for the release manager.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'coding-release-notes-drafter',\n  cases: [\n    {\n      input: `Merged PRs since v2.3.0:\n#412 \"feat(auth): add passkey login\" labels: [feature]\n#418 \"fix(billing): correct proration rounding\" labels: [bug]\n#421 \"perf(search): cache tokenizer results\" labels: [performance]\n#425 \"chore(ci): bump node to 20\" labels: [internal]\nDraft the release notes.`,\n      expected: (r: string) => /feature/i.test(r) && /fix/i.test(r) && /#412/.test(r) && /#418/.test(r),\n    },\n    {\n      input: `Merged PRs since v1.0.4:\n#88 \"docs: rewrite the getting-started guide\" labels: [docs]\n#90 \"fix(api): handle empty pagination cursor\" labels: [bug]\nDraft the release notes grouping by change type.`,\n      expected: (r: string) => /docs/i.test(r) && /fix/i.test(r) && /#88/.test(r) && /#90/.test(r),\n    },\n    {\n      input: `Merged PRs since v5.1.0:\n#1203 \"feat(export): CSV export for reports\" labels: [feature]\n#1205 \"feat(export): XLSX export for reports\" labels: [feature]\n#1210 \"refactor(core): split adapter module\" labels: [internal]\nDraft notes; lead with user-facing changes within each group.`,\n      expected: (r: string) => /feature/i.test(r) && /(internal)/i.test(r) && /#1203/.test(r),\n    },\n    {\n      input: `Draft release notes for v3.0.0. No merged PR list was provided — the input contains only the tag name. Proceed.`,\n      expected: (r: string) => /(no (pr|merge)|empty|cannot|nothing|missing|need|provide|escalat)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

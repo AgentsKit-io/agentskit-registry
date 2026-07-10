@@ -26,6 +26,7 @@
     "README.md",
     "eval.ts"
   ],
+  "status": "validated",
   "skill": {
     "name": "clinical-referral-router",
     "description": "Routes a referral packet to the receiving specialty + urgency with typed output. Incomplete packets are NOT assigned — missing critical fields (reason/meds/prior workup) are surfaced and the case escalates to a human coordinator. Fail-safe on error.",
@@ -63,5 +64,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/** Eval cases for the router AgentHandle (`run(packet) → jsonReferralResult`). */\nexport const suite: EvalSuite = {\n  name: 'clinical-referral-router',\n  cases: [\n    {\n      input: 'Referral: 58M with exertional chest pain, abnormal stress test. Meds: aspirin, atorvastatin. Prior workup: ECG, troponin negative.',\n      expected: (r: string) => /\"specialty\":\"cardiolog/i.test(r) && /\"requiresHumanReview\":false/.test(r),\n    },\n    {\n      input: 'Please see this patient.',\n      expected: (r: string) => /\"requiresHumanReview\":true/.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

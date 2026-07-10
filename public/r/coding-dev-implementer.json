@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "coding-dev-implementer",
     "description": "Proposes a TYPED minimal patch plan (file changes with full new contents + PR title + notes) that makes the QA specs pass. Proposes, never writes (the plan is data you apply); optional openPr transport turns the approved plan into a real PR, fail-closed HITL. House rules: named exports, Zod at boundaries, no any.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'coding-dev-implementer',\n  cases: [\n    {\n      input: `PRD JSON: {\"criteria\":[\"parseAmount(input: string) returns a positive integer of cents or throws on invalid input\"]}. Spec stub:\ndescribe('parseAmount', () => {\n  it('criterion 1: parses \"12.50\" to 1250', () => { expect(parseAmount('12.50')).toBe(1250) })\n  it('criterion 1: throws on \"abc\"', () => { expect(() => parseAmount('abc')).toThrow() })\n})\nTarget branch: main. Implement the production TypeScript and open a draft PR.`,\n      expected: (r: string) => /export\\s+(function|const)\\s+parseAmount/i.test(r) && /(zod|throw|guard)/i.test(r),\n    },\n    {\n      input: `PRD JSON: {\"criteria\":[\"loadConfig() reads env vars APP_PORT and APP_HOST and returns a validated Config object\"]}. Spec stub references loadConfig from '../src/config'. Write a minimal patch with a Zod-validated boundary and a named export, then call github.createPR.`,\n      expected: (r: string) => /export\\s+(function|const)\\s+loadConfig/i.test(r) && /z\\.(object|string|number)/i.test(r),\n    },\n    {\n      input: `PRD JSON: {\"criteria\":[\"normalizeEvent(raw: unknown) narrows the incoming webhook payload to a typed AnalyticsEvent\"]}. The payload shape is unknown at the boundary. Implement it without using any.`,\n      expected: (r: string) => /unknown/i.test(r) && !/:\\s*any\\b/.test(r) && /export/i.test(r),\n    },\n    {\n      input: `PRD JSON: {\"criteria\":[\"the checkout flow should be faster\"]}. There is no spec stub provided and the criterion has no testable assertion. Implement.`,\n      expected: (r: string) => /(no spec|missing|ambiguous|cannot|not testable|need|clarif|escalat|unable)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

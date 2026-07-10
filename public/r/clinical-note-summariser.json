@@ -26,6 +26,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "clinical-note-summariser",
     "description": "Converts clinician dictation into a TYPED SOAP note (Subjective/Objective/Assessment/Plan) via structured output; preserves facts verbatim, surfaces missing sections instead of inventing them, always a draft for clinician sign-off.",
@@ -63,5 +64,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/** Eval cases for the SOAP AgentHandle (`run(dictation) → jsonNoteResult`). */\nexport const suite: EvalSuite = {\n  name: 'clinical-note-summariser',\n  cases: [\n    {\n      input: 'Patient reports productive cough x3 days. Temp 38.1, lungs clear. Likely viral URI. Plan: rest, fluids, recheck if worse.',\n      expected: (r: string) => /\"assessment\":/.test(r) && /\"plan\":/.test(r) && /\"requiresClinicianSignoff\":true/.test(r),\n    },\n    {\n      input: 'Patient says knee hurts after running.',\n      expected: (r: string) => /\"missingFields\":\\[/.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

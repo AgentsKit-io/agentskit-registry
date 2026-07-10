@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "coding-code-qa",
     "description": "Runs the project's test/lint/type-check commands through a caller-injected runner, then turns the REAL captured output into a TYPED failure report (shortest reproducer, message, root cause), grouped by cause. Execution stays in YOUR sandbox (no shell spawned by the agent); reports, never fixes.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'coding-code-qa',\n  cases: [\n    {\n      input: `Branch: feat/payment-retry. Commands: \\`pnpm test\\`, \\`pnpm lint\\`, \\`pnpm typecheck\\`. The test run produced:\nFAIL src/payment/retry.test.ts > retries on 503\n  AssertionError: expected 2 to equal 3\n    at src/payment/retry.test.ts:42:18\nFAIL src/payment/retry.test.ts > backoff doubles each attempt\n  AssertionError: expected 200 to equal 400\n    at src/payment/retry.test.ts:58:20\nRun all three commands and summarise the failures.`,\n      expected: (r: string) => /retry\\.test\\.ts/i.test(r) && /(root cause|likely|because|cause)/i.test(r),\n    },\n    {\n      input: `Branch: chore/upgrade-zod. Commands: \\`pnpm typecheck\\`, \\`pnpm test\\`. typecheck output:\nsrc/schema/user.ts:12:5 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'ZodString'.\nsrc/schema/user.ts:19:5 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'ZodNumber'.\nGroup failures by likely root cause and give the shortest reproducer for each.`,\n      expected: (r: string) => /user\\.ts/i.test(r) && /(zod|TS2345|type)/i.test(r),\n    },\n    {\n      input: `Branch: main. Commands: \\`pnpm test\\` (took 41s), \\`pnpm lint\\` (took 6s), \\`pnpm typecheck\\` (took 18s). All commands exited 0 with zero failures. Report the result.`,\n      expected: (r: string) => /all green/i.test(r) && /41s|41 s|41 second/i.test(r),\n    },\n    {\n      input: `Branch: feat/search-index. You are asked to run QA but no test/lint/type-check commands were provided and the package.json scripts section is empty. Proceed.`,\n      expected: (r: string) => /(no (test|command)|missing|cannot|not provided|unable|escalat|need)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

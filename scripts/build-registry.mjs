@@ -13,10 +13,19 @@ import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const registryDir = join(root, 'registry')
+const catalogDir = join(root, 'catalog')
 const outDir = join(root, 'public', 'r')
 const REQUIRED = ['id', 'title', 'description', 'category', 'packages', 'files']
 
 mkdirSync(outDir, { recursive: true })
+
+/** @type {{ schemaVersion: number, agents: object[] } | null} */
+let catalogManifest = null
+try {
+  catalogManifest = JSON.parse(readFileSync(join(catalogDir, 'manifest.json'), 'utf8'))
+} catch {
+  console.warn('catalog/manifest.json not found — run npm run catalog:generate')
+}
 
 const ids = readdirSync(registryDir, { withFileTypes: true })
   .filter((d) => d.isDirectory())
@@ -25,6 +34,7 @@ const ids = readdirSync(registryDir, { withFileTypes: true })
 
 const index = []
 const full = []
+const validatedIds = new Set()
 
 for (const id of ids) {
   const dir = join(registryDir, id)
@@ -94,28 +104,99 @@ for (const id of ids) {
     ],
   }
 
-  writeFileSync(
-    join(outDir, `${id}.json`),
-    JSON.stringify({ ...meta, skill, flow, a2a, sources: files }, null, 2) + '\n',
-  )
+  const status = meta.status ?? 'validated'
+  const bundle = { ...meta, status, skill, flow, a2a, sources: files }
   const { files: _f, ...summary } = meta
-  index.push({ ...summary, runnable: skill != null, decomposable: flow != null })
+
+  if (status === 'draft') {
+    // Draft implementations are browsable but not installable until promoted.
+    writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...bundle, installable: false }, null, 2) + '\n')
+    continue
+  }
+
+  writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...bundle, installable: true }, null, 2) + '\n')
+  validatedIds.add(id)
+  index.push({ ...summary, status, runnable: skill != null, decomposable: flow != null, installable: true })
   full.push({
     id: meta.id,
     title: meta.title,
     description: meta.description,
     category: meta.category,
     packages: meta.packages,
+    status,
     systemPrompt: skill?.systemPrompt ?? null,
   })
 }
 
-writeFileSync(join(outDir, 'index.json'), JSON.stringify({ schemaVersion: 1, agents: index }, null, 2) + '\n')
+// Merge catalog manifest: roadmap entries + validated overrides from registry/
+const catalogAgents = []
+if (catalogManifest?.agents) {
+  for (const entry of catalogManifest.agents) {
+    const shipped = index.find((a) => a.id === entry.id)
+    catalogAgents.push(
+      shipped
+        ? { ...entry, ...shipped, status: 'validated', installable: true, implemented: true }
+        : { ...entry, status: entry.status ?? 'draft', installable: false, implemented: false },
+    )
+  }
+  // Registry agents not listed in catalog (legacy) — still show as validated
+  for (const a of index) {
+    if (!catalogAgents.some((c) => c.id === a.id)) {
+      catalogAgents.push({ ...a, implemented: true })
+    }
+  }
+  catalogAgents.sort((a, b) => a.id.localeCompare(b.id))
+}
+
+let stacks = []
+try {
+  stacks = JSON.parse(readFileSync(join(catalogDir, 'stacks.json'), 'utf8')).stacks ?? []
+} catch { /* optional */ }
+
+writeFileSync(
+  join(outDir, 'index.json'),
+  JSON.stringify(
+    {
+      schemaVersion: 1,
+      installableOnly: true,
+      agents: index,
+      stats: {
+        validated: index.length,
+        catalogTotal: catalogAgents.length,
+        draft: catalogAgents.filter((a) => a.status === 'draft').length,
+      },
+    },
+    null,
+    2,
+  ) + '\n',
+)
+
+if (catalogAgents.length) {
+  writeFileSync(
+    join(outDir, 'catalog.json'),
+    JSON.stringify(
+      {
+        schemaVersion: 1,
+        generatedAt: catalogManifest?.generatedAt ?? null,
+        stats: {
+          total: catalogAgents.length,
+          validated: catalogAgents.filter((a) => a.status === 'validated').length,
+          draft: catalogAgents.filter((a) => a.status === 'draft').length,
+          categories: [...new Set(catalogAgents.map((a) => a.category))].sort(),
+        },
+        stacks,
+        agents: catalogAgents,
+      },
+      null,
+      2,
+    ) + '\n',
+  )
+}
 
 // Prune orphaned per-agent bundles (agent removed/renamed) so the published index
 // never serves a `<id>.json` with no source under registry/ — the failure mode
 // that let stray agent files linger after a rebase.
-const valid = new Set([...ids.map((id) => `${id}.json`), 'index.json'])
+const valid = new Set([...ids.map((id) => `${id}.json`), 'index.json', 'catalog.json'])
 for (const f of readdirSync(outDir)) {
   if (f.endsWith('.json') && !valid.has(f)) {
     rmSync(join(outDir, f))
@@ -150,12 +231,16 @@ try {
   /* no ecosystem.json — skip */
 }
 
+const catalogTotal = catalogAgents.length || index.length
+const draftCount = catalogAgents.filter((a) => a.status === 'draft').length
+
 const llmsHeader =
   `# AgentsKit Registry\n\n` +
   `> Ready-to-use AI agents for AgentsKit. Install with \`npx agentskit add <id>\` — ` +
-  `you own the copied source. ${index.length} agents. Browse them at ` +
-  `https://registry.agentskit.io.\n\n` +
-  `- Machine index (JSON): ${SITE}/r/index.json\n` +
+  `you own the copied source. ${index.length} validated agents (${catalogTotal} in catalog, ${draftCount} draft). ` +
+  `Browse at https://registry.agentskit.io.\n\n` +
+  `- Installable index (JSON): ${SITE}/r/index.json\n` +
+  `- Full catalog (JSON): ${SITE}/r/catalog.json\n` +
   `- Per-agent bundle (JSON): ${SITE}/r/<id>.json\n` +
   `- Per-agent page (HTML): ${SITE}/agents/<id>\n` +
   `- Per-agent markdown: ${SITE}/agents/<id>.md\n` +
@@ -196,4 +281,7 @@ writeFileSync(
     '\n',
 )
 
-console.log(`registry built: ${ids.length} agents → public/r/ + llms.txt, llms-full.txt, robots.txt`)
+console.log(
+  `registry built: ${ids.length} registry folders, ${index.length} validated installable, ` +
+    `${catalogAgents.length} catalog entries → public/r/ + llms.txt`,
+)

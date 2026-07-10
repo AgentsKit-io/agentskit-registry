@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "marketing-brief-analyst",
     "description": "Reads an incoming campaign brief and produces a TYPED structured brief (objective/audience/key messages/tone/channels/timeline/mandatories) downstream agents reference. Never invents client details; missing required fields listed in gaps (ask, don't guess); optional voice guide flags conflicting language.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'marketing-brief-analyst',\n  cases: [\n    {\n      input: `Campaign brief — Client: Lumen, a B2B time-tracking SaaS. Objective: drive conversions to the 14-day trial. Target audience: agency operations managers at 10-50 person creative shops. Key messages: (1) stop chasing timesheets, (2) profitability per client in real time, (3) onboard in under a day. Tone: confident, no jargon. Channels: LinkedIn + email. Timeline: kickoff 2026-07-01, launch 2026-07-15. Mandatory: must include \"Results may vary\" disclaimer; never use the word \"synergy\".`,\n      expected: (r: string) =>\n        /conversion/i.test(r) && /(objective|audience|keyMessages|channels)/i.test(r),\n    },\n    {\n      input: `Brief for Northstar Bank's \"Smart Saver\" launch. Audience: gig-economy workers 22-35 with irregular income. Objective: brand awareness. Key messages: round-up savings, no minimum balance, FDIC insured. Tone: empowering but trustworthy. Channels: Instagram, TikTok. Timeline: Q3 2026. Mandatory legal line: \"Member FDIC\". Brand ban: do not claim \"guaranteed returns\".`,\n      expected: (r: string) =>\n        /awareness/i.test(r) && /(mandator|FDIC|legal)/i.test(r),\n    },\n    {\n      input: `Brief: We want a campaign for our new product. Make it pop and get us lots of customers. Budget is flexible. Go.`,\n      expected: (r: string) =>\n        /(gap|missing|absent|clarif|cannot|unable|insufficient|need more)/i.test(r),\n    },\n    {\n      input: `Brief for Acme CRM retention push. Audience: existing customers on month-to-month plans showing low feature adoption. Objective: retention. Key messages: you're only using 2 of 12 features, book a success call, lock in annual pricing. Tone: edgy, a little aggressive — \"ditch the dinosaur tools or get left behind\". Channels: in-app + email. Timeline: ongoing. Note: brand voice guide says tone must stay supportive and never shame the user.`,\n      expected: (r: string) =>\n        /(voiceFlag|conflict|flag|tone|shame|voice)/i.test(r) && /retention/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

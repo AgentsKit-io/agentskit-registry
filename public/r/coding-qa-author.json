@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "coding-qa-author",
     "description": "Turns a PRD's acceptance criteria into TYPED Vitest spec stubs (one+ describe/it block per criterion, each referencing its number). Returns { specs: [{ path, body, criteria }] } and flags uncovered criteria rather than silently dropping coverage.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'coding-qa-author',\n  cases: [\n    {\n      input: `PRD JSON: {\"criteria\":[\"1. calculateTax(amount, region) returns the correct VAT for 'EU' at 21%\",\"2. calculateTax throws on an unknown region\"]}. The project uses Vitest and names spec files *.test.ts next to the source. Produce the spec stubs.`,\n      expected: (r: string) => /describe\\(/.test(r) && /\\bit\\(/.test(r) && /\\.test\\.ts/i.test(r),\n    },\n    {\n      input: `PRD JSON: {\"criteria\":[\"1. The /health endpoint returns 200 with { status: 'ok' } when the database is reachable\"]}. Produce a Vitest spec stub referencing criterion 1.`,\n      expected: (r: string) => /criterion 1/i.test(r) && /expect\\(/.test(r),\n    },\n    {\n      input: `PRD JSON: {\"criteria\":[\"1. debounce(fn, ms) only invokes fn once after rapid successive calls within the window\"]}. Generate the spec stub; you may use expect.assertions and todo placeholders but no it.skip.`,\n      expected: (r: string) => /describe\\(/.test(r) && !/it\\.skip/.test(r),\n    },\n    {\n      input: `PRD JSON: {\"criteria\":[]}. The acceptance criteria list is empty. Produce the Vitest spec stubs.`,\n      expected: (r: string) => /(no (criteria|criterion)|empty|nothing to|cannot|missing|escalat|need)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

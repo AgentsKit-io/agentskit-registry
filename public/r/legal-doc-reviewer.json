@@ -27,6 +27,7 @@
     "README.md",
     "eval.ts"
   ],
+  "status": "validated",
   "skill": {
     "name": "legal-doc-reviewer",
     "description": "One configurable legal-review agent (mode: contract | discovery | privilege) that supersedes the separate contract-reviewer, discovery-reviewer, and privilege-spotter. Produces typed findings via structured output; privileged/high findings require attorney review.",
@@ -64,5 +65,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/** Eval cases for the reviewer AgentHandle (`run(document) → jsonLegalReviewResult`). */\nexport const suite: EvalSuite = {\n  name: 'legal-doc-reviewer',\n  cases: [\n    {\n      input: 'Vendor shall indemnify Client for any and all losses without limitation. No cap on liability.',\n      expected: (r: string) => /\"findings\":\\[/.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

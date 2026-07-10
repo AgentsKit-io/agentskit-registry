@@ -1,0 +1,64 @@
+{
+  "id": "ecosystem-registry-agent-spec-author",
+  "title": "Registry Agent Spec Author",
+  "description": "Registry Agent Spec Author — typed output agent (draft spec).",
+  "category": "ecosystem",
+  "status": "draft",
+  "version": "0.0.0-draft",
+  "source": "agentskit-registry",
+  "license": "MIT",
+  "tags": [
+    "ecosystem",
+    "registry",
+    "dogfood"
+  ],
+  "packages": [
+    "@agentskit/core",
+    "@agentskit/runtime",
+    "@agentskit/tools"
+  ],
+  "files": [
+    "agent.ts",
+    "README.md"
+  ],
+  "requires": {
+    "zod": "^3",
+    "zod-to-json-schema": "^3"
+  },
+  "ecosystem": true,
+  "skill": {
+    "name": "ecosystem-registry-agent-spec-author",
+    "description": "Registry Agent Spec Author — typed output agent (draft spec).",
+    "systemPrompt": "You are Registry Agent Spec Author. Spec typed: pain, output, gates, zod shape outline\n\nNever invent facts absent from the input — list them in gaps or openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_result exactly once. Stop."
+  },
+  "flow": null,
+  "a2a": {
+    "id": "io.agentskit.registry.ecosystem-registry-agent-spec-author",
+    "name": "Registry Agent Spec Author",
+    "description": "Registry Agent Spec Author — typed output agent (draft spec).",
+    "version": "0.0.0-draft",
+    "homepage": "https://registry.agentskit.io",
+    "skills": [
+      {
+        "name": "ecosystem-registry-agent-spec-author",
+        "description": "Registry Agent Spec Author — typed output agent (draft spec).",
+        "capabilities": {
+          "streaming": true,
+          "cancellation": true,
+          "requiresApproval": false
+        }
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "agent.ts",
+      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * Registry Agent Spec Author — DRAFT scaffold.\n * Pain: New agents need consistent specs before scaffold\n * Output: Spec typed: pain, output, gates, zod shape outline\n * Promote to validated after agent.test.ts + eval.ts pass and curator review.\n */\n\nexport const EcosystemRegistryAgentSpecAuthorOutputSchema = z.object({\n  summary: z.string(),\n  gaps: z.array(z.string()).default([]),\n  openQuestions: z.array(z.string()).default([]),\n})\nexport type EcosystemRegistryAgentSpecAuthorOutput = z.infer<typeof EcosystemRegistryAgentSpecAuthorOutputSchema>\n\nexport interface EcosystemRegistryAgentSpecAuthorAgentConfig {\n  adapter: AdapterFactory\n  tools?: ToolDefinition[]\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\nconst skill = {\n  name: 'ecosystem-registry-agent-spec-author',\n  description: 'Registry Agent Spec Author — typed output agent (draft spec).',\n  systemPrompt: `You are Registry Agent Spec Author. Spec typed: pain, output, gates, zod shape outline\n\nNever invent facts absent from the input — list them in gaps or openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_result exactly once. Stop.`,\n  tools: ['submit_result'],\n}\n\nexport function createEcosystemRegistryAgentSpecAuthorAgent(config: EcosystemRegistryAgentSpecAuthorAgentConfig) {\n  const submit = (): ToolDefinition =>\n    defineZodTool({\n      name: 'submit_result',\n      description: 'Submit the typed result. Call exactly once.',\n      schema: EcosystemRegistryAgentSpecAuthorOutputSchema,\n      toJsonSchema: toJson,\n      async execute() { return 'recorded' },\n    }) as ToolDefinition\n\n  async function run(input: string): Promise<EcosystemRegistryAgentSpecAuthorOutput> {\n    if (!input?.trim()) throw new Error('ecosystem-registry-agent-spec-author requires non-empty input')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: input,\n      parse: (a) => EcosystemRegistryAgentSpecAuthorOutputSchema.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    return result\n  }\n\n  return {\n    name: 'ecosystem-registry-agent-spec-author',\n    run,\n    asHandle() {\n      return { name: 'ecosystem-registry-agent-spec-author', run: (task: string) => run(task).then((r) => JSON.stringify(r)) }\n    },\n  }\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# Registry Agent Spec Author\n\n> **Status: draft** — not installable via `npx agentskit add` until validated.\n\n## Pain\n\nNew agents need consistent specs before scaffold\n\n## Output\n\nSpec typed: pain, output, gates, zod shape outline\n\n## Gates\n\n- typed-output\n- never-invent\n- always-draft\n\n## Promote to validated\n\n1. Replace the placeholder Zod schema with the real output contract.\n2. Add `eval.ts` with 5+ regression cases.\n3. Run `npm test && npm run build`.\n4. Set `\"status\": \"validated\"` in `meta.json` and open a PR.\n"
+    }
+  ],
+  "installable": false
+}

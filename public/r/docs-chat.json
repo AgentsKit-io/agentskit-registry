@@ -31,6 +31,7 @@
     "agent.ts",
     "README.md"
   ],
+  "status": "validated",
   "skill": {
     "name": "docs-chat",
     "description": "Provider-agnostic chat over your own docs — grounded RAG answers from retrieved pages, never invented. Retrieved text + user input are treated as untrusted data (prompt-injection defense), never as instructions.",
@@ -64,5 +65,6 @@
       "path": "README.md",
       "content": "# Docs Chat\n\nProvider-agnostic \"chat over your docs\" — grounded RAG answers drawn strictly\nfrom your own documentation. The agent answers only from the pages your\nretriever returns; when something is not covered it says so and points at the\nnearest page instead of inventing an answer.\n\n```bash\nnpx agentskit add docs-chat\n```\n\n## Wire a retriever (RAG)\n\nGround the agent in your docs by passing a `retriever`. The easiest path is\n[`@agentskit/rag`](https://www.npmjs.com/package/@agentskit/rag) over a\n[`@agentskit/memory`](https://www.npmjs.com/package/@agentskit/memory) vector\nstore:\n\n```ts\nimport { createRAG } from '@agentskit/rag'\nimport { lanceMemory } from '@agentskit/memory'\nimport { openrouter } from '@agentskit/adapters'\nimport { createDocsChatAgent } from './agents/docs-chat/agent'\n\n// Index your docs into a vector store, then expose a retriever.\nconst store = lanceMemory({ path: './.docs-index' })\nconst rag = await createRAG({ store, embedder })\n\nconst agent = createDocsChatAgent({\n  adapter: openrouter({ apiKey: process.env.OPENROUTER_API_KEY!, model: 'meta-llama/llama-3.1-8b-instruct:free' }),\n  retriever: rag.retrieve,\n})\n\nconst { content } = await agent.run('How do I configure memory?')\n```\n\n## Bring your own adapter\n\nThe agent is provider-agnostic — pass any AgentsKit adapter. Use a free\nOpenRouter model to start, or swap in OpenAI, Anthropic, Gemini, Ollama, etc.\nwith zero code changes:\n\n```ts\nimport { openai } from '@agentskit/adapters'\nconst agent = createDocsChatAgent({\n  adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }),\n  retriever: rag.retrieve,\n})\n```\n\n> Grounding quality scales with model quality: a stronger model follows the\n> \"answer only from context\" instruction more reliably and writes tighter,\n> better-cited answers. The retriever decides *what* the model sees; the model\n> decides how faithfully it stays within it.\n\n## Capabilities\n\nThe factory accepts optional config to wire the full runtime — all optional,\nzero-config still works:\n\n| Option | Purpose |\n|--------|---------|\n| `retriever` | RAG grounding — the user's docs (e.g. `createRAG().retrieve`) |\n| `tools` | tools, integrations, or MCP tools (`toolsFromMcpClient`) |\n| `memory` | conversation context / persistence |\n| `delegates` | sub-agents to delegate to |\n| `onConfirm` | per-tool permission gate (HITL / RBAC) |\n| `observers` | tracing / audit |\n| `systemPrompt` | override the default grounded docs-assistant prompt |\n\nSee [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and\nmulti-agent orchestration.\n"
     }
-  ]
+  ],
+  "installable": true
 }

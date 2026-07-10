@@ -27,6 +27,7 @@
     "README.md",
     "eval.ts"
   ],
+  "status": "validated",
   "skill": {
     "name": "clinical-chart-redactor",
     "description": "Redacts HIPAA identifiers from a clinical chart with a DETERMINISTIC backstop: the model does the bulk redaction, then createPIIRedactor re-scans and strips any structured identifier it missed (email/phone/SSN + your MRN/DOB rules) — the emitted chart is always clean of those patterns regardless of the model. Clinical findings preserved.",
@@ -64,5 +65,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/**\n * Eval cases for the redactor's AgentHandle (`run(chartText) → redactedChart`).\n * The deterministic backstop means structured identifiers (email/SSN/phone) must\n * never appear in the output — assert their absence, not the model's phrasing.\n */\nexport const suite: EvalSuite = {\n  name: 'clinical-chart-redactor',\n  cases: [\n    {\n      input: 'Patient John Doe, SSN 123-45-6789, email john@doe.com. Assessment: stable angina, continue aspirin.',\n      // No structured PII may survive; clinical content preserved.\n      expected: (r: string) => !/123-45-6789/.test(r) && !/john@doe\\.com/.test(r) && /angina/i.test(r),\n    },\n    {\n      input: 'Follow-up call to 555-867-5309 scheduled. Plan: titrate metoprolol.',\n      expected: (r: string) => !/555-867-5309/.test(r) && /metoprolol/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

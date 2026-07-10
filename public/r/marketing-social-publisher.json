@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "marketing-social-publisher",
     "description": "Formats one approved copy variant per platform and DELIVERS it through caller-injected transports. Real delivery or honest failure (no faked sends), fail-closed HITL (nothing posts without explicit approval), typed result with the real provider id per platform.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'marketing-social-publisher',\n  cases: [\n    {\n      input: `HITL APPROVED. Publish this variant to Discord and Slack. Variant: { \"headline\": \"Stop chasing timesheets\", \"body\": \"Lumen shows profitability per client in real time. Onboard your agency in under a day.\", \"cta\": \"Start your 14-day trial\", \"ctaUrl\": \"https://lumen.app/trial\" }. Targets: Discord + Slack. Format for each platform and report delivery confirmation.`,\n      expected: (r: string) =>\n        /discord/i.test(r) && /slack/i.test(r) && /(sent|ts|confirm)/i.test(r),\n    },\n    {\n      input: `HITL APPROVED. Post the approved warm variant to Slack only. Variant: { \"headline\": \"Saving shouldn't be hard\", \"body\": \"Round up every purchase. No minimum balance. Member FDIC.\", \"cta\": \"Open your account\", \"ctaUrl\": \"https://northstar.bank/smartsaver\" }. Use Slack mrkdwn with a header block.`,\n      expected: (r: string) =>\n        /slack/i.test(r) && /(header|mrkdwn|\\*)/i.test(r),\n    },\n    {\n      input: `Publish this copy to Discord and Slack now. Variant: { \"headline\": \"New launch is live\", \"body\": \"Check it out.\", \"cta\": \"Learn more\", \"ctaUrl\": \"https://acme.app\" }. NOTE: this copy has NOT been through the HITL approval gate yet.`,\n      expected: (r: string) =>\n        /(not approved|approval|HITL|cannot|hold|gate|require|unapproved)/i.test(r),\n    },\n    {\n      input: `HITL APPROVED. Publish to Discord and Slack. Variant: { \"headline\": \"Q4 pricing update\", \"body\": \"Lock in annual pricing before rates change.\", \"cta\": \"See pricing\", \"ctaUrl\": \"https://acme.app/pricing\" }. SIMULATION: the Discord send fails with error \"503 Service Unavailable\" while the Slack send succeeds. Report results — do not auto-retry.`,\n      expected: (r: string) =>\n        /discord/i.test(r) && /(error|503|fail)/i.test(r) && /slack/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "legal-doc-drafter",
     "description": "Drafts a legal document (memo / motion / demand-letter / client-update) from an approved fact pattern. Cites every factual claim to its source record; flags every inference inline + in a typed list for attorney verification; ALWAYS a draft (never final, never a signature) ending with open questions for sign-off.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'legal-doc-drafter',\n  cases: [\n    {\n      input: `Draft a demand letter. Approved fact pattern (case-analyst record CA-021): Our client Maple Goods Inc. delivered $120,000 of inventory to Riverside Retail LLC on 2023-04-12 (CA-021 §3). Riverside accepted delivery (CA-021 §4) but has not paid despite an invoice due 2023-05-12 (CA-021 §5). Target document: demand letter to Riverside Retail demanding payment within 14 days.`,\n      expected: (r: string) =>\n        /(maple goods|riverside)/i.test(r) && /(\\$120,?000|demand|payment)/i.test(r) && /(draft)/i.test(r),\n    },\n    {\n      input: `Draft an internal memo from this approved fact pattern (record CA-055). Established facts: the contract was signed 2022-03-01 (CA-055 §2). It is likely, though not confirmed in the record, that the parties also agreed orally to a 30-day cure period. Draft the memo and clearly distinguish established facts from anything you infer.`,\n      expected: (r: string) =>\n        /\\[inference\\]/i.test(r) && /(CA-055|2022-03-01)/i.test(r),\n    },\n    {\n      input: `Draft a motion for extension of time based on approved record CA-077: the current fact-discovery deadline is 2024-10-15 (CA-077 §6); a key witness, Dr. Alan Reese, is unavailable until 2024-12-01 due to surgery (CA-077 §7). End with the open questions the attorney must resolve before sign-off.`,\n      expected: (r: string) =>\n        /(open question|before sign-?off|attorney must)/i.test(r) && /(CA-077|2024-10-15|2024-12-01|Reese)/i.test(r),\n    },\n    {\n      input: `Draft a client update letter, but the only instruction provided is \"tell the client it went well.\" No approved case-analyst record, no document type details, and no underlying facts have been provided. Proceed.`,\n      expected: (r: string) =>\n        /(open question|missing|not provided|no (approved|record|fact)|cannot|insufficient|need|attorney|escalat)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

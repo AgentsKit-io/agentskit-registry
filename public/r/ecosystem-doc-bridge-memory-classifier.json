@@ -1,0 +1,64 @@
+{
+  "id": "ecosystem-doc-bridge-memory-classifier",
+  "title": "Doc-bridge Memory Classifier",
+  "description": "Doc-bridge Memory Classifier — typed output agent (draft spec).",
+  "category": "ecosystem",
+  "status": "draft",
+  "version": "0.0.0-draft",
+  "source": "agentskit-registry",
+  "license": "MIT",
+  "tags": [
+    "ecosystem",
+    "doc-bridge",
+    "dogfood"
+  ],
+  "packages": [
+    "@agentskit/core",
+    "@agentskit/runtime",
+    "@agentskit/tools"
+  ],
+  "files": [
+    "agent.ts",
+    "README.md"
+  ],
+  "requires": {
+    "zod": "^3",
+    "zod-to-json-schema": "^3"
+  },
+  "ecosystem": true,
+  "skill": {
+    "name": "ecosystem-doc-bridge-memory-classifier",
+    "description": "Doc-bridge Memory Classifier — typed output agent (draft spec).",
+    "systemPrompt": "You are Doc-bridge Memory Classifier. Candidates typed: promote/hold/reject + rationale\n\nNever invent facts absent from the input — list them in gaps or openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_result exactly once. Stop."
+  },
+  "flow": null,
+  "a2a": {
+    "id": "io.agentskit.registry.ecosystem-doc-bridge-memory-classifier",
+    "name": "Doc-bridge Memory Classifier",
+    "description": "Doc-bridge Memory Classifier — typed output agent (draft spec).",
+    "version": "0.0.0-draft",
+    "homepage": "https://registry.agentskit.io",
+    "skills": [
+      {
+        "name": "ecosystem-doc-bridge-memory-classifier",
+        "description": "Doc-bridge Memory Classifier — typed output agent (draft spec).",
+        "capabilities": {
+          "streaming": true,
+          "cancellation": true,
+          "requiresApproval": false
+        }
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "agent.ts",
+      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * Doc-bridge Memory Classifier — DRAFT scaffold.\n * Pain: Private notes → memory candidates for doc-bridge\n * Output: Candidates typed: promote/hold/reject + rationale\n * Promote to validated after agent.test.ts + eval.ts pass and curator review.\n */\n\nexport const EcosystemDocBridgeMemoryClassifierOutputSchema = z.object({\n  summary: z.string(),\n  gaps: z.array(z.string()).default([]),\n  openQuestions: z.array(z.string()).default([]),\n})\nexport type EcosystemDocBridgeMemoryClassifierOutput = z.infer<typeof EcosystemDocBridgeMemoryClassifierOutputSchema>\n\nexport interface EcosystemDocBridgeMemoryClassifierAgentConfig {\n  adapter: AdapterFactory\n  tools?: ToolDefinition[]\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\nconst skill = {\n  name: 'ecosystem-doc-bridge-memory-classifier',\n  description: 'Doc-bridge Memory Classifier — typed output agent (draft spec).',\n  systemPrompt: `You are Doc-bridge Memory Classifier. Candidates typed: promote/hold/reject + rationale\n\nNever invent facts absent from the input — list them in gaps or openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_result exactly once. Stop.`,\n  tools: ['submit_result'],\n}\n\nexport function createEcosystemDocBridgeMemoryClassifierAgent(config: EcosystemDocBridgeMemoryClassifierAgentConfig) {\n  const submit = (): ToolDefinition =>\n    defineZodTool({\n      name: 'submit_result',\n      description: 'Submit the typed result. Call exactly once.',\n      schema: EcosystemDocBridgeMemoryClassifierOutputSchema,\n      toJsonSchema: toJson,\n      async execute() { return 'recorded' },\n    }) as ToolDefinition\n\n  async function run(input: string): Promise<EcosystemDocBridgeMemoryClassifierOutput> {\n    if (!input?.trim()) throw new Error('ecosystem-doc-bridge-memory-classifier requires non-empty input')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: input,\n      parse: (a) => EcosystemDocBridgeMemoryClassifierOutputSchema.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    return result\n  }\n\n  return {\n    name: 'ecosystem-doc-bridge-memory-classifier',\n    run,\n    asHandle() {\n      return { name: 'ecosystem-doc-bridge-memory-classifier', run: (task: string) => run(task).then((r) => JSON.stringify(r)) }\n    },\n  }\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# Doc-bridge Memory Classifier\n\n> **Status: draft** — not installable via `npx agentskit add` until validated.\n\n## Pain\n\nPrivate notes → memory candidates for doc-bridge\n\n## Output\n\nCandidates typed: promote/hold/reject + rationale\n\n## Gates\n\n- typed-output\n- never-invent\n- always-draft\n\n## Promote to validated\n\n1. Replace the placeholder Zod schema with the real output contract.\n2. Add `eval.ts` with 5+ regression cases.\n3. Run `npm test && npm run build`.\n4. Set `\"status\": \"validated\"` in `meta.json` and open a PR.\n"
+    }
+  ],
+  "installable": false
+}

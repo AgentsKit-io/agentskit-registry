@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "agency-brief-generator",
     "description": "Drafts a TYPED creative brief from client kickoff notes (client/product, audience, insight, proposition, mandatories, tone, deliverables, timeline). Pulls facts only from the notes — never invents; gaps become 'to be confirmed' and are listed in toBeConfirmed. Always a draft.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'agency-brief-generator',\n  cases: [\n    {\n      input: `Kickoff notes — Client: Lumen Coffee Co. Product: new cold-brew can line \"Lumen Chill\". Audience: urban 22-35 who buy ready-to-drink coffee. They want to feel the brand is \"calm energy, not jittery hustle\". Competitors: Stumptown, La Colombe. Budget: mid. Launch: Q3. Deliverables: social, OOH, 1 hero film. Draft the creative brief.`,\n      expected: (r: string) =>\n        /audience/i.test(r) && /(proposition|single-minded|insight)/i.test(r) && /deliverable/i.test(r),\n    },\n    {\n      input: `Kickoff notes — Client: Meridian Bank. Product: a \"Round-Up Savings\" feature in their app for Gen Z. Insight from research: young customers feel guilty about spending but find budgeting apps preachy. Tone should be supportive, never lecturing. Mandatory: include FDIC disclosure line. Timeline: pitch in 3 weeks. Build the brief.`,\n      expected: (r: string) =>\n        /tone/i.test(r) && /(mandator|FDIC)/i.test(r) && /(timeline|3 weeks|week)/i.test(r),\n    },\n    {\n      input: `Kickoff notes — Client: Halcyon Outdoors. Product: trail-running shoe \"Halcyon Fleet\". Key insight: trail runners distrust shoes marketed by influencers; they trust grip and durability data. Proposition: \"earned on the descent\". Deliverables: print, retail display, athlete content series. Tone: understated, technical, no hype. Draft the brief.`,\n      expected: (r: string) =>\n        /(client|Halcyon)/i.test(r) && /(proposition|earned on the descent)/i.test(r) && /tone/i.test(r),\n    },\n    {\n      input: `Kickoff notes — Client: a fintech startup (name not given yet). They mentioned \"something about a card for freelancers\" on the call but did not share audience, budget, timeline, competitors, or deliverables. Draft whatever brief you can from this.`,\n      expected: (r: string) =>\n        /to be confirmed/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

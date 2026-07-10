@@ -28,6 +28,7 @@
     "README.md",
     "eval.ts"
   ],
+  "status": "validated",
   "skill": {
     "name": "fintech-sanctions-screener",
     "description": "Screens a customer/counterparty against a sanctions list with a DETERMINISTIC fuzzy-match gate: strong/exact hits escalate unconditionally (never model-cleared), the model only adjudicates weak near-misses (and can only make screening stricter). Typed verdict + human sign-off.",
@@ -120,5 +121,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/**\n * Eval cases for the screener's AgentHandle (`run(jsonCandidate) → jsonScreeningResult`).\n * Wire the agent under test with a list containing 'Vladimir Putin' / 'Kim Jong Un'.\n * The deterministic gate means most outcomes don't depend on the model at all.\n */\nexport const suite: EvalSuite = {\n  name: 'fintech-sanctions-screener',\n  cases: [\n    {\n      // Exact name on the list → escalate, sign-off required, never auto-cleared.\n      input: JSON.stringify({ name: 'Vladimir Putin', country: 'RU' }),\n      expected: (r: string) => /\"status\":\"escalate\"/.test(r) && /\"requiresHumanSignoff\":true/.test(r),\n    },\n    {\n      // Unrelated party → clear, no hits.\n      input: JSON.stringify({ name: 'Emily R. Carter', dob: '1994-05-21', country: 'CA' }),\n      expected: (r: string) => /\"status\":\"clear\"/.test(r),\n    },\n    {\n      // Second list member, exact → escalate.\n      input: JSON.stringify({ name: 'Kim Jong Un', country: 'KP' }),\n      expected: (r: string) => /\"status\":\"escalate\"/.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

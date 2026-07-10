@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "agency-deck-builder",
     "description": "Drafts a TYPED pitch/status deck (typed slides with bullets + citations) from project artifacts. Every number must cite its source artifact — uncited metrics are flagged in uncitedMetrics, missing data becomes 'data to be confirmed'. Configurable sections; always a draft.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'agency-deck-builder',\n  cases: [\n    {\n      input: `Build a status deck.\nBrief: Q2 social campaign for Lumen Chill cold-brew.\nKPIs (source: GA4 export): reach 4.2M, CTR 1.8%, sign-ups 12,400.\nMilestone notes: hero film delivered on time; OOH delayed 1 week; UGC contest over-performed (+40% entries vs target).\nUse the standard deck structure.`,\n      expected: (r: string) =>\n        /(cover|context)/i.test(r) && /next steps/i.test(r) && /(4\\.2M|1\\.8%|12,?400)/i.test(r),\n    },\n    {\n      input: `Build a pitch deck.\nBrief: win the Meridian Bank \"Round-Up Savings\" launch account.\nKPIs to highlight (source: our case-study deck): prior fintech client grew app installs 3.1x, CAC down 22%.\nMilestone notes: proposed 6-week sprint, hero concept \"small change, big calm\".\nSlide-by-slide markdown please.`,\n      expected: (r: string) =>\n        /(cover|context)/i.test(r) && /(3\\.1x|22%)/i.test(r) && /(##|slide|---)/i.test(r),\n    },\n    {\n      input: `Status deck for Halcyon Outdoors trail-shoe campaign.\nBrief artifact attached. KPIs (source: retail-sell-through report): sell-through 68%, returns 4%.\nMilestone notes: athlete content series live; print on schedule; \"what to change\" — shift budget from print to athlete content next quarter.\nStandard structure, one idea per slide.`,\n      expected: (r: string) =>\n        /(what worked|what to change)/i.test(r) && /(68%|4%)/i.test(r) && /next steps/i.test(r),\n    },\n    {\n      input: `Build a status deck for the Forge Fitness retainer. Brief: Q3 retention push. Milestone notes say \"engagement felt up and the email thing did well.\" No KPI artifacts or metrics were provided. Put together the deck.`,\n      expected: (r: string) =>\n        /data to be confirmed/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

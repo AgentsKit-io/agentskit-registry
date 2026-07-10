@@ -1,0 +1,475 @@
+#!/usr/bin/env node
+/**
+ * Generates catalog/manifest.json — the full agent roadmap (draft + validated).
+ * Run: node scripts/generate-catalog.mjs
+ */
+import { writeFileSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const DEFAULT_PACKAGES = ['@agentskit/core', '@agentskit/runtime', '@agentskit/tools']
+
+/** @param {string} id @param {string} title @param {object} o */
+function a(id, title, o = {}) {
+  const category = o.category ?? id.split('-')[0]
+  return {
+    id,
+    title,
+    description: o.description ?? `${title} — typed output agent (draft spec).`,
+    category,
+    status: 'draft',
+    pain: o.pain ?? '',
+    output: o.output ?? '',
+    gates: o.gates ?? ['typed-output', 'never-invent', 'always-draft'],
+    tags: o.tags ?? [category],
+    packages: o.packages ?? DEFAULT_PACKAGES,
+    integrations: o.integrations ?? [],
+    locale: o.locale ?? null,
+    ecosystem: o.ecosystem ?? false,
+    priority: o.priority ?? 'normal',
+  }
+}
+
+/** Existing shipped agents — merged at build; listed here for catalog completeness. */
+const VALIDATED_IDS = new Set([
+  'agency-brief-generator', 'agency-copy-reviewer', 'agency-deck-builder', 'agency-schedule-planner',
+  'clinical-chart-redactor', 'clinical-intake-triage', 'clinical-note-summariser', 'clinical-patient-summary',
+  'clinical-referral-router', 'code-review', 'coding-code-qa', 'coding-dev-implementer', 'coding-issue-creator',
+  'coding-prd-author', 'coding-qa-author', 'coding-release-notes-drafter', 'coding-test-runner', 'docs-chat',
+  'fintech-kyc-screener', 'fintech-sanctions-screener', 'fintech-transaction-investigator', 'knowledge-promoter',
+  'legal-case-analyst', 'legal-case-summariser', 'legal-doc-drafter', 'legal-doc-reviewer', 'legal-redaction-bot',
+  'marketing-brief-analyst', 'marketing-calendar-digest-author', 'marketing-competitor-researcher',
+  'marketing-copy-author', 'marketing-social-publisher', 'research', 'support-escalation-drafter',
+  'support-kb-searcher', 'support-triage-bot',
+])
+
+const agents = [
+  // ── CODING (gaps) ──────────────────────────────────────────────────────────
+  a('coding-incident-postmortem', 'Incident Postmortem', { category: 'coding', pain: 'Post-incident chaos', output: 'Timeline + RCA + actions typed', gates: ['cite-sources', 'draft'] }),
+  a('coding-oncall-handoff', 'On-call Handoff', { category: 'coding', pain: 'Shift changes lose context', output: 'Handoff typed: incidents, risks, next steps' }),
+  a('coding-migration-planner', 'Migration Planner', { category: 'coding', pain: 'Risky schema/API migrations', output: 'Steps + rollback + blast radius typed', gates: ['hitl'] }),
+  a('coding-dependency-auditor', 'Dependency Auditor', { category: 'coding', pain: 'CVEs and stale deps', output: 'Findings per package typed', gates: ['cite-lockfile'] }),
+  a('coding-api-contract-reviewer', 'API Contract Reviewer', { category: 'coding', pain: 'Breaking API changes', output: 'Breaking/non-breaking diff typed' }),
+  a('coding-security-scanner-interpreter', 'Security Scanner Interpreter', { category: 'coding', pain: 'SARIF/semgrep noise', output: 'Grouped findings + FP flags typed' }),
+  a('coding-accessibility-auditor', 'Accessibility Auditor', { category: 'coding', pain: 'a11y regressions in PRs', output: 'WCAG findings typed' }),
+  a('coding-performance-interpreter', 'Performance Interpreter', { category: 'coding', pain: 'Lighthouse/bundle reports opaque', output: 'Bottlenecks typed', gates: ['cite-metrics'] }),
+  a('coding-changelog-from-commits', 'Changelog from Commits', { category: 'coding', pain: 'Manual changelogs', output: 'Grouped changelog citing SHAs' }),
+  a('coding-tech-debt-scorer', 'Tech Debt Scorer', { category: 'coding', pain: 'Refactor prioritization', output: 'Scored items: impact/effort/risk' }),
+  a('coding-monorepo-impact', 'Monorepo Impact Analyzer', { category: 'coding', pain: 'Blast radius unknown', output: 'Affected packages typed' }),
+  a('coding-i18n-reviewer', 'i18n Reviewer', { category: 'coding', pain: 'Hardcoded/missing strings', output: 'i18n findings typed' }),
+  a('coding-observability-gap', 'Observability Gap Finder', { category: 'coding', pain: 'Missing metrics/logs', output: 'Gaps per service typed' }),
+  a('coding-runbook-from-incident', 'Runbook from Incident', { category: 'coding', pain: 'Incidents not captured as runbooks', output: 'Runbook draft typed', gates: ['hitl'] }),
+  a('coding-feature-flag-reviewer', 'Feature Flag Reviewer', { category: 'coding', pain: 'Risky flags in PRs', output: 'Risk findings typed' }),
+  a('coding-database-query-reviewer', 'Database Query Reviewer', { category: 'coding', pain: 'N+1 and missing indexes', output: 'SQL findings typed' }),
+  a('coding-license-compliance', 'License Compliance', { category: 'coding', pain: 'Incompatible OSS licenses', output: 'Conflicts typed', gates: ['deterministic-gpl'] }),
+  a('coding-sbom-generator', 'SBOM Generator', { category: 'coding', pain: 'Supply chain audits', output: 'SBOM summary typed' }),
+
+  // ── RESEARCH ───────────────────────────────────────────────────────────────
+  a('research-due-diligence', 'Due Diligence Pack', { category: 'research', pain: 'M&A/vendor DD manual', output: 'DD pack typed claim→URL', gates: ['injection-defense'] }),
+  a('research-regulatory-tracker', 'Regulatory Tracker', { category: 'research', pain: 'Reg changes missed', output: 'Delta report typed + sources' }),
+  a('research-patent-prior-art', 'Patent Prior Art', { category: 'research', pain: 'Prior art search slow', output: 'Results typed + citations' }),
+  a('research-market-sizing', 'Market Sizing', { category: 'research', pain: 'TAM/SAM/SOM guesses', output: 'Sizing typed + explicit assumptions', gates: ['gaps-not-guesses'] }),
+  a('research-vendor-evaluation', 'Vendor Evaluation', { category: 'research', pain: 'Vendor selection subjective', output: 'Scorecard typed + evidence' }),
+  a('research-policy-brief', 'Policy Brief', { category: 'research', pain: 'Policy research scattered', output: 'Neutral brief typed' }),
+  a('research-academic-synthesizer', 'Academic Synthesizer', { category: 'research', pain: 'Paper overload', output: 'Claims typed + DOI/URL' }),
+  a('research-grant-proposal-research', 'Grant Proposal Research', { category: 'research', pain: 'Grant background slow', output: 'Literature typed' }),
+  a('research-expert-interview-prep', 'Expert Interview Prep', { category: 'research', pain: 'Unprepared interviews', output: 'Question bank typed' }),
+  a('research-competitive-landscape', 'Competitive Landscape', { category: 'research', pain: 'Landscape maps stale', output: 'Players/moves typed + sources' }),
+  a('research-legislative-bill-tracker', 'Legislative Bill Tracker', { category: 'research', pain: 'Bill status tracking', output: 'Status typed + bill ref' }),
+  a('research-industry-benchmark', 'Industry Benchmark', { category: 'research', pain: 'Benchmark hunting', output: 'Metrics typed + source', gates: ['no-invented-stats'] }),
+  a('research-esg-reporter', 'ESG Reporter', { category: 'research', pain: 'ESG disclosure manual', output: 'Report draft typed' }),
+  a('research-news-monitor', 'News Monitor', { category: 'research', pain: 'Topic monitoring', output: 'Digest typed + URLs' }),
+
+  // ── MARKETING ──────────────────────────────────────────────────────────────
+  a('marketing-seo-brief', 'SEO Brief', { category: 'marketing', pain: 'Content without SEO intent', output: 'Keywords/structure typed' }),
+  a('marketing-landing-cro-auditor', 'Landing CRO Auditor', { category: 'marketing', pain: 'LP not converting', output: 'CRO findings typed' }),
+  a('marketing-email-sequence-author', 'Email Sequence Author', { category: 'marketing', pain: 'Drip campaigns manual', output: 'Sequence typed', gates: ['draft'] }),
+  a('marketing-meta-ad-copy', 'Meta Ad Copy', { category: 'marketing', pain: 'Meta ads off-policy', output: '3 variants typed + policy flags' }),
+  a('marketing-google-ad-copy', 'Google Ad Copy', { category: 'marketing', pain: 'RSA writing slow', output: 'RSA variants typed' }),
+  a('marketing-pr-pitch-author', 'PR Pitch Author', { category: 'marketing', pain: 'PR outreach generic', output: 'Pitches per outlet typed' }),
+  a('marketing-webinar-script', 'Webinar Script', { category: 'marketing', pain: 'Webinars unstructured', output: 'Script + timing typed' }),
+  a('marketing-persona-builder', 'Persona Builder', { category: 'marketing', pain: 'Vague personas', output: 'Persona typed from research' }),
+  a('marketing-messaging-hierarchy', 'Messaging Hierarchy', { category: 'marketing', pain: 'Inconsistent messaging', output: 'Hierarchy typed' }),
+  a('marketing-utm-planner', 'UTM Planner', { category: 'marketing', pain: 'UTM chaos', output: 'Campaign map typed' }),
+  a('marketing-brand-compliance', 'Brand Compliance', { category: 'marketing', pain: 'Off-brand copy ships', output: 'Violations vs guide typed' }),
+  a('marketing-attribution-interpreter', 'Attribution Interpreter', { category: 'marketing', pain: 'Attribution reports confusing', output: 'Insights typed', gates: ['cite-data'] }),
+
+  // ── AGENCY ─────────────────────────────────────────────────────────────────
+  a('agency-sow-drafter', 'SOW Drafter', { category: 'agency', pain: 'SOW writing slow', output: 'SOW draft typed', gates: ['draft'] }),
+  a('agency-scope-creep-detector', 'Scope Creep Detector', { category: 'agency', pain: 'Scope creep unnoticed', output: 'Flags vs SOW typed' }),
+  a('agency-client-status-report', 'Client Status Report', { category: 'agency', pain: 'Weekly status manual', output: 'Report typed', gates: ['cite-metrics'] }),
+  a('agency-media-plan-builder', 'Media Plan Builder', { category: 'agency', pain: 'Media plans ad-hoc', output: 'Plan per channel typed' }),
+  a('agency-revision-tracker', 'Revision Tracker', { category: 'agency', pain: 'Revisions lost', output: 'Revision log typed' }),
+  a('agency-production-timeline', 'Production Timeline', { category: 'agency', pain: 'Timelines chaotic', output: 'Timeline typed' }),
+  a('agency-vendor-rfp-scorer', 'Vendor RFP Scorer', { category: 'agency', pain: 'RFP scoring subjective', output: 'Scorecard typed' }),
+  a('agency-creative-qa-checklist', 'Creative QA Checklist', { category: 'agency', pain: 'Creative QA inconsistent', output: 'Checklist pass/fail typed' }),
+
+  // ── SUPPORT ────────────────────────────────────────────────────────────────
+  a('support-macro-suggester', 'Macro Suggester', { category: 'support', pain: 'Repetitive replies', output: 'Macro draft typed', gates: ['draft'] }),
+  a('support-refund-evaluator', 'Refund Evaluator', { category: 'support', pain: 'Refund decisions inconsistent', output: 'Decision + rationale typed' }),
+  a('support-churn-risk-scorer', 'Churn Risk Scorer', { category: 'support', pain: 'Silent churn', output: 'Risk score typed' }),
+  a('support-bug-repro-guide', 'Bug Repro Guide', { category: 'support', pain: 'Bugs without repro', output: 'Repro steps typed' }),
+  a('support-feature-clusterer', 'Feature Request Clusterer', { category: 'support', pain: 'FRs scattered', output: 'Clusters typed' }),
+  a('support-csat-response-drafter', 'CSAT Response Drafter', { category: 'support', pain: 'Negative CSAT slow', output: 'Response draft typed', gates: ['draft'] }),
+  a('support-onboarding-gap-finder', 'Onboarding Gap Finder', { category: 'support', pain: 'Onboarding failures', output: 'Gaps typed' }),
+  a('support-sla-breach-alerter', 'SLA Breach Alerter', { category: 'support', pain: 'SLA misses late', output: 'Alert typed' }),
+  a('support-multilang-reply-drafter', 'Multilingual Reply Drafter', { category: 'support', pain: 'i18n support slow', output: 'Reply draft typed', gates: ['draft'] }),
+  a('support-health-summary', 'Account Health Summary', { category: 'support', pain: 'Account reviews manual', output: 'Health summary typed' }),
+
+  // ── LEGAL ──────────────────────────────────────────────────────────────────
+  a('legal-nda-reviewer', 'NDA Reviewer', { category: 'legal', pain: 'NDA review bottleneck', output: 'Findings typed', gates: ['hitl', 'draft'] }),
+  a('legal-clause-comparator', 'Clause Comparator', { category: 'legal', pain: 'Clause diffs tedious', output: 'Diff typed' }),
+  a('legal-deposition-prep', 'Deposition Prep', { category: 'legal', pain: 'Depo prep unstructured', output: 'Question bank typed' }),
+  a('legal-exhibit-indexer', 'Exhibit Indexer', { category: 'legal', pain: 'Exhibits disorganized', output: 'Index typed' }),
+  a('legal-legal-hold-notice', 'Legal Hold Notice', { category: 'legal', pain: 'Hold notices manual', output: 'Notice draft typed', gates: ['draft'] }),
+  a('legal-settlement-memo', 'Settlement Memo', { category: 'legal', pain: 'Settlement analysis slow', output: 'Memo typed', gates: ['draft'] }),
+  a('legal-obligation-tracker', 'Obligation Tracker', { category: 'legal', pain: 'Contract obligations missed', output: 'Obligations typed' }),
+  a('legal-jurisdiction-analyzer', 'Jurisdiction Analyzer', { category: 'legal', pain: 'Jurisdiction risk unclear', output: 'Analysis typed' }),
+  a('legal-ediscovery-privilege-log', 'eDiscovery Privilege Log', { category: 'legal', pain: 'Privilege logs manual', output: 'Log typed' }),
+  a('legal-regulatory-filing-drafter', 'Regulatory Filing Drafter', { category: 'legal', pain: 'Filings slow', output: 'Filing typed', gates: ['draft', 'hitl'] }),
+
+  // ── FINTECH ────────────────────────────────────────────────────────────────
+  a('fintech-sar-drafter', 'SAR Drafter', { category: 'fintech', pain: 'SAR writing manual', output: 'SAR draft typed', gates: ['hitl', 'never-files'] }),
+  a('fintech-credit-memo', 'Credit Memo', { category: 'fintech', pain: 'Credit decisions undocumented', output: 'Memo typed', gates: ['draft'] }),
+  a('fintech-invoice-fraud-detector', 'Invoice Fraud Detector', { category: 'fintech', pain: 'Invoice fraud', output: 'Findings typed' }),
+  a('fintech-payment-dispute-investigator', 'Payment Dispute Investigator', { category: 'fintech', pain: 'Chargebacks slow', output: 'Case typed' }),
+  a('fintech-covenant-monitor', 'Covenant Monitor', { category: 'fintech', pain: 'Loan covenant breaches', output: 'Breach flags typed' }),
+  a('fintech-expense-policy-auditor', 'Expense Policy Auditor', { category: 'fintech', pain: 'Expense abuse', output: 'Violations typed' }),
+  a('fintech-portfolio-risk-digest', 'Portfolio Risk Digest', { category: 'fintech', pain: 'Risk reporting manual', output: 'Digest typed' }),
+  a('fintech-tax-form-extractor', 'Tax Form Extractor', { category: 'fintech', pain: 'Tax form data entry', output: 'Fields typed' }),
+  a('fintech-insurance-claim-triage', 'Insurance Claim Triage', { category: 'fintech', pain: 'Claim intake slow', output: 'Triage typed' }),
+  a('fintech-regulatory-change-impact', 'Regulatory Change Impact', { category: 'fintech', pain: 'Reg changes impact unclear', output: 'Impact typed' }),
+
+  // ── CLINICAL ───────────────────────────────────────────────────────────────
+  a('clinical-prior-auth-pack', 'Prior Auth Pack', { category: 'clinical', pain: 'Prior auth paperwork', output: 'Pack draft typed', gates: ['hitl', 'draft', 'never-diagnose'] }),
+  a('clinical-discharge-summary', 'Discharge Summary', { category: 'clinical', pain: 'Discharge docs slow', output: 'Summary typed', gates: ['draft'] }),
+  a('clinical-lab-interpreter', 'Lab Interpreter', { category: 'clinical', pain: 'Lab results hard to scan', output: 'Interpretation typed', gates: ['never-diagnose'] }),
+  a('clinical-billing-code-suggester', 'Billing Code Suggester', { category: 'clinical', pain: 'Coding errors', output: 'ICD/CPT suggestions typed', gates: ['draft'] }),
+  a('clinical-care-plan-author', 'Care Plan Author', { category: 'clinical', pain: 'Care plans manual', output: 'Plan typed', gates: ['hitl', 'draft'] }),
+  a('clinical-telehealth-intake', 'Telehealth Intake', { category: 'clinical', pain: 'Telehealth intake unstructured', output: 'Intake typed', gates: ['triage-net'] }),
+  a('clinical-trial-eligibility', 'Trial Eligibility', { category: 'clinical', pain: 'Trial matching manual', output: 'Eligibility typed' }),
+  a('clinical-adverse-event-reporter', 'Adverse Event Reporter', { category: 'clinical', pain: 'AE reporting slow', output: 'Report draft typed', gates: ['draft'] }),
+  a('clinical-formulary-checker', 'Formulary Checker', { category: 'clinical', pain: 'Coverage unknown', output: 'Coverage typed' }),
+  a('clinical-medication-reconciliation', 'Medication Reconciliation', { category: 'clinical', pain: 'Med rec errors', output: 'Reconciliation typed', gates: ['safety-net'] }),
+
+  // ── OPS ────────────────────────────────────────────────────────────────────
+  a('ops-runbook-author', 'Runbook Author', { category: 'ops', pain: 'Missing runbooks', output: 'Runbook typed', gates: ['draft'] }),
+  a('ops-incident-commander-aide', 'Incident Commander Aide', { category: 'ops', pain: 'IC overload', output: 'Status typed' }),
+  a('ops-access-request-reviewer', 'Access Request Reviewer', { category: 'ops', pain: 'Access grants risky', output: 'Review typed', gates: ['hitl'] }),
+  a('ops-sop-generator', 'SOP Generator', { category: 'ops', pain: 'SOPs manual', output: 'SOP typed', gates: ['draft'] }),
+  a('ops-audit-evidence-collector', 'Audit Evidence Collector', { category: 'ops', pain: 'Audit prep chaotic', output: 'Evidence map typed' }),
+  a('ops-vendor-renewal-tracker', 'Vendor Renewal Tracker', { category: 'ops', pain: 'Renewals missed', output: 'Tracker typed' }),
+  a('ops-meeting-action-extractor', 'Meeting Action Extractor', { category: 'ops', pain: 'Actions lost in meetings', output: 'Actions typed' }),
+  a('ops-compliance-checklist', 'Compliance Checklist', { category: 'ops', pain: 'Compliance ad-hoc', output: 'Checklist typed' }),
+  a('ops-postmortem-action-tracker', 'Postmortem Action Tracker', { category: 'ops', pain: 'PM actions not done', output: 'Tracker typed' }),
+  a('ops-onboarding-checklist', 'Employee Onboarding Checklist', { category: 'ops', pain: 'Onboarding inconsistent', output: 'Checklist typed' }),
+  a('ops-change-request-reviewer', 'Change Request Reviewer', { category: 'ops', pain: 'Change risk unclear', output: 'Review typed' }),
+  a('ops-asset-inventory-reconciler', 'Asset Inventory Reconciler', { category: 'ops', pain: 'Asset drift', output: 'Drift typed' }),
+
+  // ── PRODUCTIVITY ───────────────────────────────────────────────────────────
+  a('productivity-meeting-action-extractor', 'Meeting Action Extractor', { category: 'productivity', pain: 'Meeting notes → actions', output: 'Actions typed' }),
+  a('productivity-email-triage', 'Email Triage', { category: 'productivity', pain: 'Inbox overload', output: 'Classification typed' }),
+  a('productivity-weekly-digest', 'Weekly Digest', { category: 'productivity', pain: 'Weekly review manual', output: 'Digest typed' }),
+  a('productivity-calendar-conflict-resolver', 'Calendar Conflict Resolver', { category: 'productivity', pain: 'Scheduling conflicts', output: 'Options typed', integrations: ['google-calendar'] }),
+
+  // ── SALES ──────────────────────────────────────────────────────────────────
+  a('sales-lead-scorer', 'Lead Scorer', { category: 'sales', pain: 'Lead qual inconsistent', output: 'Score typed' }),
+  a('sales-outbound-sequence-author', 'Outbound Sequence Author', { category: 'sales', pain: 'Cold outreach manual', output: 'Sequence typed', gates: ['draft'] }),
+  a('sales-call-prep-brief', 'Call Prep Brief', { category: 'sales', pain: 'Unprepared calls', output: 'Brief typed', integrations: ['hubspot', 'salesforce'] }),
+  a('sales-call-debrief', 'Call Debrief', { category: 'sales', pain: 'Call notes unstructured', output: 'Debrief typed' }),
+  a('sales-proposal-drafter', 'Proposal Drafter', { category: 'sales', pain: 'Proposals slow', output: 'Proposal typed', gates: ['draft'] }),
+  a('sales-rfp-responder', 'RFP Responder', { category: 'sales', pain: 'RFP responses slow', output: 'Response typed', gates: ['draft'] }),
+  a('sales-objection-handler', 'Objection Handler', { category: 'sales', pain: 'Objections ad-hoc', output: 'Responses typed' }),
+  a('sales-competitor-battlecard', 'Competitor Battlecard', { category: 'sales', pain: 'Battlecards stale', output: 'Card typed' }),
+  a('sales-forecast-interpreter', 'Forecast Interpreter', { category: 'sales', pain: 'Forecast opaque', output: 'Insights typed', gates: ['cite-data'] }),
+  a('sales-pipeline-hygiene', 'Pipeline Hygiene', { category: 'sales', pain: 'Dirty CRM', output: 'Issues typed', integrations: ['hubspot', 'salesforce'] }),
+  a('sales-account-plan-author', 'Account Plan Author', { category: 'sales', pain: 'Account plans manual', output: 'Plan typed' }),
+  a('sales-qbr-deck-builder', 'QBR Deck Builder', { category: 'sales', pain: 'QBR decks slow', output: 'Deck typed', gates: ['draft'] }),
+  a('sales-pricing-calculator-memo', 'Pricing Calculator Memo', { category: 'sales', pain: 'Pricing opaque', output: 'Memo typed' }),
+  a('sales-churn-save-playbook', 'Churn Save Playbook', { category: 'sales', pain: 'Save plays inconsistent', output: 'Playbook typed' }),
+  a('sales-expansion-opportunity', 'Expansion Opportunity', { category: 'sales', pain: 'Upsell missed', output: 'Opportunities typed' }),
+  a('sales-demo-script-author', 'Demo Script Author', { category: 'sales', pain: 'Demos unstructured', output: 'Script typed' }),
+  a('sales-mutual-action-plan', 'Mutual Action Plan', { category: 'sales', pain: 'MAPs manual', output: 'Plan typed' }),
+  a('sales-sow-from-deal', 'SOW from Deal', { category: 'sales', pain: 'SOW from CRM slow', output: 'SOW typed', gates: ['draft'] }),
+  a('sales-handoff-to-cs', 'Sales to CS Handoff', { category: 'sales', pain: 'Sales→CS context loss', output: 'Handoff typed' }),
+  a('sales-territory-planner', 'Territory Planner', { category: 'sales', pain: 'Territory planning', output: 'Plan typed' }),
+  a('sales-email-personalizer', 'Email Personalizer', { category: 'sales', pain: 'Generic outreach', output: 'Emails typed', gates: ['draft'] }),
+  a('sales-win-loss-analyzer', 'Win/Loss Analyzer', { category: 'sales', pain: 'Win/loss insights missing', output: 'Analysis typed' }),
+  a('sales-commission-dispute', 'Commission Dispute', { category: 'sales', pain: 'Commission conflicts', output: 'Resolution typed' }),
+  a('sales-partner-deal-desk', 'Partner Deal Desk', { category: 'sales', pain: 'Partner deals complex', output: 'Review typed' }),
+  a('sales-renewal-risk-scorer', 'Renewal Risk Scorer', { category: 'sales', pain: 'Renewal risk hidden', output: 'Score typed' }),
+
+  // ── HR ─────────────────────────────────────────────────────────────────────
+  a('hr-job-description-author', 'Job Description Author', { category: 'hr', pain: 'JD writing slow', output: 'JD typed', gates: ['draft'] }),
+  a('hr-resume-screener', 'Resume Screener', { category: 'hr', pain: 'Screening bottleneck', output: 'Screen typed', gates: ['hitl'] }),
+  a('hr-interview-question-bank', 'Interview Question Bank', { category: 'hr', pain: 'Inconsistent interviews', output: 'Questions typed' }),
+  a('hr-interview-debrief', 'Interview Debrief', { category: 'hr', pain: 'Debriefs unstructured', output: 'Debrief typed' }),
+  a('hr-offer-letter-drafter', 'Offer Letter Drafter', { category: 'hr', pain: 'Offers manual', output: 'Offer draft typed', gates: ['draft', 'hitl'] }),
+  a('hr-onboarding-plan', 'Onboarding Plan', { category: 'hr', pain: '30/60/90 ad-hoc', output: 'Plan typed' }),
+  a('hr-policy-drafter', 'Policy Drafter', { category: 'hr', pain: 'Policies manual', output: 'Policy draft typed', gates: ['draft'] }),
+  a('hr-employee-handbook-updater', 'Handbook Updater', { category: 'hr', pain: 'Handbook drift', output: 'Updates typed', gates: ['draft'] }),
+  a('hr-performance-review-author', 'Performance Review Author', { category: 'hr', pain: 'Reviews slow', output: 'Review draft typed', gates: ['draft'] }),
+  a('hr-pto-request-evaluator', 'PTO Request Evaluator', { category: 'hr', pain: 'PTO policy inconsistent', output: 'Decision typed' }),
+  a('hr-exit-interview-synthesizer', 'Exit Interview Synthesizer', { category: 'hr', pain: 'Exit insights lost', output: 'Insights typed' }),
+  a('hr-compensation-benchmark', 'Compensation Benchmark', { category: 'hr', pain: 'Comp research slow', output: 'Benchmark typed', gates: ['cite-sources'] }),
+  a('hr-org-chart-analyzer', 'Org Chart Analyzer', { category: 'hr', pain: 'Span of control unclear', output: 'Analysis typed' }),
+  a('hr-skills-gap-analyzer', 'Skills Gap Analyzer', { category: 'hr', pain: 'L&D misaligned', output: 'Gaps typed' }),
+  a('hr-learning-path-builder', 'Learning Path Builder', { category: 'hr', pain: 'Learning paths manual', output: 'Path typed' }),
+  a('hr-benefits-faq-bot', 'Benefits FAQ', { category: 'hr', pain: 'Benefits questions repetitive', output: 'Answer typed', gates: ['grounded-only'] }),
+  a('hr-compliance-checklist', 'HR Compliance Checklist', { category: 'hr', pain: 'Labor compliance ad-hoc', output: 'Checklist typed' }),
+  a('hr-visa-sponsorship-evaluator', 'Visa Sponsorship Evaluator', { category: 'hr', pain: 'Visa eligibility unclear', output: 'Eligibility typed' }),
+  a('hr-internal-mobility-matcher', 'Internal Mobility Matcher', { category: 'hr', pain: 'Internal roles missed', output: 'Matches typed' }),
+  a('hr-culture-survey-analyzer', 'Culture Survey Analyzer', { category: 'hr', pain: 'Survey analysis slow', output: 'Insights typed' }),
+
+  // ── DEVOPS ─────────────────────────────────────────────────────────────────
+  a('devops-incident-triage', 'Incident Triage', { category: 'devops', pain: 'Alert flood', output: 'Triage typed', integrations: ['pagerduty', 'sentry'] }),
+  a('devops-runbook-matcher', 'Runbook Matcher', { category: 'devops', pain: 'Alert→runbook gap', output: 'Match typed' }),
+  a('devops-deploy-risk-reviewer', 'Deploy Risk Reviewer', { category: 'devops', pain: 'Risky deploys', output: 'Risk typed', gates: ['hitl'] }),
+  a('devops-rollback-advisor', 'Rollback Advisor', { category: 'devops', pain: 'Rollback decisions', output: 'Recommendation typed' }),
+  a('devops-cost-anomaly', 'Cost Anomaly', { category: 'devops', pain: 'Cloud cost spikes', output: 'Anomaly typed' }),
+  a('devops-iam-policy-reviewer', 'IAM Policy Reviewer', { category: 'devops', pain: 'Over-permissive IAM', output: 'Findings typed' }),
+  a('devops-terraform-plan-interpreter', 'Terraform Plan Interpreter', { category: 'devops', pain: 'TF plans opaque', output: 'Summary typed' }),
+  a('devops-k8s-manifest-reviewer', 'K8s Manifest Reviewer', { category: 'devops', pain: 'YAML risks', output: 'Findings typed' }),
+  a('devops-slo-breach-analyzer', 'SLO Breach Analyzer', { category: 'devops', pain: 'SLO misses unexplained', output: 'Analysis typed' }),
+  a('devops-postmortem-drafter', 'Postmortem Drafter', { category: 'devops', pain: 'Postmortems slow', output: 'Postmortem typed', gates: ['draft'] }),
+  a('devops-oncall-schedule-optimizer', 'On-call Schedule Optimizer', { category: 'devops', pain: 'Unfair on-call', output: 'Schedule typed' }),
+  a('devops-secrets-leak-scanner', 'Secrets Leak Scanner', { category: 'devops', pain: 'Secrets in repos', output: 'Findings typed' }),
+  a('devops-drift-detector', 'Drift Detector', { category: 'devops', pain: 'Infra drift', output: 'Drift typed' }),
+  a('devops-capacity-forecaster', 'Capacity Forecaster', { category: 'devops', pain: 'Capacity surprises', output: 'Forecast typed' }),
+  a('devops-change-advisory', 'Change Advisory', { category: 'devops', pain: 'CAB reviews slow', output: 'Advisory typed' }),
+  a('devops-pager-storm-summarizer', 'Pager Storm Summarizer', { category: 'devops', pain: 'Alert storms', output: 'Summary typed' }),
+  a('devops-ci-failure-grouper', 'CI Failure Grouper', { category: 'devops', pain: 'CI noise', output: 'Groups typed' }),
+  a('devops-dns-cutover-planner', 'DNS Cutover Planner', { category: 'devops', pain: 'DNS migrations risky', output: 'Plan typed', gates: ['hitl'] }),
+  a('devops-backup-restore-verifier', 'Backup Restore Verifier', { category: 'devops', pain: 'Backup untested', output: 'Verification typed' }),
+  a('devops-compliance-evidence', 'Compliance Evidence', { category: 'devops', pain: 'SOC2 evidence', output: 'Evidence typed' }),
+
+  // ── DATA ───────────────────────────────────────────────────────────────────
+  a('data-sql-generator', 'SQL Generator', { category: 'data', pain: 'SQL from questions', output: 'SQL typed', gates: ['read-only-default'] }),
+  a('data-sql-reviewer', 'SQL Reviewer', { category: 'data', pain: 'Unsafe SQL', output: 'Findings typed' }),
+  a('data-schema-documenter', 'Schema Documenter', { category: 'data', pain: 'Undocumented schemas', output: 'Docs typed' }),
+  a('data-lineage-tracer', 'Lineage Tracer', { category: 'data', pain: 'Lineage unknown', output: 'Lineage typed' }),
+  a('data-quality-rule-author', 'Data Quality Rule Author', { category: 'data', pain: 'DQ rules manual', output: 'Rules typed' }),
+  a('data-anomaly-explainer', 'Anomaly Explainer', { category: 'data', pain: 'Anomalies unexplained', output: 'Explanation typed' }),
+  a('data-metric-definer', 'Metric Definer', { category: 'data', pain: 'Metric definitions vague', output: 'Definition typed' }),
+  a('data-dashboard-spec-author', 'Dashboard Spec Author', { category: 'data', pain: 'Dashboard specs ad-hoc', output: 'Spec typed' }),
+  a('data-etl-failure-diagnoser', 'ETL Failure Diagnoser', { category: 'data', pain: 'ETL failures opaque', output: 'Diagnosis typed' }),
+  a('data-pii-column-scanner', 'PII Column Scanner', { category: 'data', pain: 'PII in tables', output: 'Columns typed' }),
+  a('data-governance-classifier', 'Data Governance Classifier', { category: 'data', pain: 'Classification missing', output: 'Classification typed' }),
+  a('data-report-narrator', 'Report Narrator', { category: 'data', pain: 'Reports need narrative', output: 'Narrative typed', gates: ['cite-data'] }),
+  a('data-cohort-analyzer', 'Cohort Analyzer', { category: 'data', pain: 'Cohort analysis slow', output: 'Insights typed' }),
+  a('data-ab-test-interpreter', 'A/B Test Interpreter', { category: 'data', pain: 'A/B results misread', output: 'Interpretation typed', gates: ['cite-data'] }),
+  a('data-warehouse-migration', 'Warehouse Migration Planner', { category: 'data', pain: 'DW migrations risky', output: 'Plan typed' }),
+  a('data-semantic-layer-mapper', 'Semantic Layer Mapper', { category: 'data', pain: 'Semantic layer drift', output: 'Map typed' }),
+  a('data-feature-store-documenter', 'Feature Store Documenter', { category: 'data', pain: 'Features undocumented', output: 'Docs typed' }),
+  a('data-dbt-model-reviewer', 'dbt Model Reviewer', { category: 'data', pain: 'dbt quality issues', output: 'Findings typed' }),
+  a('data-snowflake-cost-optimizer', 'Snowflake Cost Optimizer', { category: 'data', pain: 'Warehouse cost', output: 'Recommendations typed' }),
+  a('data-contract-validator', 'Data Contract Validator', { category: 'data', pain: 'Contract violations', output: 'Violations typed' }),
+
+  // ── ECOMMERCE ──────────────────────────────────────────────────────────────
+  a('ecommerce-listing-optimizer', 'Listing Optimizer', { category: 'ecommerce', pain: 'Weak listings', output: 'Optimized listing typed', integrations: ['shopify'] }),
+  a('ecommerce-return-triage', 'Return Triage', { category: 'ecommerce', pain: 'Returns slow', output: 'Triage typed' }),
+  a('ecommerce-inventory-reorder', 'Inventory Reorder', { category: 'ecommerce', pain: 'Stockouts/overstock', output: 'Reorder typed' }),
+  a('ecommerce-review-responder', 'Review Responder', { category: 'ecommerce', pain: 'Review replies slow', output: 'Reply draft typed', gates: ['draft'] }),
+  a('ecommerce-fraud-order-scorer', 'Fraud Order Scorer', { category: 'ecommerce', pain: 'Order fraud', output: 'Score typed' }),
+  a('ecommerce-shipping-exception', 'Shipping Exception', { category: 'ecommerce', pain: 'Shipping issues', output: 'Resolution typed' }),
+  a('ecommerce-catalog-enricher', 'Catalog Enricher', { category: 'ecommerce', pain: 'Thin catalog data', output: 'Enrichment typed' }),
+  a('ecommerce-promo-planner', 'Promo Planner', { category: 'ecommerce', pain: 'Promos ad-hoc', output: 'Plan typed' }),
+  a('ecommerce-chargeback-responder', 'Chargeback Responder', { category: 'ecommerce', pain: 'Chargebacks', output: 'Response typed', gates: ['draft'] }),
+  a('ecommerce-seo-product-page', 'Product SEO', { category: 'ecommerce', pain: 'Product SEO weak', output: 'SEO spec typed' }),
+  a('ecommerce-bundle-suggester', 'Bundle Suggester', { category: 'ecommerce', pain: 'Bundles manual', output: 'Bundles typed' }),
+  a('ecommerce-seasonal-forecast', 'Seasonal Forecast', { category: 'ecommerce', pain: 'Seasonal demand', output: 'Forecast typed' }),
+  a('ecommerce-supplier-communicator', 'Supplier Communicator', { category: 'ecommerce', pain: 'Supplier emails', output: 'Email draft typed', gates: ['draft'] }),
+  a('ecommerce-warranty-claim-triage', 'Warranty Claim Triage', { category: 'ecommerce', pain: 'Warranty intake', output: 'Triage typed' }),
+  a('ecommerce-marketplace-policy-check', 'Marketplace Policy Check', { category: 'ecommerce', pain: 'Policy violations', output: 'Violations typed' }),
+  a('ecommerce-abandoned-cart-copy', 'Abandoned Cart Copy', { category: 'ecommerce', pain: 'Cart recovery weak', output: 'Copy typed', gates: ['draft'] }),
+  a('ecommerce-competitor-price-monitor', 'Competitor Price Monitor', { category: 'ecommerce', pain: 'Price intel', output: 'Report typed', gates: ['cite-sources'] }),
+  a('ecommerce-fulfillment-sla-monitor', 'Fulfillment SLA Monitor', { category: 'ecommerce', pain: 'SLA breaches', output: 'Alerts typed' }),
+
+  // ── PRODUCT ────────────────────────────────────────────────────────────────
+  a('product-feedback-clusterer', 'Feedback Clusterer', { category: 'product', pain: 'Feedback scattered', output: 'Clusters typed' }),
+  a('product-prd-from-interviews', 'PRD from Interviews', { category: 'product', pain: 'Interview→PRD slow', output: 'PRD typed', gates: ['draft'] }),
+  a('product-prioritization-rice', 'RICE Prioritizer', { category: 'product', pain: 'Prioritization subjective', output: 'Scores typed' }),
+  a('product-experiment-designer', 'Experiment Designer', { category: 'product', pain: 'Experiments poorly designed', output: 'Design typed' }),
+  a('product-metrics-tree-author', 'Metrics Tree Author', { category: 'product', pain: 'Metrics trees ad-hoc', output: 'Tree typed' }),
+  a('product-changelog-customer', 'Customer Changelog', { category: 'product', pain: 'Customer-facing changelog', output: 'Changelog typed' }),
+  a('product-competitive-feature-gap', 'Competitive Feature Gap', { category: 'product', pain: 'Feature gaps unclear', output: 'Gap analysis typed' }),
+  a('product-user-story-splitter', 'User Story Splitter', { category: 'product', pain: 'Stories too large', output: 'Stories typed' }),
+  a('product-roadmap-narrator', 'Roadmap Narrator', { category: 'product', pain: 'Roadmap communication', output: 'Narrative typed', gates: ['draft'] }),
+  a('product-beta-feedback-triage', 'Beta Feedback Triage', { category: 'product', pain: 'Beta noise', output: 'Triage typed' }),
+  a('product-nps-analyzer', 'NPS Analyzer', { category: 'product', pain: 'NPS insights slow', output: 'Insights typed' }),
+  a('product-release-risk', 'Release Risk', { category: 'product', pain: 'Release risk opaque', output: 'Risk typed' }),
+  a('product-api-product-brief', 'API Product Brief', { category: 'product', pain: 'API product specs', output: 'Brief typed' }),
+  a('product-pricing-page-spec', 'Pricing Page Spec', { category: 'product', pain: 'Pricing pages vague', output: 'Spec typed' }),
+  a('product-usage-insights', 'Usage Insights', { category: 'product', pain: 'Usage data unread', output: 'Insights typed', gates: ['cite-data'] }),
+
+  // ── CYBERSECURITY ──────────────────────────────────────────────────────────
+  a('security-phishing-triage', 'Phishing Triage', { category: 'cybersecurity', pain: 'Phishing reports', output: 'Triage typed' }),
+  a('security-vuln-prioritizer', 'Vuln Prioritizer', { category: 'cybersecurity', pain: 'Vuln backlog', output: 'Priority typed' }),
+  a('security-siem-alert-grouper', 'SIEM Alert Grouper', { category: 'cybersecurity', pain: 'Alert noise', output: 'Groups typed' }),
+  a('security-threat-intel-brief', 'Threat Intel Brief', { category: 'cybersecurity', pain: 'Threat intel scattered', output: 'Brief typed' }),
+  a('security-incident-timeline', 'Incident Timeline', { category: 'cybersecurity', pain: 'IR timelines manual', output: 'Timeline typed', gates: ['cite-sources'] }),
+  a('security-policy-drafter', 'Security Policy Drafter', { category: 'cybersecurity', pain: 'Policies manual', output: 'Policy typed', gates: ['draft'] }),
+  a('security-pentest-finding-triage', 'Pentest Finding Triage', { category: 'cybersecurity', pain: 'Pentest noise', output: 'Triage typed' }),
+  a('security-access-review', 'Access Review', { category: 'cybersecurity', pain: 'Access reviews slow', output: 'Review typed', gates: ['hitl'] }),
+  a('security-malware-report-interpreter', 'Malware Report Interpreter', { category: 'cybersecurity', pain: 'Malware reports opaque', output: 'Summary typed' }),
+  a('security-compliance-gap-nist', 'NIST Compliance Gap', { category: 'cybersecurity', pain: 'NIST gaps', output: 'Gaps typed' }),
+  a('security-breach-notification-drafter', 'Breach Notification Drafter', { category: 'cybersecurity', pain: 'Breach notices', output: 'Notice typed', gates: ['draft', 'hitl'] }),
+  a('security-log-anomaly', 'Log Anomaly', { category: 'cybersecurity', pain: 'Log anomalies', output: 'Anomalies typed' }),
+  a('security-cve-impact', 'CVE Impact', { category: 'cybersecurity', pain: 'CVE impact unclear', output: 'Impact typed' }),
+  a('security-third-party-risk', 'Third-party Risk', { category: 'cybersecurity', pain: 'Vendor risk', output: 'Assessment typed' }),
+  a('security-red-team-debrief', 'Red Team Debrief', { category: 'cybersecurity', pain: 'Red team debriefs', output: 'Debrief typed' }),
+
+  // ── INSURANCE ──────────────────────────────────────────────────────────────
+  a('insurance-claim-intake', 'Claim Intake', { category: 'insurance', pain: 'Claim intake slow', output: 'Intake typed' }),
+  a('insurance-fraud-scorer', 'Fraud Scorer', { category: 'insurance', pain: 'Claim fraud', output: 'Score typed' }),
+  a('insurance-policy-summarizer', 'Policy Summarizer', { category: 'insurance', pain: 'Policies long', output: 'Summary typed', gates: ['draft'] }),
+  a('insurance-underwriting-memo', 'Underwriting Memo', { category: 'insurance', pain: 'Underwriting slow', output: 'Memo typed', gates: ['draft'] }),
+  a('insurance-coverage-gap', 'Coverage Gap', { category: 'insurance', pain: 'Coverage gaps', output: 'Gaps typed' }),
+  a('insurance-denial-letter-drafter', 'Denial Letter Drafter', { category: 'insurance', pain: 'Denial letters', output: 'Letter typed', gates: ['draft', 'hitl'] }),
+  a('insurance-subrogation-analyzer', 'Subrogation Analyzer', { category: 'insurance', pain: 'Subrogation complex', output: 'Analysis typed' }),
+  a('insurance-actuarial-report-narrator', 'Actuarial Report Narrator', { category: 'insurance', pain: 'Actuarial opaque', output: 'Narrative typed', gates: ['cite-data'] }),
+  a('insurance-beneficiary-verifier', 'Beneficiary Verifier', { category: 'insurance', pain: 'Beneficiary errors', output: 'Verification typed' }),
+  a('insurance-renewal-risk', 'Renewal Risk', { category: 'insurance', pain: 'Renewal risk', output: 'Risk typed' }),
+  a('insurance-catastrophe-triage', 'Catastrophe Triage', { category: 'insurance', pain: 'Cat event volume', output: 'Triage typed' }),
+  a('insurance-medical-record-summarizer', 'Medical Record Summarizer', { category: 'insurance', pain: 'Med records long', output: 'Summary typed', gates: ['draft'] }),
+  a('insurance-premium-calculator-memo', 'Premium Calculator Memo', { category: 'insurance', pain: 'Premium opaque', output: 'Memo typed' }),
+  a('insurance-regulatory-filing', 'Regulatory Filing', { category: 'insurance', pain: 'Filings slow', output: 'Filing typed', gates: ['draft'] }),
+  a('insurance-agent-commission-audit', 'Agent Commission Audit', { category: 'insurance', pain: 'Commission errors', output: 'Audit typed' }),
+
+  // ── REAL ESTATE ──────────────────────────────────────────────────────────────
+  a('realestate-listing-author', 'Listing Author', { category: 'realestate', pain: 'Listings weak', output: 'Listing typed' }),
+  a('realestate-comp-analyzer', 'Comp Analyzer', { category: 'realestate', pain: 'Comps manual', output: 'Comps typed', gates: ['cite-sources'] }),
+  a('realestate-lease-reviewer', 'Lease Reviewer', { category: 'realestate', pain: 'Lease review slow', output: 'Findings typed', gates: ['draft'] }),
+  a('realestate-tenant-screening-memo', 'Tenant Screening Memo', { category: 'realestate', pain: 'Screening slow', output: 'Memo typed', gates: ['hitl'] }),
+  a('realestate-offer-letter-drafter', 'Offer Letter Drafter', { category: 'realestate', pain: 'Offers manual', output: 'Offer typed', gates: ['draft'] }),
+  a('realestate-inspection-report-summarizer', 'Inspection Summarizer', { category: 'realestate', pain: 'Inspection reports long', output: 'Summary typed' }),
+  a('realestate-cma-author', 'CMA Author', { category: 'realestate', pain: 'CMAs slow', output: 'CMA typed' }),
+  a('realestate-property-description', 'Property Description', { category: 'realestate', pain: 'Descriptions generic', output: 'Description typed' }),
+  a('realestate-disclosure-checklist', 'Disclosure Checklist', { category: 'realestate', pain: 'Disclosures missed', output: 'Checklist typed' }),
+  a('realestate-mortgage-prequal-memo', 'Mortgage Prequal Memo', { category: 'realestate', pain: 'Prequal slow', output: 'Memo typed', gates: ['draft'] }),
+  a('realestate-hoa-document-summarizer', 'HOA Document Summarizer', { category: 'realestate', pain: 'HOA docs long', output: 'Summary typed' }),
+  a('realestate-closing-checklist', 'Closing Checklist', { category: 'realestate', pain: 'Closing items missed', output: 'Checklist typed' }),
+
+  // ── EDUCATION ──────────────────────────────────────────────────────────────
+  a('education-lesson-plan-author', 'Lesson Plan Author', { category: 'education', pain: 'Lesson planning slow', output: 'Plan typed' }),
+  a('education-rubric-builder', 'Rubric Builder', { category: 'education', pain: 'Rubrics inconsistent', output: 'Rubric typed' }),
+  a('education-essay-feedback', 'Essay Feedback', { category: 'education', pain: 'Essay feedback slow', output: 'Feedback typed', gates: ['draft'] }),
+  a('education-quiz-generator', 'Quiz Generator', { category: 'education', pain: 'Quiz creation', output: 'Quiz typed' }),
+  a('education-iep-drafter', 'IEP Drafter', { category: 'education', pain: 'IEP paperwork', output: 'IEP draft typed', gates: ['draft', 'hitl'] }),
+  a('education-curriculum-mapper', 'Curriculum Mapper', { category: 'education', pain: 'Curriculum alignment', output: 'Map typed' }),
+  a('education-student-progress-summary', 'Student Progress Summary', { category: 'education', pain: 'Progress reports', output: 'Summary typed' }),
+  a('education-parent-communication', 'Parent Communication', { category: 'education', pain: 'Parent emails', output: 'Message typed', gates: ['draft'] }),
+  a('education-accommodation-evaluator', 'Accommodation Evaluator', { category: 'education', pain: 'Accommodations', output: 'Evaluation typed', gates: ['hitl'] }),
+  a('education-plagiarism-pattern-flag', 'Plagiarism Pattern Flag', { category: 'education', pain: 'Integrity checks', output: 'Flags typed' }),
+  a('education-lms-content-optimizer', 'LMS Content Optimizer', { category: 'education', pain: 'LMS content weak', output: 'Optimizations typed' }),
+  a('education-accreditation-evidence', 'Accreditation Evidence', { category: 'education', pain: 'Accreditation prep', output: 'Evidence typed' }),
+
+  // ── CONTENT ────────────────────────────────────────────────────────────────
+  a('content-blog-outline', 'Blog Outline', { category: 'content', pain: 'Blog structure', output: 'Outline typed' }),
+  a('content-newsletter-author', 'Newsletter Author', { category: 'content', pain: 'Newsletters slow', output: 'Newsletter typed', gates: ['draft'] }),
+  a('content-podcast-show-notes', 'Podcast Show Notes', { category: 'content', pain: 'Show notes manual', output: 'Notes typed' }),
+  a('content-youtube-metadata', 'YouTube Metadata', { category: 'content', pain: 'YT SEO weak', output: 'Metadata typed' }),
+  a('content-repurpose-matrix', 'Repurpose Matrix', { category: 'content', pain: 'Content repurposing', output: 'Matrix typed' }),
+  a('content-fact-checker', 'Fact Checker', { category: 'content', pain: 'Facts unverified', output: 'Claims typed', gates: ['cite-sources'] }),
+  a('content-style-guide-enforcer', 'Style Guide Enforcer', { category: 'content', pain: 'Style drift', output: 'Violations typed' }),
+  a('content-transcript-cleaner', 'Transcript Cleaner', { category: 'content', pain: 'Messy transcripts', output: 'Clean transcript typed' }),
+  a('content-glossary-builder', 'Glossary Builder', { category: 'content', pain: 'Terminology inconsistent', output: 'Glossary typed' }),
+  a('content-internal-link-planner', 'Internal Link Planner', { category: 'content', pain: 'Internal linking weak', output: 'Plan typed' }),
+  a('content-evergreen-refresher', 'Evergreen Refresher', { category: 'content', pain: 'Stale content', output: 'Refresh plan typed' }),
+  a('content-translation-localizer', 'Translation Localizer', { category: 'content', pain: 'Localization quality', output: 'Localized copy typed', gates: ['draft'] }),
+
+  // ── COMPLIANCE (global + local) ────────────────────────────────────────────
+  a('compliance-lgpd-assessor', 'LGPD Assessor', { category: 'compliance', pain: 'LGPD gap analysis', output: 'Assessment typed', locale: 'br', gates: ['draft', 'hitl'] }),
+  a('compliance-lgpd-dpa-reviewer', 'LGPD DPA Reviewer', { category: 'compliance', pain: 'DPA review BR', output: 'Findings typed', locale: 'br', gates: ['draft'] }),
+  a('compliance-gdpr-dpia-drafter', 'GDPR DPIA Drafter', { category: 'compliance', pain: 'DPIA manual', output: 'DPIA typed', locale: 'eu', gates: ['draft'] }),
+  a('compliance-cookie-policy-auditor', 'Cookie Policy Auditor', { category: 'compliance', pain: 'Cookie compliance', output: 'Audit typed' }),
+  a('compliance-data-retention-planner', 'Data Retention Planner', { category: 'compliance', pain: 'Retention policies', output: 'Plan typed' }),
+  a('compliance-breach-notification-br', 'Breach Notification BR', { category: 'compliance', pain: 'LGPD 72h notice', output: 'Notice draft typed', locale: 'br', gates: ['draft', 'hitl'] }),
+  a('compliance-consent-record-auditor', 'Consent Record Auditor', { category: 'compliance', pain: 'Consent gaps', output: 'Audit typed' }),
+  a('compliance-cross-border-transfer-memo', 'Cross-border Transfer Memo', { category: 'compliance', pain: 'Transfer risk', output: 'Memo typed', gates: ['draft'] }),
+
+  // ── ECOSYSTEM (dogfood AgentsKit / doc-bridge / playbook / registry) ───────
+  a('ecosystem-doc-bridge-corpus-scanner', 'Doc-bridge Corpus Scanner', {
+    category: 'ecosystem', ecosystem: true, priority: 'high',
+    pain: 'doc-bridge needs corpus classification before indexing',
+    output: 'Scan report typed: paths, doc types, staleness',
+    tags: ['ecosystem', 'doc-bridge', 'dogfood'],
+  }),
+  a('ecosystem-doc-bridge-memory-classifier', 'Doc-bridge Memory Classifier', {
+    category: 'ecosystem', ecosystem: true, priority: 'high',
+    pain: 'Private notes → memory candidates for doc-bridge',
+    output: 'Candidates typed: promote/hold/reject + rationale',
+    tags: ['ecosystem', 'doc-bridge', 'dogfood'],
+  }),
+  a('ecosystem-doc-bridge-handoff-author', 'Doc-bridge Handoff Author', {
+    category: 'ecosystem', ecosystem: true, priority: 'high',
+    pain: 'Agent handoffs between doc-bridge index and human adapters',
+    output: 'Handoff doc typed per agent-handoff-v1 schema',
+    tags: ['ecosystem', 'doc-bridge', 'dogfood'],
+  }),
+  a('ecosystem-playbook-alignment-auditor', 'Playbook Alignment Auditor', {
+    category: 'ecosystem', ecosystem: true, priority: 'high',
+    pain: 'Registry agents must align with playbook.agentskit.io standards',
+    output: 'Alignment findings typed vs playbook patterns',
+    tags: ['ecosystem', 'playbook', 'dogfood'],
+  }),
+  a('ecosystem-registry-agent-spec-author', 'Registry Agent Spec Author', {
+    category: 'ecosystem', ecosystem: true, priority: 'high',
+    pain: 'New agents need consistent specs before scaffold',
+    output: 'Spec typed: pain, output, gates, zod shape outline',
+    tags: ['ecosystem', 'registry', 'dogfood'],
+  }),
+  a('ecosystem-registry-eval-author', 'Registry Eval Author', {
+    category: 'ecosystem', ecosystem: true, priority: 'high',
+    pain: 'Validated agents need eval.ts cases',
+    output: 'Eval cases typed for @agentskit/eval',
+    tags: ['ecosystem', 'registry', 'dogfood'],
+  }),
+  a('ecosystem-rfc-author', 'RFC Author', {
+    category: 'ecosystem', ecosystem: true,
+    pain: 'Big moves need RFCs before implementation',
+    output: 'RFC draft typed: problem, options, decision',
+    tags: ['ecosystem', 'agentskit', 'dogfood'],
+  }),
+  a('ecosystem-integration-mapper', 'Integration Mapper', {
+    category: 'ecosystem', ecosystem: true,
+    pain: 'Match agent pains to @agentskit/integrations',
+    output: 'Integration map typed per agent',
+    tags: ['ecosystem', 'agentskit', 'dogfood'],
+  }),
+  a('ecosystem-llms-txt-optimizer', 'llms.txt Optimizer', {
+    category: 'ecosystem', ecosystem: true,
+    pain: 'Machine discovery files need curation',
+    output: 'Optimized llms.txt block typed',
+    tags: ['ecosystem', 'dogfood'],
+  }),
+  a('ecosystem-changelog-ecosystem', 'Ecosystem Changelog', {
+    category: 'ecosystem', ecosystem: true,
+    pain: 'Cross-repo ecosystem changes need unified changelog',
+    output: 'Changelog typed across www/registry/playbook/akos',
+    tags: ['ecosystem', 'dogfood'],
+  }),
+]
+
+// Dedupe by id
+const byId = new Map()
+for (const agent of agents) {
+  if (byId.has(agent.id)) throw new Error(`duplicate catalog id: ${agent.id}`)
+  byId.set(agent.id, agent)
+}
+
+const manifest = {
+  schemaVersion: 1,
+  generatedAt: new Date().toISOString(),
+  stats: {
+    total: byId.size,
+    validated: VALIDATED_IDS.size,
+    draft: byId.size,
+    categories: [...new Set([...byId.values()].map((x) => x.category))].sort(),
+  },
+  agents: [...byId.values()].sort((x, y) => x.id.localeCompare(y.id)),
+}
+
+writeFileSync(join(root, 'catalog', 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n')
+console.log(`catalog generated: ${manifest.stats.total} draft specs across ${manifest.stats.categories.length} categories`)

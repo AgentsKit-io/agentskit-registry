@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "clinical-patient-summary",
     "description": "Drafts a TYPED one-page pre-visit summary from chart excerpts (reason, active problems, meds, allergies, vitals trend, follow-ups, open questions); never invents values, always a draft for clinician confirmation.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/** Eval cases for the summary AgentHandle (`run(chartExcerpts) → jsonPatientSummaryResult`). */\nexport const suite: EvalSuite = {\n  name: 'clinical-patient-summary',\n  cases: [\n    {\n      input: 'Encounters: HTN f/u. Problems: hypertension, hyperlipidemia. Meds: lisinopril 10mg, atorvastatin 20mg. Allergies: penicillin. Vitals: BP 138/86 (down from 150/95). Orders: lipid panel pending.',\n      expected: (r: string) => /\"activeProblems\":\\[/.test(r) && /lisinopril/.test(r) && /\"requiresClinicianSignoff\":true/.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

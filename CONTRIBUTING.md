@@ -20,3 +20,21 @@ Agents here are intentionally small and self-contained. To add one:
 
 Agents are curated, not gatekept by the framework's full gate suite — keep them
 honest, tested, and small.
+
+## Catalog vs validated agents
+
+The full roadmap lives in `catalog/manifest.json` (~300+ agent specs). Only agents
+with `"status": "validated"` in `meta.json` appear in `public/r/index.json` and
+are installable via `npx agentskit add <id>`.
+
+To scaffold a draft spec into code:
+
+```bash
+npm run scaffold -- ecosystem-doc-bridge-memory-classifier
+```
+
+Promote a draft: implement the real Zod contract, add `eval.ts`, pass CI, set
+`status: validated`, open PR.
+
+See `catalog/CATALOG.md` and `catalog/content-policy.json` — sensitive verticals
+(weapons, adult, political campaigning, etc.) are blocked.

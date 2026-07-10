@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "coding-prd-author",
     "description": "Transforms a free-form product description into a TYPED PRD (problem, users, 3-5 testable acceptance criteria, out-of-scope, open questions). Never invents business logic — anything absent from the input becomes an open question. Always a draft.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'coding-prd-author',\n  cases: [\n    {\n      input: `We want to let users export their dashboard data as CSV. They should be able to pick a date range and download a file. It needs to handle large datasets without timing out.`,\n      expected: (r: string) => /\"criteria\"/i.test(r) && /\"openQuestions\"/i.test(r) && /\"outOfScope\"/i.test(r),\n    },\n    {\n      input: `Build a referral program: existing users get a unique link, and when a new user signs up via that link both get a 10 dollar credit. Fraud prevention should stop self-referrals.`,\n      expected: (r: string) => /\"problem\"/i.test(r) && /\"users\"/i.test(r) && /referral/i.test(r),\n    },\n    {\n      input: `Add real-time presence indicators to the chat so users can see who is online. Use whatever realtime tech makes sense.`,\n      expected: (r: string) => /\"openQuestions\"/i.test(r) && /(realtime|websocket|transport|tech)/i.test(r),\n    },\n    {\n      input: `Make the app better and increase engagement.`,\n      expected: (r: string) => /\"openQuestions\"/i.test(r) && /(vague|unclear|undefined|ambiguous|what|which|specif)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

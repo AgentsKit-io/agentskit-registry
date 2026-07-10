@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "support-kb-searcher",
     "description": "Matches a support ticket to the top knowledge-base articles as TYPED hits with a 1-5 confidence score. Optional retriever grounds answers in YOUR corpus — only retrieved candidates can be cited; never invents an article (returns noMatch + a suggested topic instead).",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'support-kb-searcher',\n  cases: [\n    {\n      input: `Ticket: A customer asks how to rotate their API key after a suspected leak. They want to know if rotating invalidates the old key immediately and whether existing webhooks keep working. Find the relevant KB articles.`,\n      expected: (r: string) => /(http|www|\\/docs|kb)/i.test(r) && /confidence/i.test(r),\n    },\n    {\n      input: `Ticket: User on the Pro plan wants to downgrade to Starter mid-cycle and is asking whether they get a prorated refund. Find the top knowledge-base articles that answer this.`,\n      expected: (r: string) => /([1-5])/.test(r) && /(refund|proration|prorate|downgrade|billing)/i.test(r),\n    },\n    {\n      input: `Ticket: Customer reports that SAML SSO login redirects them back to the login page in a loop after entering their Okta credentials. Find KB articles covering SSO / SAML troubleshooting.`,\n      expected: (r: string) => /(SSO|SAML|Okta|login)/i.test(r) && /title/i.test(r),\n    },\n    {\n      input: `Ticket: A customer is asking for detailed guidance on integrating our product with an obscure in-house ERP that we have never documented anywhere. Search the knowledge base.`,\n      expected: (r: string) => /(no (good )?match|no relevant|could not find|no article|suggest)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

@@ -13,12 +13,27 @@
     "source": { "type": "string" },
     "license": { "type": "string" },
     "requires": { "type": "object" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "validated", "deprecated"],
+      "description": "draft = catalog only, not installable; validated = npx agentskit add; deprecated = sunset."
+    },
     "category": {
       "type": "string",
       "enum": [
         "research", "coding", "data", "support", "ops", "content", "productivity",
-        "clinical", "fintech", "legal", "marketing", "agency"
+        "clinical", "fintech", "legal", "marketing", "agency",
+        "sales", "hr", "devops", "ecommerce", "product", "cybersecurity",
+        "insurance", "realestate", "education", "compliance", "ecosystem"
       ]
+    },
+    "locale": {
+      "type": "string",
+      "description": "Optional locale hint (e.g. br, eu) for jurisdiction-specific agents."
+    },
+    "ecosystem": {
+      "type": "boolean",
+      "description": "True when the agent dogfoods the AgentsKit ecosystem (doc-bridge, playbook, registry)."
     },
     "tags": { "type": "array", "items": { "type": "string" } },
     "packages": {

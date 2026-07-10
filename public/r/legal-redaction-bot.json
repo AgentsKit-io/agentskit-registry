@@ -27,6 +27,7 @@
     "README.md",
     "eval.ts"
   ],
+  "status": "validated",
   "skill": {
     "name": "legal-redaction-bot",
     "description": "Redacts PII from a legal document with a DETERMINISTIC backstop (createPIIRedactor strips any structured identifier the model missed — SSN/email/phone + your gov-ID/account rules), and surfaces privileged spans for attorney review instead of silently redacting them. Output is always clean of the covered patterns.",
@@ -64,5 +65,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/**\n * Eval cases for the redaction bot's AgentHandle (`run(documentText) → redactedDocument`).\n * The deterministic backstop means structured identifiers must never survive — assert\n * their absence, not the model's phrasing.\n */\nexport const suite: EvalSuite = {\n  name: 'legal-redaction-bot',\n  cases: [\n    {\n      input: 'Deponent SSN 987-65-4321, email dep@example.com. The motion to compel is granted.',\n      expected: (r: string) => !/987-65-4321/.test(r) && !/dep@example\\.com/.test(r) && /motion to compel/i.test(r),\n    },\n    {\n      input: 'Contact counsel at 212-555-0147 regarding the settlement terms.',\n      expected: (r: string) => !/212-555-0147/.test(r) && /settlement/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

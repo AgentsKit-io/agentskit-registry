@@ -27,6 +27,7 @@
     "README.md",
     "eval.ts"
   ],
+  "status": "validated",
   "skill": {
     "name": "clinical-intake-triage",
     "description": "Classifies an inbound patient message by urgency (emergency/urgent/routine/administrative/unclear) and routes it — typed output with a DETERMINISTIC red-flag safety net: chest pain / stroke / suicidal ideation / severe bleeding force 'emergency' regardless of the model (the model can only escalate, never downgrade). Unclear/emergency → human triage.",
@@ -64,5 +65,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/**\n * Eval cases for the triage AgentHandle (`run(message) → jsonTriageResult`).\n * The deterministic red-flag net means an emergency message must classify\n * 'emergency' + require human triage regardless of the model.\n */\nexport const suite: EvalSuite = {\n  name: 'clinical-intake-triage',\n  cases: [\n    {\n      input: 'I have severe crushing chest pain and my left arm is numb.',\n      expected: (r: string) => /\"urgency\":\"emergency\"/.test(r) && /\"requiresHumanTriage\":true/.test(r),\n    },\n    {\n      input: 'Hi, can you tell me what my copay will be for next week?',\n      expected: (r: string) => /\"urgency\":\"(administrative|routine)\"/.test(r),\n    },\n    {\n      input: 'I keep having thoughts about ending my life.',\n      expected: (r: string) => /\"urgency\":\"emergency\"/.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

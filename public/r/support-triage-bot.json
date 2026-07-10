@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "support-triage-bot",
     "description": "Classifies an inbound support ticket by topic + severity (P1-P4) + queue with TYPED output, and a deterministic red-flag net that forces P1 on outage / data-loss / security language (the model can only raise severity, never bury a P1).",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'support-triage-bot',\n  cases: [\n    {\n      input: `Subject: Production API returning 503 for all our customers\nBody: Since 09:14 UTC every request to https://api.acme.io/v2/charges returns 503. Our checkout is fully down and we are losing sales. Account id ACME-44192, contact ops@acme.io, phone +1-415-555-0199. This is impacting all of production.`,\n      expected: (r: string) => /P1/.test(r) && /(outage|down|503)/i.test(r) && /queue/i.test(r),\n    },\n    {\n      input: `Subject: How do I change my billing email?\nBody: Hi, I'd like to update the email address that invoices are sent to. It's currently jane@oldmail.com and I want it changed to jane@newmail.com. No rush, just whenever you get a chance. Account id ACME-9921.`,\n      expected: (r: string) => /P3|P4/.test(r) && /(billing|account|email)/i.test(r) && /queue/i.test(r),\n    },\n    {\n      input: `Subject: We think there was a data breach\nBody: A staff member received a phishing email that appears to reference customer records from our dashboard. We suspect credentials may have leaked and customer PII could be exposed. Account id ACME-7781, reporter security@acme.io.`,\n      expected: (r: string) => /P1/.test(r) && /(security|breach|incident)/i.test(r),\n    },\n    {\n      input: `Subject: it's broken\nBody: nothing works please fix asap`,\n      expected: (r: string) => /P3/.test(r) && /(unsure|unclear|missing|insufficient|more info|escalat)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

@@ -25,6 +25,7 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "status": "validated",
   "skill": {
     "name": "coding-issue-creator",
     "description": "Drafts one TYPED GitHub issue per PRD acceptance criterion, then creates them through a caller-injected createIssue transport. Real creation or honest draft (no transport => drafts + created:[], never a faked number); fail-closed HITL (no approve + autoApprove off => nothing created); reports the real issue number/url.",
@@ -62,5 +63,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'coding-issue-creator',\n  cases: [\n    {\n      input: `PRD JSON: {\"problem\":\"Users cannot reset passwords\",\"criteria\":[\"Add a POST /auth/reset endpoint that emails a one-time token\",\"Token expires after 15 minutes and is single-use\",\"Rate-limit reset requests to 5 per hour per email\"]}. Create the GitHub issues.`,\n      expected: (r: string) => /enhancement/i.test(r) && /(definition of done|\\bDoD\\b|checklist|- \\[ \\])/i.test(r),\n    },\n    {\n      input: `PRD JSON: {\"problem\":\"Search returns stale results\",\"criteria\":[\"Fix the cache invalidation bug so updated documents appear within 2 seconds\"]}. Create the GitHub issue.`,\n      expected: (r: string) => /bug/i.test(r) && /automated/i.test(r),\n    },\n    {\n      input: `PRD JSON: {\"criteria\":[\"Implement OAuth2 PKCE login flow for the mobile client including token refresh, secure storage of the refresh token, and graceful handling of revoked tokens across app restarts and network failures\"]}. Create the issue; the criterion is over 80 characters so set the title accordingly.`,\n      expected: (r: string) => /title/i.test(r) && /(80|truncat)/i.test(r),\n    },\n    {\n      input: `PRD JSON: {\"problem\":\"Dashboard is slow\",\"criteria\":[]}. The acceptance criteria array is empty. Create the issues.`,\n      expected: (r: string) => /(no (criteria|criterion)|empty|cannot|nothing to|missing|need|escalat)/i.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }

@@ -28,6 +28,7 @@
     "README.md",
     "eval.ts"
   ],
+  "status": "validated",
   "skill": {
     "name": "fintech-kyc-screener",
     "description": "Onboarding KYC screen against sanctions/PEP/adverse-media lists with a DETERMINISTIC fuzzy-match gate: required fields (name/DOB/country) validated up front; strong/exact hits escalate unconditionally (never model-cleared); the model only downgrades weak near-misses. Typed risk verdict + human sign-off.",
@@ -65,5 +66,6 @@
       "path": "eval.ts",
       "content": "import type { EvalSuite } from '@agentskit/eval'\n\n/**\n * Eval cases for the KYC screener's AgentHandle (`run(jsonCandidate) → jsonKycResult`).\n * Wire the agent under test with a list containing 'Vladimir Putin' (PEP). The\n * deterministic gate + required-field check mean most outcomes don't depend on the model.\n */\nexport const suite: EvalSuite = {\n  name: 'fintech-kyc-screener',\n  cases: [\n    {\n      // Required field missing → refuse, escalate, report the field.\n      input: JSON.stringify({ name: 'Jane Doe', dob: '', country: 'US' }),\n      expected: (r: string) => /\"missing\":\\[/.test(r) && /dob/.test(r) && /\"riskTier\":\"escalate\"/.test(r),\n    },\n    {\n      // Exact PEP hit → escalate, sign-off.\n      input: JSON.stringify({ name: 'Vladimir Putin', dob: '1952-10-07', country: 'RU' }),\n      expected: (r: string) => /\"riskTier\":\"escalate\"/.test(r) && /\"requiresHumanSignoff\":true/.test(r),\n    },\n    {\n      // Clean identity → clear.\n      input: JSON.stringify({ name: 'Robert Brown', dob: '1990-03-03', country: 'CA' }),\n      expected: (r: string) => /\"riskTier\":\"clear\"/.test(r),\n    },\n  ],\n}\n"
     }
-  ]
+  ],
+  "installable": true
 }
