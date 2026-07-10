@@ -18,6 +18,8 @@ jobs:
         run: npm run validate
       - run: npm run lint
       - run: npm test
+      - name: Eval replay (doc-bridge pack)
+        run: npm run eval:run -- --ecosystem-doc-bridge
       - run: npm run build
       - name: Committed index (public/r) is up to date
         run: git diff --exit-code public/r || (echo "public/r is stale — run 'npm run build' and commit." && exit 1)

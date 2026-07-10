@@ -6,11 +6,26 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/** Registry Agent Spec Author — v1 validated. Pain: New agents need consistent specs before scaffold */
+/**
+ * Registry Agent Spec Author — drafts catalog manifest specs before scaffold.
+ */
 
-export interface Section { heading: string; body: string; citations: string[] }
-export interface AgentOutput { title: string; sections: Section[]; gaps: string[]; openQuestions: string[] }
-export interface AgentResult extends AgentOutput { requiresReview: boolean }
+export interface AgentSpecDraft {
+  id?: string
+  title?: string
+  pain: string
+  output: string
+  gates: string[]
+  zodOutline: string
+  tags: string[]
+}
+
+export interface SpecAuthorResult extends AgentSpecDraft {
+  gaps: string[]
+  openQuestions: string[]
+  requiresReview: boolean
+}
+
 export interface EcosystemRegistryAgentSpecAuthorConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -20,8 +35,13 @@ export interface EcosystemRegistryAgentSpecAuthorConfig {
 }
 
 const Output = z.object({
-  title: z.string(),
-  sections: z.array(z.object({ heading: z.string(), body: z.string(), citations: z.array(z.string()).default([]) })).min(1),
+  id: z.string().optional(),
+  title: z.string().optional(),
+  pain: z.string().min(1),
+  output: z.string().min(1),
+  gates: z.array(z.string()).min(1),
+  zodOutline: z.string().min(1),
+  tags: z.array(z.string()).default([]),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
@@ -29,25 +49,41 @@ const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchem
 
 const skill = {
   name: 'ecosystem-registry-agent-spec-author',
-  description: "Registry Agent Spec Author — typed output agent (draft spec).",
-  systemPrompt: `You are Registry Agent Spec Author. New agents need consistent specs before scaffold. Output: Spec typed: pain, output, gates, zod shape outline.
-Draft sections with citations from input. Gaps for missing facts.
-NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
+  description: 'Drafts registry catalog specs: pain, output, gates, zod outline.',
+  systemPrompt: `You author registry catalog specs for new AgentsKit agents.
+
+Output: { id?, title?, pain, output, gates[], zodOutline, tags[], gaps[], openQuestions[] }.
+
+- pain: one sentence user/job pain (no fluff)
+- output: typed deliverable shape (what invokeStructured returns)
+- gates: include typed-output, never-invent, always-draft; add domain gates when justified
+- zodOutline: pseudocode zod object fields (not full TS)
+- tags: category + domain tags from input
+
+If vertical/category unclear → gaps. NEVER invent compliance scope or integrations.
+
 ${UNTRUSTED_CONTENT_DIRECTIVE}
+
 Call submit_spec_author exactly once. Stop.`,
   tools: ['submit_spec_author'],
 }
 
 export function createEcosystemRegistryAgentSpecAuthorAgent(config: EcosystemRegistryAgentSpecAuthorConfig) {
   const submit = (): ToolDefinition =>
-    defineZodTool({ name: 'submit_spec_author', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
+    defineZodTool({
+      name: 'submit_spec_author',
+      description: 'Submit agent spec draft. Call exactly once.',
+      schema: Output,
+      toJsonSchema: toJson,
+      async execute() { return 'recorded' },
+    }) as ToolDefinition
 
-  async function run(input: string): Promise<AgentResult> {
+  async function run(input: string): Promise<SpecAuthorResult> {
     if (!input?.trim()) throw new Error('ecosystem-registry-agent-spec-author requires non-empty input')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
-      task: `INPUT:\n${fenceUntrustedContent(input)}`,
+      task: `IDEA:\n${fenceUntrustedContent(input)}`,
       parse: (a) => Output.parse(a),
       skill,
       memory: config.memory,
@@ -57,9 +93,12 @@ export function createEcosystemRegistryAgentSpecAuthorAgent(config: EcosystemReg
     })
     return { ...result, requiresReview: true }
   }
+
   return {
     name: 'ecosystem-registry-agent-spec-author',
     run,
-    asHandle() { return { name: 'ecosystem-registry-agent-spec-author', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
+    asHandle() {
+      return { name: 'ecosystem-registry-agent-spec-author', run: (t: string) => run(t).then((r) => JSON.stringify(r)) }
+    },
   }
 }

@@ -3,15 +3,34 @@ import { mockAdapter } from '@agentskit/adapters'
 import { createCodingApiContractReviewerAgent } from './agent'
 
 const model = (payload: Record<string, unknown>) =>
-  mockAdapter({ response: () => [{ type: 'tool_call', toolCall: { id: '1', name: 'submit_contract_reviewer', args: JSON.stringify(payload) } }, { type: 'done' }] })
+  mockAdapter({
+    response: () => [
+      { type: 'tool_call', toolCall: { id: '1', name: 'submit_contract_reviewer', args: JSON.stringify(payload) } },
+      { type: 'done' },
+    ],
+  })
 
 describe('coding-api-contract-reviewer', () => {
-  it('returns typed v1 output', async () => {
-    const r = await createCodingApiContractReviewerAgent({ adapter: model({ summary: 'review', findings: [{ id: 'f1', severity: 'medium', message: 'issue' }], gaps: [], openQuestions: [] }) }).run('sample input for coding-api-contract-reviewer')
+  it('returns typed contract changes', async () => {
+    const r = await createCodingApiContractReviewerAgent({
+      adapter: model({
+        summary: 'breaking removal',
+        changes: [{ id: 'c1', kind: 'breaking', path: 'UserResponse.email', message: 'field removed' }],
+        gaps: [],
+        openQuestions: [],
+      }),
+    }).run('removed field email from UserResponse')
+    expect(r.changes[0].kind).toBe('breaking')
     expect(r.requiresReview).toBe(true)
-    expect(r.findings.length).toBeGreaterThan(0)
   })
-  
+
+  it('adds breaking safety net from input signals', async () => {
+    const r = await createCodingApiContractReviewerAgent({
+      adapter: model({ summary: 'diff', changes: [], gaps: [], openQuestions: [] }),
+    }).run('type changed on UserResponse.id from string to number')
+    expect(r.changes.some((c) => c.kind === 'breaking')).toBe(true)
+  })
+
   it('refuses empty input', async () => {
     await expect(createCodingApiContractReviewerAgent({ adapter: model({}) }).run('  ')).rejects.toThrow()
   })

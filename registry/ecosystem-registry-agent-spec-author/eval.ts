@@ -3,9 +3,27 @@ import type { EvalSuite } from '@agentskit/eval'
 export const suite: EvalSuite = {
   name: 'ecosystem-registry-agent-spec-author',
   cases: [
-    { input: 'Complete input for Registry Agent Spec Author: New agents need consistent specs before scaffold. Provide full structured output.', expected: (r: string) => r.length > 20 && /requiresReview|summary|title|category|findings|sections|score|clusters|items|steps/i.test(r) },
-    { input: 'Minimal input.', expected: (r: string) => /gap|openQuestion/i.test(r) || r.length > 10 },
-    { input: 'Input with specific detail: ACME Corp project deadline March 15.', expected: (r: string) => /ACME|March|15/i.test(r) || /gap/i.test(r) },
-    { input: 'Empty context — only says "process this".', expected: (r: string) => r.length > 5 },
+    {
+      input: 'Idea: HR agent that screens resumes for role fit without bias. Category: hr.',
+      expected: (r: string) => {
+        const j = JSON.parse(r)
+        return j.pain && j.output && j.gates.includes('typed-output') && j.zodOutline.length > 10
+      },
+    },
+    {
+      input: 'Minimal input.',
+      expected: (r: string) => {
+        const j = JSON.parse(r)
+        return j.gaps.length > 0 || (j.pain && j.output)
+      },
+    },
+    {
+      input: 'Fintech SAR drafter for suspicious activity reports in Brazil.',
+      expected: (r: string) => /SAR|suspicious|fintech/i.test(r),
+    },
+    {
+      input: 'Empty context — only says "process this".',
+      expected: (r: string) => /gap|openQuestion/i.test(r),
+    },
   ],
 }

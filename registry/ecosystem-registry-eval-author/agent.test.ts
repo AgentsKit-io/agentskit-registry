@@ -3,15 +3,31 @@ import { mockAdapter } from '@agentskit/adapters'
 import { createEcosystemRegistryEvalAuthorAgent } from './agent'
 
 const model = (payload: Record<string, unknown>) =>
-  mockAdapter({ response: () => [{ type: 'tool_call', toolCall: { id: '1', name: 'submit_eval_author', args: JSON.stringify(payload) } }, { type: 'done' }] })
+  mockAdapter({
+    response: () => [
+      { type: 'tool_call', toolCall: { id: '1', name: 'submit_eval_author', args: JSON.stringify(payload) } },
+      { type: 'done' },
+    ],
+  })
 
 describe('ecosystem-registry-eval-author', () => {
-  it('returns typed v1 output', async () => {
-    const r = await createEcosystemRegistryEvalAuthorAgent({ adapter: model({ title: 'Registry Eval Author', sections: [{ heading: 'Summary', body: 'content', citations: [] }], gaps: [], openQuestions: [] }) }).run('sample input for ecosystem-registry-eval-author')
+  it('returns typed eval suite draft', async () => {
+    const r = await createEcosystemRegistryEvalAuthorAgent({
+      adapter: model({
+        suiteName: 'legal-doc-reviewer',
+        cases: [
+          { input: 'indemnity clause', expectedDescription: 'findings array non-empty', rationale: 'core path' },
+          { input: 'minimal', expectedDescription: 'gaps present', rationale: 'thin input' },
+        ],
+        gaps: [],
+        openQuestions: [],
+      }),
+    }).run('Agent: legal-doc-reviewer — contract review')
+    expect(r.suiteName).toBe('legal-doc-reviewer')
+    expect(r.cases).toHaveLength(2)
     expect(r.requiresReview).toBe(true)
-    expect(r.sections.length).toBeGreaterThan(0)
   })
-  
+
   it('refuses empty input', async () => {
     await expect(createEcosystemRegistryEvalAuthorAgent({ adapter: model({}) }).run('  ')).rejects.toThrow()
   })

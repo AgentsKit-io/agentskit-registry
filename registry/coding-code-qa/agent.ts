@@ -109,7 +109,10 @@ export function createCodeQaAgent(config: CodeQaConfig) {
     const commandStatuses = ran.map(({ command, result }) => ({ command, code: result.code, durationMs: result.durationMs }))
     const allGreen = ran.every(({ result }) => result.code === 0)
     if (allGreen) {
-      return { allGreen: true, commands: commandStatuses, failures: [], summary: 'all green' }
+      const timing = commandStatuses
+        .map(({ command, durationMs }) => `${command}${durationMs != null ? ` (${Math.round(durationMs / 1000)}s)` : ''}`)
+        .join(', ')
+      return { allGreen: true, commands: commandStatuses, failures: [], summary: `all green — ${timing}` }
     }
 
     // Hand the captured output to the model for typed failure analysis.

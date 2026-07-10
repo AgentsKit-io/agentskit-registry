@@ -3,9 +3,30 @@ import type { EvalSuite } from '@agentskit/eval'
 export const suite: EvalSuite = {
   name: 'ecosystem-doc-bridge-corpus-scanner',
   cases: [
-    { input: 'Complete input for Doc-bridge Corpus Scanner: doc-bridge needs corpus classification before indexing. Provide full structured output.', expected: (r: string) => r.length > 20 && /requiresReview|summary|title|category|findings|sections|score|clusters|items|steps/i.test(r) },
-    { input: 'Minimal input.', expected: (r: string) => /gap|openQuestion/i.test(r) || r.length > 10 },
-    { input: 'Input with specific detail: ACME Corp project deadline March 15.', expected: (r: string) => /ACME|March|15/i.test(r) || /gap/i.test(r) },
-    { input: 'Empty context — only says "process this".', expected: (r: string) => r.length > 5 },
+    {
+      input: `Corpus files:
+- packages/auth.md (updated last week)
+- packages/runtime.md (stale — last touched 2023)
+- docs/getting-started.md`,
+      expected: (r: string) => {
+        const j = JSON.parse(r)
+        return j.scannedPaths.length >= 2 && j.scannedPaths.some((p: { staleness: string }) => p.staleness === 'stale')
+      },
+    },
+    {
+      input: 'Minimal input.',
+      expected: (r: string) => {
+        const j = JSON.parse(r)
+        return j.scannedPaths.length === 0 && j.gaps.length > 0
+      },
+    },
+    {
+      input: 'Single file: AGENTS.md at repo root, fresh.',
+      expected: (r: string) => /AGENTS\.md/i.test(r) && /agent-doc|fresh/i.test(r),
+    },
+    {
+      input: 'Empty context — only says "process this".',
+      expected: (r: string) => /gap/i.test(r) && /requiresReview":true/.test(r),
+    },
   ],
 }

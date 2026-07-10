@@ -3,9 +3,27 @@ import type { EvalSuite } from '@agentskit/eval'
 export const suite: EvalSuite = {
   name: 'ecosystem-registry-eval-author',
   cases: [
-    { input: 'Complete input for Registry Eval Author: Validated agents need eval.ts cases. Provide full structured output.', expected: (r: string) => r.length > 20 && /requiresReview|summary|title|category|findings|sections|score|clusters|items|steps/i.test(r) },
-    { input: 'Minimal input.', expected: (r: string) => /gap|openQuestion/i.test(r) || r.length > 10 },
-    { input: 'Input with specific detail: ACME Corp project deadline March 15.', expected: (r: string) => /ACME|March|15/i.test(r) || /gap/i.test(r) },
-    { input: 'Empty context — only says "process this".', expected: (r: string) => r.length > 5 },
+    {
+      input: 'Agent: legal-doc-reviewer. Pain: contract risk review. Output: findings array with severity.',
+      expected: (r: string) => {
+        const j = JSON.parse(r)
+        return j.cases.length >= 2 && j.cases.every((c: { input: string; expectedDescription: string }) => c.input && c.expectedDescription)
+      },
+    },
+    {
+      input: 'Minimal input.',
+      expected: (r: string) => {
+        const j = JSON.parse(r)
+        return j.cases.length >= 1 || j.gaps.length > 0
+      },
+    },
+    {
+      input: 'Agent handles LGPD consent audits — must reject missing consent records.',
+      expected: (r: string) => /consent|LGPD|gap/i.test(r),
+    },
+    {
+      input: 'Empty context — only says "process this".',
+      expected: (r: string) => /gap|openQuestion|cases/i.test(r),
+    },
   ],
 }
