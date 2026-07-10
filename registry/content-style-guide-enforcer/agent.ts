@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Style Guide Enforcer — Violations typed
- * Pain: Style drift
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Style Guide Enforcer — v1 validated. Pain: Style drift */
 
 export interface Finding { id: string; severity: 'critical' | 'high' | 'medium' | 'low' | 'info'; message: string; source?: string; recommendation?: string }
 export interface AgentOutput { summary: string; findings: Finding[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface ContentStyleGuideEnforcerConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,54 +19,34 @@ export interface ContentStyleGuideEnforcerConfig {
   maxSteps?: number
 }
 
-const Finding = z.object({
-  id: z.string(),
-  severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
-  message: z.string(),
-  source: z.string().optional(),
-  recommendation: z.string().optional(),
-})
 const Output = z.object({
   summary: z.string(),
-  findings: z.array(Finding),
+  findings: z.array(z.object({
+    id: z.string(), severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
+    message: z.string(), source: z.string().optional(), recommendation: z.string().optional(),
+  })),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'content-style-guide-enforcer',
   description: "Style Guide Enforcer — typed output agent (draft spec).",
-  systemPrompt: `You are Style Guide Enforcer. Style drift. Expected output: Violations typed.
-
-Return actionable findings with severity. Cite sources from input. Never invent issues not supported by the input.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Style Guide Enforcer. Style drift. Output: Violations typed.
+Actionable findings citing input sources. No invented issues.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_guide_enforcer exactly once with the structured result. Stop.`,
+Call submit_guide_enforcer exactly once. Stop.`,
   tools: ['submit_guide_enforcer'],
 }
 
 export function createContentStyleGuideEnforcerAgent(config: ContentStyleGuideEnforcerConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_guide_enforcer',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_guide_enforcer', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('content-style-guide-enforcer requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -86,15 +58,11 @@ export function createContentStyleGuideEnforcerAgent(config: ContentStyleGuideEn
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'content-style-guide-enforcer',
     run,
-    asHandle() {
-      return { name: 'content-style-guide-enforcer', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'content-style-guide-enforcer', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

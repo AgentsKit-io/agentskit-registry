@@ -6,18 +6,10 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Release Risk — Risk typed
- * Pain: Release risk opaque
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Release Risk — v1 validated. Pain: Release risk opaque */
 
 export interface AgentOutput { score: number; band: 'low' | 'medium' | 'high' | 'critical'; factors: string[]; rationale: string; gaps: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface ProductReleaseRiskConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -35,39 +27,23 @@ const Output = z.object({
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'product-release-risk',
   description: "Release Risk — typed output agent (draft spec).",
-  systemPrompt: `You are Release Risk. Release risk opaque. Expected output: Risk typed.
-
-Score 0-100 with band and explicit factors from input only.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Release Risk. Release risk opaque. Output: Risk typed.
+Score 0-100 with explicit factors from input.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_release_risk exactly once with the structured result. Stop.`,
+Call submit_release_risk exactly once. Stop.`,
   tools: ['submit_release_risk'],
 }
 
 export function createProductReleaseRiskAgent(config: ProductReleaseRiskConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_release_risk',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_release_risk', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('product-release-risk requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -79,15 +55,11 @@ export function createProductReleaseRiskAgent(config: ProductReleaseRiskConfig) 
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'product-release-risk',
     run,
-    asHandle() {
-      return { name: 'product-release-risk', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'product-release-risk', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

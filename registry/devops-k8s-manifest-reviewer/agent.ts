@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * K8s Manifest Reviewer — Findings typed
- * Pain: YAML risks
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** K8s Manifest Reviewer — v1 validated. Pain: YAML risks */
 
 export interface Finding { id: string; severity: 'critical' | 'high' | 'medium' | 'low' | 'info'; message: string; source?: string; recommendation?: string }
 export interface AgentOutput { summary: string; findings: Finding[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface DevopsK8sManifestReviewerConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,54 +19,34 @@ export interface DevopsK8sManifestReviewerConfig {
   maxSteps?: number
 }
 
-const Finding = z.object({
-  id: z.string(),
-  severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
-  message: z.string(),
-  source: z.string().optional(),
-  recommendation: z.string().optional(),
-})
 const Output = z.object({
   summary: z.string(),
-  findings: z.array(Finding),
+  findings: z.array(z.object({
+    id: z.string(), severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
+    message: z.string(), source: z.string().optional(), recommendation: z.string().optional(),
+  })),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'devops-k8s-manifest-reviewer',
   description: "K8s Manifest Reviewer — typed output agent (draft spec).",
-  systemPrompt: `You are K8s Manifest Reviewer. YAML risks. Expected output: Findings typed.
-
-Return actionable findings with severity. Cite sources from input. Never invent issues not supported by the input.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are K8s Manifest Reviewer. YAML risks. Output: Findings typed.
+Actionable findings citing input sources. No invented issues.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_manifest_reviewer exactly once with the structured result. Stop.`,
+Call submit_manifest_reviewer exactly once. Stop.`,
   tools: ['submit_manifest_reviewer'],
 }
 
 export function createDevopsK8sManifestReviewerAgent(config: DevopsK8sManifestReviewerConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_manifest_reviewer',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_manifest_reviewer', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('devops-k8s-manifest-reviewer requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -86,15 +58,11 @@ export function createDevopsK8sManifestReviewerAgent(config: DevopsK8sManifestRe
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'devops-k8s-manifest-reviewer',
     run,
-    asHandle() {
-      return { name: 'devops-k8s-manifest-reviewer', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'devops-k8s-manifest-reviewer', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

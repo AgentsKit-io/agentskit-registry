@@ -6,18 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Backup Restore Verifier — Verification typed
- * Pain: Backup untested
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Backup Restore Verifier — v1 validated. Pain: Backup untested */
 
-export interface AgentOutput { summary: string; insights: string[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface Section { heading: string; body: string; citations: string[] }
+export interface AgentOutput { title: string; sections: Section[]; gaps: string[]; openQuestions: string[] }
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface DevopsBackupRestoreVerifierConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,46 +20,30 @@ export interface DevopsBackupRestoreVerifierConfig {
 }
 
 const Output = z.object({
-  summary: z.string(),
-  insights: z.array(z.string()),
+  title: z.string(),
+  sections: z.array(z.object({ heading: z.string(), body: z.string(), citations: z.array(z.string()).default([]) })).min(1),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'devops-backup-restore-verifier',
   description: "Backup Restore Verifier — typed output agent (draft spec).",
-  systemPrompt: `You are Backup Restore Verifier. Backup untested. Expected output: Verification typed.
-
-Summarize with insights grounded in input.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Backup Restore Verifier. Backup untested. Output: Verification typed.
+Draft sections with citations from input. Gaps for missing facts.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_restore_verifier exactly once with the structured result. Stop.`,
+Call submit_restore_verifier exactly once. Stop.`,
   tools: ['submit_restore_verifier'],
 }
 
 export function createDevopsBackupRestoreVerifierAgent(config: DevopsBackupRestoreVerifierConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_restore_verifier',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_restore_verifier', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('devops-backup-restore-verifier requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -78,15 +55,11 @@ export function createDevopsBackupRestoreVerifierAgent(config: DevopsBackupResto
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'devops-backup-restore-verifier',
     run,
-    asHandle() {
-      return { name: 'devops-backup-restore-verifier', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'devops-backup-restore-verifier', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

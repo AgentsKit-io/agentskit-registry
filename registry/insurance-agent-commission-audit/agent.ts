@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Agent Commission Audit — Audit typed
- * Pain: Commission errors
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Agent Commission Audit — v1 validated. Pain: Commission errors */
 
 export interface Finding { id: string; severity: 'critical' | 'high' | 'medium' | 'low' | 'info'; message: string; source?: string; recommendation?: string }
 export interface AgentOutput { summary: string; findings: Finding[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface InsuranceAgentCommissionAuditConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,54 +19,34 @@ export interface InsuranceAgentCommissionAuditConfig {
   maxSteps?: number
 }
 
-const Finding = z.object({
-  id: z.string(),
-  severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
-  message: z.string(),
-  source: z.string().optional(),
-  recommendation: z.string().optional(),
-})
 const Output = z.object({
   summary: z.string(),
-  findings: z.array(Finding),
+  findings: z.array(z.object({
+    id: z.string(), severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
+    message: z.string(), source: z.string().optional(), recommendation: z.string().optional(),
+  })),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'insurance-agent-commission-audit',
   description: "Agent Commission Audit — typed output agent (draft spec).",
-  systemPrompt: `You are Agent Commission Audit. Commission errors. Expected output: Audit typed.
-
-Return actionable findings with severity. Cite sources from input. Never invent issues not supported by the input.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Agent Commission Audit. Commission errors. Output: Audit typed.
+Actionable findings citing input sources. No invented issues.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_commission_audit exactly once with the structured result. Stop.`,
+Call submit_commission_audit exactly once. Stop.`,
   tools: ['submit_commission_audit'],
 }
 
 export function createInsuranceAgentCommissionAuditAgent(config: InsuranceAgentCommissionAuditConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_commission_audit',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_commission_audit', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('insurance-agent-commission-audit requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -86,15 +58,11 @@ export function createInsuranceAgentCommissionAuditAgent(config: InsuranceAgentC
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'insurance-agent-commission-audit',
     run,
-    asHandle() {
-      return { name: 'insurance-agent-commission-audit', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'insurance-agent-commission-audit', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

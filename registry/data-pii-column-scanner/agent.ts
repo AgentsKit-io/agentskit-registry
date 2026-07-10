@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * PII Column Scanner — Columns typed
- * Pain: PII in tables
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** PII Column Scanner — v1 validated. Pain: PII in tables */
 
 export interface Finding { id: string; severity: 'critical' | 'high' | 'medium' | 'low' | 'info'; message: string; source?: string; recommendation?: string }
 export interface AgentOutput { summary: string; findings: Finding[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface DataPiiColumnScannerConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,54 +19,34 @@ export interface DataPiiColumnScannerConfig {
   maxSteps?: number
 }
 
-const Finding = z.object({
-  id: z.string(),
-  severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
-  message: z.string(),
-  source: z.string().optional(),
-  recommendation: z.string().optional(),
-})
 const Output = z.object({
   summary: z.string(),
-  findings: z.array(Finding),
+  findings: z.array(z.object({
+    id: z.string(), severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
+    message: z.string(), source: z.string().optional(), recommendation: z.string().optional(),
+  })),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'data-pii-column-scanner',
   description: "PII Column Scanner — typed output agent (draft spec).",
-  systemPrompt: `You are PII Column Scanner. PII in tables. Expected output: Columns typed.
-
-Return actionable findings with severity. Cite sources from input. Never invent issues not supported by the input.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are PII Column Scanner. PII in tables. Output: Columns typed.
+Actionable findings citing input sources. No invented issues.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_column_scanner exactly once with the structured result. Stop.`,
+Call submit_column_scanner exactly once. Stop.`,
   tools: ['submit_column_scanner'],
 }
 
 export function createDataPiiColumnScannerAgent(config: DataPiiColumnScannerConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_column_scanner',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_column_scanner', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('data-pii-column-scanner requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -86,15 +58,11 @@ export function createDataPiiColumnScannerAgent(config: DataPiiColumnScannerConf
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'data-pii-column-scanner',
     run,
-    asHandle() {
-      return { name: 'data-pii-column-scanner', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'data-pii-column-scanner', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

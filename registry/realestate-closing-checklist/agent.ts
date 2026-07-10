@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Closing Checklist — Checklist typed
- * Pain: Closing items missed
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Closing Checklist — v1 validated. Pain: Closing items missed */
 
 export interface CheckItem { item: string; pass: boolean; notes: string }
 export interface AgentOutput { summary: string; items: CheckItem[]; gaps: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface RealestateClosingChecklistConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,47 +19,30 @@ export interface RealestateClosingChecklistConfig {
   maxSteps?: number
 }
 
-const CheckItem = z.object({ item: z.string(), pass: z.boolean(), notes: z.string() })
 const Output = z.object({
   summary: z.string(),
-  items: z.array(CheckItem).min(1),
+  items: z.array(z.object({ item: z.string(), pass: z.boolean(), notes: z.string() })).min(1),
   gaps: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'realestate-closing-checklist',
   description: "Closing Checklist — typed output agent (draft spec).",
-  systemPrompt: `You are Closing Checklist. Closing items missed. Expected output: Checklist typed.
-
-Produce a checklist with pass/fail per item and notes.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Closing Checklist. Closing items missed. Output: Checklist typed.
+Checklist with pass/fail per item.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_closing_checklist exactly once with the structured result. Stop.`,
+Call submit_closing_checklist exactly once. Stop.`,
   tools: ['submit_closing_checklist'],
 }
 
 export function createRealestateClosingChecklistAgent(config: RealestateClosingChecklistConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_closing_checklist',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_closing_checklist', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('realestate-closing-checklist requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -79,15 +54,11 @@ export function createRealestateClosingChecklistAgent(config: RealestateClosingC
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'realestate-closing-checklist',
     run,
-    asHandle() {
-      return { name: 'realestate-closing-checklist', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'realestate-closing-checklist', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

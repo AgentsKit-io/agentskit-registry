@@ -3,20 +3,15 @@ import { mockAdapter } from '@agentskit/adapters'
 import { createFintechRegulatoryChangeImpactAgent } from './agent'
 
 const model = (payload: Record<string, unknown>) =>
-  mockAdapter({
-    response: () => [
-      { type: 'tool_call', toolCall: { id: '1', name: 'submit_change_impact', args: JSON.stringify(payload) } },
-      { type: 'done' },
-    ],
-  })
+  mockAdapter({ response: () => [{ type: 'tool_call', toolCall: { id: '1', name: 'submit_change_impact', args: JSON.stringify(payload) } }, { type: 'done' }] })
 
 describe('fintech-regulatory-change-impact', () => {
-  it('returns typed output', async () => {
-    const r = await createFintechRegulatoryChangeImpactAgent({ adapter: model({"summary":"ok","insights":["i"],"gaps":[],"openQuestions":[]}) }).run('sample input for fintech-regulatory-change-impact')
+  it('returns typed v1 output', async () => {
+    const r = await createFintechRegulatoryChangeImpactAgent({ adapter: model({ title: 'Regulatory Change Impact', sections: [{ heading: 'Summary', body: 'content', citations: [] }], gaps: [], openQuestions: [] }) }).run('sample input for fintech-regulatory-change-impact')
     expect(r.requiresReview).toBe(true)
-    expect(r.summary).toBeTruthy()
+    expect(r.sections.length).toBeGreaterThan(0)
   })
-
+  
   it('refuses empty input', async () => {
     await expect(createFintechRegulatoryChangeImpactAgent({ adapter: model({}) }).run('  ')).rejects.toThrow()
   })

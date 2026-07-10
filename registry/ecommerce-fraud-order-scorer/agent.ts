@@ -6,25 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Fraud Order Scorer — Score typed
- * Pain: Order fraud
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Fraud Order Scorer — v1 validated. Pain: Order fraud */
 
-export interface AgentOutput {
-  category: string
-  severity: 'critical' | 'high' | 'medium' | 'low'
-  queue: string
-  rationale: string
-  gaps: string[]
-  openQuestions: string[]
-}
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export type Severity = 'critical' | 'high' | 'medium' | 'low'
+export interface AgentOutput { category: string; severity: Severity; queue: string; rationale: string; gaps: string[]; openQuestions: string[] }
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface EcommerceFraudOrderScorerConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -43,45 +29,29 @@ const Output = z.object({
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-function applySafetyNet(input: string, o: z.infer<typeof Output>): z.infer<typeof Output> {
-  const critical = /\b(outage|down|breach|emergency|stroke|suicidal|data loss|security incident)\b/i
-  if (critical.test(input) && o.severity !== 'critical') {
-    return { ...o, severity: 'critical', queue: 'escalation', rationale: o.rationale + ' [safety-net: forced critical]' }
-  }
+function applySafetyNet(input: string, o: z.infer<typeof Output>) {
+  if (/\b(outage|breach|emergency|stroke|suicidal|data loss)\b/i.test(input) && o.severity !== 'critical')
+    return { ...o, severity: 'critical' as const, queue: 'escalation', rationale: o.rationale + ' [safety-net]' }
   return o
 }
 
 const skill = {
   name: 'ecommerce-fraud-order-scorer',
   description: "Fraud Order Scorer — typed output agent (draft spec).",
-  systemPrompt: `You are Fraud Order Scorer. Order fraud. Expected output: Score typed.
-
-Classify with category, severity (critical|high|medium|low), and suggested queue. List gaps for missing input.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Fraud Order Scorer. Order fraud. Output: Score typed.
+Classify with category, severity, queue, rationale. Gaps for missing input.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_order_scorer exactly once with the structured result. Stop.`,
+Call submit_order_scorer exactly once. Stop.`,
   tools: ['submit_order_scorer'],
 }
 
 export function createEcommerceFraudOrderScorerAgent(config: EcommerceFraudOrderScorerConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_order_scorer',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_order_scorer', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('ecommerce-fraud-order-scorer requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -93,15 +63,11 @@ export function createEcommerceFraudOrderScorerAgent(config: EcommerceFraudOrder
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'ecommerce-fraud-order-scorer',
     run,
-    asHandle() {
-      return { name: 'ecommerce-fraud-order-scorer', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'ecommerce-fraud-order-scorer', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

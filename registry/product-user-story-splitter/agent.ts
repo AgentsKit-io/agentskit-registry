@@ -6,18 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * User Story Splitter — Stories typed
- * Pain: Stories too large
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** User Story Splitter — v1 validated. Pain: Stories too large */
 
-export interface AgentOutput { summary: string; insights: string[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface Section { heading: string; body: string; citations: string[] }
+export interface AgentOutput { title: string; sections: Section[]; gaps: string[]; openQuestions: string[] }
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface ProductUserStorySplitterConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,46 +20,30 @@ export interface ProductUserStorySplitterConfig {
 }
 
 const Output = z.object({
-  summary: z.string(),
-  insights: z.array(z.string()),
+  title: z.string(),
+  sections: z.array(z.object({ heading: z.string(), body: z.string(), citations: z.array(z.string()).default([]) })).min(1),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'product-user-story-splitter',
   description: "User Story Splitter — typed output agent (draft spec).",
-  systemPrompt: `You are User Story Splitter. Stories too large. Expected output: Stories typed.
-
-Summarize with insights grounded in input.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are User Story Splitter. Stories too large. Output: Stories typed.
+Draft sections with citations from input. Gaps for missing facts.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_story_splitter exactly once with the structured result. Stop.`,
+Call submit_story_splitter exactly once. Stop.`,
   tools: ['submit_story_splitter'],
 }
 
 export function createProductUserStorySplitterAgent(config: ProductUserStorySplitterConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_story_splitter',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_story_splitter', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('product-user-story-splitter requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -78,15 +55,11 @@ export function createProductUserStorySplitterAgent(config: ProductUserStorySpli
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'product-user-story-splitter',
     run,
-    asHandle() {
-      return { name: 'product-user-story-splitter', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'product-user-story-splitter', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

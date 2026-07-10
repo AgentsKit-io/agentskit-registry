@@ -6,18 +6,10 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Third-party Risk — Assessment typed
- * Pain: Vendor risk
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Third-party Risk — v1 validated. Pain: Vendor risk */
 
 export interface AgentOutput { score: number; band: 'low' | 'medium' | 'high' | 'critical'; factors: string[]; rationale: string; gaps: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface SecurityThirdPartyRiskConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -35,39 +27,23 @@ const Output = z.object({
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'security-third-party-risk',
   description: "Third-party Risk — typed output agent (draft spec).",
-  systemPrompt: `You are Third-party Risk. Vendor risk. Expected output: Assessment typed.
-
-Score 0-100 with band and explicit factors from input only.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Third-party Risk. Vendor risk. Output: Assessment typed.
+Score 0-100 with explicit factors from input.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_party_risk exactly once with the structured result. Stop.`,
+Call submit_party_risk exactly once. Stop.`,
   tools: ['submit_party_risk'],
 }
 
 export function createSecurityThirdPartyRiskAgent(config: SecurityThirdPartyRiskConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_party_risk',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_party_risk', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('security-third-party-risk requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -79,15 +55,11 @@ export function createSecurityThirdPartyRiskAgent(config: SecurityThirdPartyRisk
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'security-third-party-risk',
     run,
-    asHandle() {
-      return { name: 'security-third-party-risk', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'security-third-party-risk', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

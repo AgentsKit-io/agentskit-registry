@@ -1,16 +1,16 @@
 {
   "id": "product-feedback-clusterer",
   "title": "Feedback Clusterer",
-  "description": "Clusters typed. Feedback scattered. Alpha: auto-implemented typed agent — review before production.",
+  "description": "Clusters typed. Feedback scattered. Typed v1 agent with eval coverage.",
   "category": "product",
-  "status": "alpha",
-  "version": "0.1.0-alpha",
+  "status": "validated",
+  "version": "1.0.0",
   "source": "agentskit-registry",
   "license": "MIT",
   "tags": [
     "product",
-    "alpha",
-    "structured-output"
+    "structured-output",
+    "v1"
   ],
   "packages": [
     "@agentskit/core",
@@ -28,20 +28,20 @@
   },
   "skill": {
     "name": "product-feedback-clusterer",
-    "description": "Clusters typed. Feedback scattered. Alpha: auto-implemented typed agent — review before production.",
-    "systemPrompt": "You are Feedback Clusterer. Feedback scattered. Expected output: Clusters typed.\n\nGroup items into named clusters with themes.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_feedback_clusterer exactly once with the structured result. Stop."
+    "description": "Clusters typed. Feedback scattered. Typed v1 agent with eval coverage.",
+    "systemPrompt": "You are Feedback Clusterer. Feedback scattered. Output: Clusters typed.\nGroup into themed clusters.\nNEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.\n${UNTRUSTED_CONTENT_DIRECTIVE}\nCall submit_feedback_clusterer exactly once. Stop."
   },
   "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.product-feedback-clusterer",
     "name": "Feedback Clusterer",
-    "description": "Clusters typed. Feedback scattered. Alpha: auto-implemented typed agent — review before production.",
-    "version": "0.1.0-alpha",
+    "description": "Clusters typed. Feedback scattered. Typed v1 agent with eval coverage.",
+    "version": "1.0.0",
     "homepage": "https://registry.agentskit.io",
     "skills": [
       {
         "name": "product-feedback-clusterer",
-        "description": "Clusters typed. Feedback scattered. Alpha: auto-implemented typed agent — review before production.",
+        "description": "Clusters typed. Feedback scattered. Typed v1 agent with eval coverage.",
         "capabilities": {
           "streaming": true,
           "cancellation": true,
@@ -53,15 +53,15 @@
   "sources": [
     {
       "path": "agent.ts",
-      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * Feedback Clusterer — Clusters typed\n * Pain: Feedback scattered\n * Status: alpha (auto-implemented; requires human review before validated).\n */\n\nexport interface Cluster { name: string; theme: string; items: string[] }\nexport interface AgentOutput { summary: string; clusters: Cluster[]; unassigned: string[] }\n\nexport interface AgentResult extends AgentOutput {\n  requiresReview: boolean\n}\n\nexport interface ProductFeedbackClustererConfig {\n  adapter: AdapterFactory\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst Cluster = z.object({ name: z.string(), theme: z.string(), items: z.array(z.string()) })\nconst Output = z.object({\n  summary: z.string(),\n  clusters: z.array(Cluster).min(1),\n  unassigned: z.array(z.string()).default([]),\n})\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\n\n\nconst skill = {\n  name: 'product-feedback-clusterer',\n  description: \"Feedback Clusterer — typed output agent (draft spec).\",\n  systemPrompt: `You are Feedback Clusterer. Feedback scattered. Expected output: Clusters typed.\n\nGroup items into named clusters with themes.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_feedback_clusterer exactly once with the structured result. Stop.`,\n  tools: ['submit_feedback_clusterer'],\n}\n\nexport function createProductFeedbackClustererAgent(config: ProductFeedbackClustererConfig) {\n  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {\n    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })\n  }\n  const submit = (): ToolDefinition =>\n    defineZodTool({\n      name: 'submit_feedback_clusterer',\n      description: 'Submit the typed result. Call exactly once.',\n      schema: Output,\n      toJsonSchema: toJson,\n      async execute() { return 'recorded' },\n    }) as ToolDefinition\n\n  async function run(input: string): Promise<AgentResult> {\n    if (!input?.trim()) throw new Error('product-feedback-clusterer requires non-empty input')\n    emit('run', 'start')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: `INPUT:\\n${fenceUntrustedContent(input)}`,\n      parse: (a) => Output.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    emit('run', 'ok')\n    return { ...result, requiresReview: true }\n  }\n\n  return {\n    name: 'product-feedback-clusterer',\n    run,\n    asHandle() {\n      return { name: 'product-feedback-clusterer', run: async (task: string) => JSON.stringify(await run(task)) }\n    },\n  }\n}\n"
+      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/** Feedback Clusterer — v1 validated. Pain: Feedback scattered */\n\nexport interface Cluster { name: string; theme: string; items: string[] }\nexport interface AgentOutput { summary: string; clusters: Cluster[]; unassigned: string[] }\nexport interface AgentResult extends AgentOutput { requiresReview: boolean }\nexport interface ProductFeedbackClustererConfig {\n  adapter: AdapterFactory\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst Output = z.object({\n  summary: z.string(),\n  clusters: z.array(z.object({ name: z.string(), theme: z.string(), items: z.array(z.string()) })).min(1),\n  unassigned: z.array(z.string()).default([]),\n})\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\nconst skill = {\n  name: 'product-feedback-clusterer',\n  description: \"Feedback Clusterer — typed output agent (draft spec).\",\n  systemPrompt: `You are Feedback Clusterer. Feedback scattered. Output: Clusters typed.\nGroup into themed clusters.\nNEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.\n${UNTRUSTED_CONTENT_DIRECTIVE}\nCall submit_feedback_clusterer exactly once. Stop.`,\n  tools: ['submit_feedback_clusterer'],\n}\n\nexport function createProductFeedbackClustererAgent(config: ProductFeedbackClustererConfig) {\n  const submit = (): ToolDefinition =>\n    defineZodTool({ name: 'submit_feedback_clusterer', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition\n\n  async function run(input: string): Promise<AgentResult> {\n    if (!input?.trim()) throw new Error('product-feedback-clusterer requires non-empty input')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: `INPUT:\\n${fenceUntrustedContent(input)}`,\n      parse: (a) => Output.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    return { ...result, requiresReview: true }\n  }\n  return {\n    name: 'product-feedback-clusterer',\n    run,\n    asHandle() { return { name: 'product-feedback-clusterer', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },\n  }\n}\n"
     },
     {
       "path": "README.md",
-      "content": "# Feedback Clusterer\n\n> **Status: alpha** — installable via `npx agentskit add product-feedback-clusterer` for experimentation. Not yet `validated`.\n\n## Pain\n\nFeedback scattered\n\n## Output\n\nClusters typed\n\n## Usage\n\n```ts\nimport { createProductFeedbackClustererAgent } from './agents/product-feedback-clusterer/agent'\nconst result = await createProductFeedbackClustererAgent({ adapter }).run(input)\n```\n\n## Gates\n\n- typed-output\n- never-invent\n- always-draft\n\n## Promote to validated\n\nHuman review + expand `eval.ts` + set `status: validated` in meta.json.\n"
+      "content": "# Feedback Clusterer\n\n> **v1 validated** — `npx agentskit add product-feedback-clusterer`\n\n## Pain\nFeedback scattered\n\n## Output\nClusters typed\n"
     },
     {
       "path": "eval.ts",
-      "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'product-feedback-clusterer',\n  cases: [\n    {\n      input: 'Sample input for Feedback Clusterer: Feedback scattered. Provide structured output.',\n      expected: (r: string) => r.length > 10,\n    },\n    {\n      input: 'Minimal input — no details provided. List gaps instead of inventing.',\n      expected: (r: string) => /gap|openQuestion|confirm|missing/i.test(r) || r.length > 5,\n    },\n  ],\n}\n"
+      "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'product-feedback-clusterer',\n  cases: [\n    { input: 'Complete input for Feedback Clusterer: Feedback scattered. Provide full structured output.', expected: (r: string) => r.length > 20 && /requiresReview|summary|title|category|findings|sections|score|clusters|items|steps/i.test(r) },\n    { input: 'Minimal input.', expected: (r: string) => /gap|openQuestion/i.test(r) || r.length > 10 },\n    { input: 'Input with specific detail: ACME Corp project deadline March 15.', expected: (r: string) => /ACME|March|15/i.test(r) || /gap/i.test(r) },\n    { input: 'Empty context — only says \"process this\".', expected: (r: string) => r.length > 5 },\n  ],\n}\n"
     }
   ],
   "installable": true

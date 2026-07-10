@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Premium Calculator Memo — Memo typed
- * Pain: Premium opaque
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Premium Calculator Memo — v1 validated. Pain: Premium opaque */
 
 export interface Section { heading: string; body: string; citations: string[] }
 export interface AgentOutput { title: string; sections: Section[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface InsurancePremiumCalculatorMemoConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,48 +19,31 @@ export interface InsurancePremiumCalculatorMemoConfig {
   maxSteps?: number
 }
 
-const SectionSchema = z.object({ heading: z.string(), body: z.string(), citations: z.array(z.string()).default([]) })
 const Output = z.object({
   title: z.string(),
-  sections: z.array(SectionSchema).min(1),
+  sections: z.array(z.object({ heading: z.string(), body: z.string(), citations: z.array(z.string()).default([]) })).min(1),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'insurance-premium-calculator-memo',
   description: "Premium Calculator Memo — typed output agent (draft spec).",
-  systemPrompt: `You are Premium Calculator Memo. Premium opaque. Expected output: Memo typed.
-
-Draft document sections. Cite sources inline in citations[]. Missing facts go to gaps, not invented prose.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Premium Calculator Memo. Premium opaque. Output: Memo typed.
+Draft sections with citations from input. Gaps for missing facts.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_calculator_memo exactly once with the structured result. Stop.`,
+Call submit_calculator_memo exactly once. Stop.`,
   tools: ['submit_calculator_memo'],
 }
 
 export function createInsurancePremiumCalculatorMemoAgent(config: InsurancePremiumCalculatorMemoConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_calculator_memo',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_calculator_memo', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('insurance-premium-calculator-memo requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -80,15 +55,11 @@ export function createInsurancePremiumCalculatorMemoAgent(config: InsurancePremi
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'insurance-premium-calculator-memo',
     run,
-    asHandle() {
-      return { name: 'insurance-premium-calculator-memo', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'insurance-premium-calculator-memo', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

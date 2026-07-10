@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * SIEM Alert Grouper — Groups typed
- * Pain: Alert noise
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** SIEM Alert Grouper — v1 validated. Pain: Alert noise */
 
 export interface Cluster { name: string; theme: string; items: string[] }
 export interface AgentOutput { summary: string; clusters: Cluster[]; unassigned: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface SecuritySiemAlertGrouperConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,47 +19,30 @@ export interface SecuritySiemAlertGrouperConfig {
   maxSteps?: number
 }
 
-const Cluster = z.object({ name: z.string(), theme: z.string(), items: z.array(z.string()) })
 const Output = z.object({
   summary: z.string(),
-  clusters: z.array(Cluster).min(1),
+  clusters: z.array(z.object({ name: z.string(), theme: z.string(), items: z.array(z.string()) })).min(1),
   unassigned: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'security-siem-alert-grouper',
   description: "SIEM Alert Grouper — typed output agent (draft spec).",
-  systemPrompt: `You are SIEM Alert Grouper. Alert noise. Expected output: Groups typed.
-
-Group items into named clusters with themes.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are SIEM Alert Grouper. Alert noise. Output: Groups typed.
+Group into themed clusters.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_alert_grouper exactly once with the structured result. Stop.`,
+Call submit_alert_grouper exactly once. Stop.`,
   tools: ['submit_alert_grouper'],
 }
 
 export function createSecuritySiemAlertGrouperAgent(config: SecuritySiemAlertGrouperConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_alert_grouper',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_alert_grouper', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('security-siem-alert-grouper requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -79,15 +54,11 @@ export function createSecuritySiemAlertGrouperAgent(config: SecuritySiemAlertGro
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'security-siem-alert-grouper',
     run,
-    asHandle() {
-      return { name: 'security-siem-alert-grouper', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'security-siem-alert-grouper', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

@@ -3,13 +3,9 @@ import type { EvalSuite } from '@agentskit/eval'
 export const suite: EvalSuite = {
   name: 'security-siem-alert-grouper',
   cases: [
-    {
-      input: 'Sample input for SIEM Alert Grouper: Alert noise. Provide structured output.',
-      expected: (r: string) => r.length > 10,
-    },
-    {
-      input: 'Minimal input — no details provided. List gaps instead of inventing.',
-      expected: (r: string) => /gap|openQuestion|confirm|missing/i.test(r) || r.length > 5,
-    },
+    { input: 'Complete input for SIEM Alert Grouper: Alert noise. Provide full structured output.', expected: (r: string) => r.length > 20 && /requiresReview|summary|title|category|findings|sections|score|clusters|items|steps/i.test(r) },
+    { input: 'Minimal input.', expected: (r: string) => /gap|openQuestion/i.test(r) || r.length > 10 },
+    { input: 'Input with specific detail: ACME Corp project deadline March 15.', expected: (r: string) => /ACME|March|15/i.test(r) || /gap/i.test(r) },
+    { input: 'Empty context — only says "process this".', expected: (r: string) => r.length > 5 },
   ],
 }

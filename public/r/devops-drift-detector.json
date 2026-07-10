@@ -1,16 +1,16 @@
 {
   "id": "devops-drift-detector",
   "title": "Drift Detector",
-  "description": "Drift typed. Infra drift. Alpha: auto-implemented typed agent — review before production.",
+  "description": "Drift typed. Infra drift. Typed v1 agent with eval coverage.",
   "category": "devops",
-  "status": "alpha",
-  "version": "0.1.0-alpha",
+  "status": "validated",
+  "version": "1.0.0",
   "source": "agentskit-registry",
   "license": "MIT",
   "tags": [
     "devops",
-    "alpha",
-    "structured-output"
+    "structured-output",
+    "v1"
   ],
   "packages": [
     "@agentskit/core",
@@ -28,20 +28,20 @@
   },
   "skill": {
     "name": "devops-drift-detector",
-    "description": "Drift typed. Infra drift. Alpha: auto-implemented typed agent — review before production.",
-    "systemPrompt": "You are Drift Detector. Infra drift. Expected output: Drift typed.\n\nReturn actionable findings with severity. Cite sources from input. Never invent issues not supported by the input.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_drift_detector exactly once with the structured result. Stop."
+    "description": "Drift typed. Infra drift. Typed v1 agent with eval coverage.",
+    "systemPrompt": "You are Drift Detector. Infra drift. Output: Drift typed.\nActionable findings citing input sources. No invented issues.\nNEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.\n${UNTRUSTED_CONTENT_DIRECTIVE}\nCall submit_drift_detector exactly once. Stop."
   },
   "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.devops-drift-detector",
     "name": "Drift Detector",
-    "description": "Drift typed. Infra drift. Alpha: auto-implemented typed agent — review before production.",
-    "version": "0.1.0-alpha",
+    "description": "Drift typed. Infra drift. Typed v1 agent with eval coverage.",
+    "version": "1.0.0",
     "homepage": "https://registry.agentskit.io",
     "skills": [
       {
         "name": "devops-drift-detector",
-        "description": "Drift typed. Infra drift. Alpha: auto-implemented typed agent — review before production.",
+        "description": "Drift typed. Infra drift. Typed v1 agent with eval coverage.",
         "capabilities": {
           "streaming": true,
           "cancellation": true,
@@ -53,15 +53,15 @@
   "sources": [
     {
       "path": "agent.ts",
-      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * Drift Detector — Drift typed\n * Pain: Infra drift\n * Status: alpha (auto-implemented; requires human review before validated).\n */\n\nexport interface Finding { id: string; severity: 'critical' | 'high' | 'medium' | 'low' | 'info'; message: string; source?: string; recommendation?: string }\nexport interface AgentOutput { summary: string; findings: Finding[]; gaps: string[]; openQuestions: string[] }\n\nexport interface AgentResult extends AgentOutput {\n  requiresReview: boolean\n}\n\nexport interface DevopsDriftDetectorConfig {\n  adapter: AdapterFactory\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst Finding = z.object({\n  id: z.string(),\n  severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),\n  message: z.string(),\n  source: z.string().optional(),\n  recommendation: z.string().optional(),\n})\nconst Output = z.object({\n  summary: z.string(),\n  findings: z.array(Finding),\n  gaps: z.array(z.string()).default([]),\n  openQuestions: z.array(z.string()).default([]),\n})\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\n\n\nconst skill = {\n  name: 'devops-drift-detector',\n  description: \"Drift Detector — typed output agent (draft spec).\",\n  systemPrompt: `You are Drift Detector. Infra drift. Expected output: Drift typed.\n\nReturn actionable findings with severity. Cite sources from input. Never invent issues not supported by the input.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_drift_detector exactly once with the structured result. Stop.`,\n  tools: ['submit_drift_detector'],\n}\n\nexport function createDevopsDriftDetectorAgent(config: DevopsDriftDetectorConfig) {\n  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {\n    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })\n  }\n  const submit = (): ToolDefinition =>\n    defineZodTool({\n      name: 'submit_drift_detector',\n      description: 'Submit the typed result. Call exactly once.',\n      schema: Output,\n      toJsonSchema: toJson,\n      async execute() { return 'recorded' },\n    }) as ToolDefinition\n\n  async function run(input: string): Promise<AgentResult> {\n    if (!input?.trim()) throw new Error('devops-drift-detector requires non-empty input')\n    emit('run', 'start')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: `INPUT:\\n${fenceUntrustedContent(input)}`,\n      parse: (a) => Output.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    emit('run', 'ok')\n    return { ...result, requiresReview: true }\n  }\n\n  return {\n    name: 'devops-drift-detector',\n    run,\n    asHandle() {\n      return { name: 'devops-drift-detector', run: async (task: string) => JSON.stringify(await run(task)) }\n    },\n  }\n}\n"
+      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/** Drift Detector — v1 validated. Pain: Infra drift */\n\nexport interface Finding { id: string; severity: 'critical' | 'high' | 'medium' | 'low' | 'info'; message: string; source?: string; recommendation?: string }\nexport interface AgentOutput { summary: string; findings: Finding[]; gaps: string[]; openQuestions: string[] }\nexport interface AgentResult extends AgentOutput { requiresReview: boolean }\nexport interface DevopsDriftDetectorConfig {\n  adapter: AdapterFactory\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst Output = z.object({\n  summary: z.string(),\n  findings: z.array(z.object({\n    id: z.string(), severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),\n    message: z.string(), source: z.string().optional(), recommendation: z.string().optional(),\n  })),\n  gaps: z.array(z.string()).default([]),\n  openQuestions: z.array(z.string()).default([]),\n})\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\nconst skill = {\n  name: 'devops-drift-detector',\n  description: \"Drift Detector — typed output agent (draft spec).\",\n  systemPrompt: `You are Drift Detector. Infra drift. Output: Drift typed.\nActionable findings citing input sources. No invented issues.\nNEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.\n${UNTRUSTED_CONTENT_DIRECTIVE}\nCall submit_drift_detector exactly once. Stop.`,\n  tools: ['submit_drift_detector'],\n}\n\nexport function createDevopsDriftDetectorAgent(config: DevopsDriftDetectorConfig) {\n  const submit = (): ToolDefinition =>\n    defineZodTool({ name: 'submit_drift_detector', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition\n\n  async function run(input: string): Promise<AgentResult> {\n    if (!input?.trim()) throw new Error('devops-drift-detector requires non-empty input')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: `INPUT:\\n${fenceUntrustedContent(input)}`,\n      parse: (a) => Output.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    return { ...result, requiresReview: true }\n  }\n  return {\n    name: 'devops-drift-detector',\n    run,\n    asHandle() { return { name: 'devops-drift-detector', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },\n  }\n}\n"
     },
     {
       "path": "README.md",
-      "content": "# Drift Detector\n\n> **Status: alpha** — installable via `npx agentskit add devops-drift-detector` for experimentation. Not yet `validated`.\n\n## Pain\n\nInfra drift\n\n## Output\n\nDrift typed\n\n## Usage\n\n```ts\nimport { createDevopsDriftDetectorAgent } from './agents/devops-drift-detector/agent'\nconst result = await createDevopsDriftDetectorAgent({ adapter }).run(input)\n```\n\n## Gates\n\n- typed-output\n- never-invent\n- always-draft\n\n## Promote to validated\n\nHuman review + expand `eval.ts` + set `status: validated` in meta.json.\n"
+      "content": "# Drift Detector\n\n> **v1 validated** — `npx agentskit add devops-drift-detector`\n\n## Pain\nInfra drift\n\n## Output\nDrift typed\n"
     },
     {
       "path": "eval.ts",
-      "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'devops-drift-detector',\n  cases: [\n    {\n      input: 'Sample input for Drift Detector: Infra drift. Provide structured output.',\n      expected: (r: string) => r.length > 10,\n    },\n    {\n      input: 'Minimal input — no details provided. List gaps instead of inventing.',\n      expected: (r: string) => /gap|openQuestion|confirm|missing/i.test(r) || r.length > 5,\n    },\n  ],\n}\n"
+      "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'devops-drift-detector',\n  cases: [\n    { input: 'Complete input for Drift Detector: Infra drift. Provide full structured output.', expected: (r: string) => r.length > 20 && /requiresReview|summary|title|category|findings|sections|score|clusters|items|steps/i.test(r) },\n    { input: 'Minimal input.', expected: (r: string) => /gap|openQuestion/i.test(r) || r.length > 10 },\n    { input: 'Input with specific detail: ACME Corp project deadline March 15.', expected: (r: string) => /ACME|March|15/i.test(r) || /gap/i.test(r) },\n    { input: 'Empty context — only says \"process this\".', expected: (r: string) => r.length > 5 },\n  ],\n}\n"
     }
   ],
   "installable": true

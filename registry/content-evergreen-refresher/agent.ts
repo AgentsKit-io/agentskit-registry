@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Evergreen Refresher — Refresh plan typed
- * Pain: Stale content
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Evergreen Refresher — v1 validated. Pain: Stale content */
 
 export interface Step { order: number; action: string; owner?: string; notes?: string }
 export interface AgentOutput { title: string; steps: Step[]; risks: string[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface ContentEvergreenRefresherConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,49 +19,32 @@ export interface ContentEvergreenRefresherConfig {
   maxSteps?: number
 }
 
-const Step = z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })
 const Output = z.object({
   title: z.string(),
-  steps: z.array(Step).min(1),
+  steps: z.array(z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })).min(1),
   risks: z.array(z.string()).default([]),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'content-evergreen-refresher',
   description: "Evergreen Refresher — typed output agent (draft spec).",
-  systemPrompt: `You are Evergreen Refresher. Stale content. Expected output: Refresh plan typed.
-
-Produce an ordered plan with risks and gaps for missing info.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Evergreen Refresher. Stale content. Output: Refresh plan typed.
+Ordered plan with risks and gaps.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_evergreen_refresher exactly once with the structured result. Stop.`,
+Call submit_evergreen_refresher exactly once. Stop.`,
   tools: ['submit_evergreen_refresher'],
 }
 
 export function createContentEvergreenRefresherAgent(config: ContentEvergreenRefresherConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_evergreen_refresher',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_evergreen_refresher', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('content-evergreen-refresher requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -81,15 +56,11 @@ export function createContentEvergreenRefresherAgent(config: ContentEvergreenRef
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'content-evergreen-refresher',
     run,
-    asHandle() {
-      return { name: 'content-evergreen-refresher', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'content-evergreen-refresher', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

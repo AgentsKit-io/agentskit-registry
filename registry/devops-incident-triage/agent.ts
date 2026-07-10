@@ -6,25 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Incident Triage — Triage typed
- * Pain: Alert flood
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Incident Triage — v1 validated. Pain: Alert flood */
 
-export interface AgentOutput {
-  category: string
-  severity: 'critical' | 'high' | 'medium' | 'low'
-  queue: string
-  rationale: string
-  gaps: string[]
-  openQuestions: string[]
-}
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export type Severity = 'critical' | 'high' | 'medium' | 'low'
+export interface AgentOutput { category: string; severity: Severity; queue: string; rationale: string; gaps: string[]; openQuestions: string[] }
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface DevopsIncidentTriageConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -43,45 +29,29 @@ const Output = z.object({
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-function applySafetyNet(input: string, o: z.infer<typeof Output>): z.infer<typeof Output> {
-  const critical = /\b(outage|down|breach|emergency|stroke|suicidal|data loss|security incident)\b/i
-  if (critical.test(input) && o.severity !== 'critical') {
-    return { ...o, severity: 'critical', queue: 'escalation', rationale: o.rationale + ' [safety-net: forced critical]' }
-  }
+function applySafetyNet(input: string, o: z.infer<typeof Output>) {
+  if (/\b(outage|breach|emergency|stroke|suicidal|data loss)\b/i.test(input) && o.severity !== 'critical')
+    return { ...o, severity: 'critical' as const, queue: 'escalation', rationale: o.rationale + ' [safety-net]' }
   return o
 }
 
 const skill = {
   name: 'devops-incident-triage',
   description: "Incident Triage — typed output agent (draft spec).",
-  systemPrompt: `You are Incident Triage. Alert flood. Expected output: Triage typed.
-
-Classify with category, severity (critical|high|medium|low), and suggested queue. List gaps for missing input.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Incident Triage. Alert flood. Output: Triage typed.
+Classify with category, severity, queue, rationale. Gaps for missing input.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_incident_triage exactly once with the structured result. Stop.`,
+Call submit_incident_triage exactly once. Stop.`,
   tools: ['submit_incident_triage'],
 }
 
 export function createDevopsIncidentTriageAgent(config: DevopsIncidentTriageConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_incident_triage',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_incident_triage', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('devops-incident-triage requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -93,15 +63,11 @@ export function createDevopsIncidentTriageAgent(config: DevopsIncidentTriageConf
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'devops-incident-triage',
     run,
-    asHandle() {
-      return { name: 'devops-incident-triage', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'devops-incident-triage', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

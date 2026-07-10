@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Terraform Plan Interpreter — Summary typed
- * Pain: TF plans opaque
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Terraform Plan Interpreter — v1 validated. Pain: TF plans opaque */
 
-export interface Step { order: number; action: string; owner?: string; notes?: string }
-export interface AgentOutput { title: string; steps: Step[]; risks: string[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface Finding { id: string; severity: 'critical' | 'high' | 'medium' | 'low' | 'info'; message: string; source?: string; recommendation?: string }
+export interface AgentOutput { summary: string; findings: Finding[]; gaps: string[]; openQuestions: string[] }
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface DevopsTerraformPlanInterpreterConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,49 +19,34 @@ export interface DevopsTerraformPlanInterpreterConfig {
   maxSteps?: number
 }
 
-const Step = z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })
 const Output = z.object({
-  title: z.string(),
-  steps: z.array(Step).min(1),
-  risks: z.array(z.string()).default([]),
+  summary: z.string(),
+  findings: z.array(z.object({
+    id: z.string(), severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
+    message: z.string(), source: z.string().optional(), recommendation: z.string().optional(),
+  })),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'devops-terraform-plan-interpreter',
   description: "Terraform Plan Interpreter — typed output agent (draft spec).",
-  systemPrompt: `You are Terraform Plan Interpreter. TF plans opaque. Expected output: Summary typed.
-
-Produce an ordered plan with risks and gaps for missing info.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Terraform Plan Interpreter. TF plans opaque. Output: Summary typed.
+Actionable findings citing input sources. No invented issues.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_plan_interpreter exactly once with the structured result. Stop.`,
+Call submit_plan_interpreter exactly once. Stop.`,
   tools: ['submit_plan_interpreter'],
 }
 
 export function createDevopsTerraformPlanInterpreterAgent(config: DevopsTerraformPlanInterpreterConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_plan_interpreter',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_plan_interpreter', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('devops-terraform-plan-interpreter requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -81,15 +58,11 @@ export function createDevopsTerraformPlanInterpreterAgent(config: DevopsTerrafor
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'devops-terraform-plan-interpreter',
     run,
-    asHandle() {
-      return { name: 'devops-terraform-plan-interpreter', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'devops-terraform-plan-interpreter', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

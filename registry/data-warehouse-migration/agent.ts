@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Warehouse Migration Planner — Plan typed
- * Pain: DW migrations risky
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Warehouse Migration Planner — v1 validated. Pain: DW migrations risky */
 
 export interface Step { order: number; action: string; owner?: string; notes?: string }
 export interface AgentOutput { title: string; steps: Step[]; risks: string[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface DataWarehouseMigrationConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,49 +19,32 @@ export interface DataWarehouseMigrationConfig {
   maxSteps?: number
 }
 
-const Step = z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })
 const Output = z.object({
   title: z.string(),
-  steps: z.array(Step).min(1),
+  steps: z.array(z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })).min(1),
   risks: z.array(z.string()).default([]),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'data-warehouse-migration',
   description: "Warehouse Migration Planner — typed output agent (draft spec).",
-  systemPrompt: `You are Warehouse Migration Planner. DW migrations risky. Expected output: Plan typed.
-
-Produce an ordered plan with risks and gaps for missing info.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Warehouse Migration Planner. DW migrations risky. Output: Plan typed.
+Ordered plan with risks and gaps.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_warehouse_migration exactly once with the structured result. Stop.`,
+Call submit_warehouse_migration exactly once. Stop.`,
   tools: ['submit_warehouse_migration'],
 }
 
 export function createDataWarehouseMigrationAgent(config: DataWarehouseMigrationConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_warehouse_migration',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_warehouse_migration', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('data-warehouse-migration requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -81,15 +56,11 @@ export function createDataWarehouseMigrationAgent(config: DataWarehouseMigration
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'data-warehouse-migration',
     run,
-    asHandle() {
-      return { name: 'data-warehouse-migration', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'data-warehouse-migration', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

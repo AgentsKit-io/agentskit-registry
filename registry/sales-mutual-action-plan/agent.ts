@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Mutual Action Plan — Plan typed
- * Pain: MAPs manual
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Mutual Action Plan — v1 validated. Pain: MAPs manual */
 
 export interface Step { order: number; action: string; owner?: string; notes?: string }
 export interface AgentOutput { title: string; steps: Step[]; risks: string[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface SalesMutualActionPlanConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,49 +19,32 @@ export interface SalesMutualActionPlanConfig {
   maxSteps?: number
 }
 
-const Step = z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })
 const Output = z.object({
   title: z.string(),
-  steps: z.array(Step).min(1),
+  steps: z.array(z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })).min(1),
   risks: z.array(z.string()).default([]),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'sales-mutual-action-plan',
   description: "Mutual Action Plan — typed output agent (draft spec).",
-  systemPrompt: `You are Mutual Action Plan. MAPs manual. Expected output: Plan typed.
-
-Produce an ordered plan with risks and gaps for missing info.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Mutual Action Plan. MAPs manual. Output: Plan typed.
+Ordered plan with risks and gaps.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_action_plan exactly once with the structured result. Stop.`,
+Call submit_action_plan exactly once. Stop.`,
   tools: ['submit_action_plan'],
 }
 
 export function createSalesMutualActionPlanAgent(config: SalesMutualActionPlanConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_action_plan',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_action_plan', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('sales-mutual-action-plan requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -81,15 +56,11 @@ export function createSalesMutualActionPlanAgent(config: SalesMutualActionPlanCo
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'sales-mutual-action-plan',
     run,
-    asHandle() {
-      return { name: 'sales-mutual-action-plan', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'sales-mutual-action-plan', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }

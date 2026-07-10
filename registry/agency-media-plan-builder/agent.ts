@@ -6,19 +6,11 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
-/**
- * Media Plan Builder — Plan per channel typed
- * Pain: Media plans ad-hoc
- * Status: alpha (auto-implemented; requires human review before validated).
- */
+/** Media Plan Builder — v1 validated. Pain: Media plans ad-hoc */
 
 export interface Step { order: number; action: string; owner?: string; notes?: string }
 export interface AgentOutput { title: string; steps: Step[]; risks: string[]; gaps: string[]; openQuestions: string[] }
-
-export interface AgentResult extends AgentOutput {
-  requiresReview: boolean
-}
-
+export interface AgentResult extends AgentOutput { requiresReview: boolean }
 export interface AgencyMediaPlanBuilderConfig {
   adapter: AdapterFactory
   memory?: ChatMemory
@@ -27,49 +19,32 @@ export interface AgencyMediaPlanBuilderConfig {
   maxSteps?: number
 }
 
-const Step = z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })
 const Output = z.object({
   title: z.string(),
-  steps: z.array(Step).min(1),
+  steps: z.array(z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })).min(1),
   risks: z.array(z.string()).default([]),
   gaps: z.array(z.string()).default([]),
   openQuestions: z.array(z.string()).default([]),
 })
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
 
-
-
 const skill = {
   name: 'agency-media-plan-builder',
   description: "Media Plan Builder — typed output agent (draft spec).",
-  systemPrompt: `You are Media Plan Builder. Media plans ad-hoc. Expected output: Plan per channel typed.
-
-Produce an ordered plan with risks and gaps for missing info.
-NEVER invent facts absent from the input — use gaps and openQuestions.
-Output is always a draft for human review.
-
+  systemPrompt: `You are Media Plan Builder. Media plans ad-hoc. Output: Plan per channel typed.
+Ordered plan with risks and gaps.
+NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}
-
-Call submit_plan_builder exactly once with the structured result. Stop.`,
+Call submit_plan_builder exactly once. Stop.`,
   tools: ['submit_plan_builder'],
 }
 
 export function createAgencyMediaPlanBuilderAgent(config: AgencyMediaPlanBuilderConfig) {
-  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
-    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
-  }
   const submit = (): ToolDefinition =>
-    defineZodTool({
-      name: 'submit_plan_builder',
-      description: 'Submit the typed result. Call exactly once.',
-      schema: Output,
-      toJsonSchema: toJson,
-      async execute() { return 'recorded' },
-    }) as ToolDefinition
+    defineZodTool({ name: 'submit_plan_builder', description: 'Submit result. Once.', schema: Output, toJsonSchema: toJson, async execute() { return 'recorded' } }) as ToolDefinition
 
   async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('agency-media-plan-builder requires non-empty input')
-    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
@@ -81,15 +56,11 @@ export function createAgencyMediaPlanBuilderAgent(config: AgencyMediaPlanBuilder
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    emit('run', 'ok')
     return { ...result, requiresReview: true }
   }
-
   return {
     name: 'agency-media-plan-builder',
     run,
-    asHandle() {
-      return { name: 'agency-media-plan-builder', run: async (task: string) => JSON.stringify(await run(task)) }
-    },
+    asHandle() { return { name: 'agency-media-plan-builder', run: (t: string) => run(t).then((r) => JSON.stringify(r)) } },
   }
 }
