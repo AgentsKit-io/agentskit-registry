@@ -1,6 +1,6 @@
 # Registry Agent Spec Author
 
-> **Status: draft** — not installable via `npx agentskit add` until validated.
+> **Status: alpha** — installable via `npx agentskit add ecosystem-registry-agent-spec-author` for experimentation. Not yet `validated`.
 
 ## Pain
 
@@ -10,6 +10,13 @@ New agents need consistent specs before scaffold
 
 Spec typed: pain, output, gates, zod shape outline
 
+## Usage
+
+```ts
+import { createEcosystemRegistryAgentSpecAuthorAgent } from './agents/ecosystem-registry-agent-spec-author/agent'
+const result = await createEcosystemRegistryAgentSpecAuthorAgent({ adapter }).run(input)
+```
+
 ## Gates
 
 - typed-output
@@ -18,7 +25,4 @@ Spec typed: pain, output, gates, zod shape outline
 
 ## Promote to validated
 
-1. Replace the placeholder Zod schema with the real output contract.
-2. Add `eval.ts` with 5+ regression cases.
-3. Run `npm test && npm run build`.
-4. Set `"status": "validated"` in `meta.json` and open a PR.
+Human review + expand `eval.ts` + set `status: validated` in meta.json.

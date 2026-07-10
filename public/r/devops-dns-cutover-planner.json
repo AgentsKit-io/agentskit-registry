@@ -1,0 +1,68 @@
+{
+  "id": "devops-dns-cutover-planner",
+  "title": "DNS Cutover Planner",
+  "description": "Plan typed. DNS migrations risky. Alpha: auto-implemented typed agent — review before production.",
+  "category": "devops",
+  "status": "alpha",
+  "version": "0.1.0-alpha",
+  "source": "agentskit-registry",
+  "license": "MIT",
+  "tags": [
+    "devops",
+    "alpha",
+    "structured-output"
+  ],
+  "packages": [
+    "@agentskit/core",
+    "@agentskit/runtime",
+    "@agentskit/tools"
+  ],
+  "files": [
+    "agent.ts",
+    "README.md",
+    "eval.ts"
+  ],
+  "requires": {
+    "zod": "^3",
+    "zod-to-json-schema": "^3"
+  },
+  "skill": {
+    "name": "devops-dns-cutover-planner",
+    "description": "Plan typed. DNS migrations risky. Alpha: auto-implemented typed agent — review before production.",
+    "systemPrompt": "You are DNS Cutover Planner. DNS migrations risky. Expected output: Plan typed.\n\nProduce an ordered plan with risks and gaps for missing info.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_cutover_planner exactly once with the structured result. Stop."
+  },
+  "flow": null,
+  "a2a": {
+    "id": "io.agentskit.registry.devops-dns-cutover-planner",
+    "name": "DNS Cutover Planner",
+    "description": "Plan typed. DNS migrations risky. Alpha: auto-implemented typed agent — review before production.",
+    "version": "0.1.0-alpha",
+    "homepage": "https://registry.agentskit.io",
+    "skills": [
+      {
+        "name": "devops-dns-cutover-planner",
+        "description": "Plan typed. DNS migrations risky. Alpha: auto-implemented typed agent — review before production.",
+        "capabilities": {
+          "streaming": true,
+          "cancellation": true,
+          "requiresApproval": false
+        }
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "agent.ts",
+      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * DNS Cutover Planner — Plan typed\n * Pain: DNS migrations risky\n * Status: alpha (auto-implemented; requires human review before validated).\n */\n\nexport interface Step { order: number; action: string; owner?: string; notes?: string }\nexport interface AgentOutput { title: string; steps: Step[]; risks: string[]; gaps: string[]; openQuestions: string[] }\n\nexport interface AgentResult extends AgentOutput {\n  requiresReview: boolean\n}\n\nexport interface DevopsDnsCutoverPlannerConfig {\n  adapter: AdapterFactory\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst Step = z.object({ order: z.number().int(), action: z.string(), owner: z.string().optional(), notes: z.string().optional() })\nconst Output = z.object({\n  title: z.string(),\n  steps: z.array(Step).min(1),\n  risks: z.array(z.string()).default([]),\n  gaps: z.array(z.string()).default([]),\n  openQuestions: z.array(z.string()).default([]),\n})\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\n\n\nconst skill = {\n  name: 'devops-dns-cutover-planner',\n  description: \"DNS Cutover Planner — typed output agent (draft spec).\",\n  systemPrompt: `You are DNS Cutover Planner. DNS migrations risky. Expected output: Plan typed.\n\nProduce an ordered plan with risks and gaps for missing info.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_cutover_planner exactly once with the structured result. Stop.`,\n  tools: ['submit_cutover_planner'],\n}\n\nexport function createDevopsDnsCutoverPlannerAgent(config: DevopsDnsCutoverPlannerConfig) {\n  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {\n    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })\n  }\n  const submit = (): ToolDefinition =>\n    defineZodTool({\n      name: 'submit_cutover_planner',\n      description: 'Submit the typed result. Call exactly once.',\n      schema: Output,\n      toJsonSchema: toJson,\n      async execute() { return 'recorded' },\n    }) as ToolDefinition\n\n  async function run(input: string): Promise<AgentResult> {\n    if (!input?.trim()) throw new Error('devops-dns-cutover-planner requires non-empty input')\n    emit('run', 'start')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: `INPUT:\\n${fenceUntrustedContent(input)}`,\n      parse: (a) => Output.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    emit('run', 'ok')\n    return { ...result, requiresReview: true }\n  }\n\n  return {\n    name: 'devops-dns-cutover-planner',\n    run,\n    asHandle() {\n      return { name: 'devops-dns-cutover-planner', run: async (task: string) => JSON.stringify(await run(task)) }\n    },\n  }\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# DNS Cutover Planner\n\n> **Status: alpha** — installable via `npx agentskit add devops-dns-cutover-planner` for experimentation. Not yet `validated`.\n\n## Pain\n\nDNS migrations risky\n\n## Output\n\nPlan typed\n\n## Usage\n\n```ts\nimport { createDevopsDnsCutoverPlannerAgent } from './agents/devops-dns-cutover-planner/agent'\nconst result = await createDevopsDnsCutoverPlannerAgent({ adapter }).run(input)\n```\n\n## Gates\n\n- hitl\n\n## Promote to validated\n\nHuman review + expand `eval.ts` + set `status: validated` in meta.json.\n"
+    },
+    {
+      "path": "eval.ts",
+      "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'devops-dns-cutover-planner',\n  cases: [\n    {\n      input: 'Sample input for DNS Cutover Planner: DNS migrations risky. Provide structured output.',\n      expected: (r: string) => r.length > 10,\n    },\n    {\n      input: 'Minimal input — no details provided. List gaps instead of inventing.',\n      expected: (r: string) => /gap|openQuestion|confirm|missing/i.test(r) || r.length > 5,\n    },\n  ],\n}\n"
+    }
+  ],
+  "installable": true
+}

@@ -1,6 +1,6 @@
 # Playbook Alignment Auditor
 
-> **Status: draft** — not installable via `npx agentskit add` until validated.
+> **Status: alpha** — installable via `npx agentskit add ecosystem-playbook-alignment-auditor` for experimentation. Not yet `validated`.
 
 ## Pain
 
@@ -10,6 +10,13 @@ Registry agents must align with playbook.agentskit.io standards
 
 Alignment findings typed vs playbook patterns
 
+## Usage
+
+```ts
+import { createEcosystemPlaybookAlignmentAuditorAgent } from './agents/ecosystem-playbook-alignment-auditor/agent'
+const result = await createEcosystemPlaybookAlignmentAuditorAgent({ adapter }).run(input)
+```
+
 ## Gates
 
 - typed-output
@@ -18,7 +25,4 @@ Alignment findings typed vs playbook patterns
 
 ## Promote to validated
 
-1. Replace the placeholder Zod schema with the real output contract.
-2. Add `eval.ts` with 5+ regression cases.
-3. Run `npm test && npm run build`.
-4. Set `"status": "validated"` in `meta.json` and open a PR.
+Human review + expand `eval.ts` + set `status: validated` in meta.json.

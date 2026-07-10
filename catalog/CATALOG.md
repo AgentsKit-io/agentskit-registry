@@ -1,14 +1,15 @@
 # AgentsKit Registry — Catálogo Mestre
 
-> **346 agentes no catálogo** · **36 validados (instaláveis)** · **310 rascunhos (roadmap)**  
+> **346 agentes no catálogo** · **36 validados** · **310 alpha (instaláveis, experimental)** · **0 drafts**
 > JSON: [`/r/catalog.json`](https://registry.agentskit.io/r/catalog.json) · Instaláveis: [`/r/index.json`](https://registry.agentskit.io/r/index.json)
 
 ## Modelo de publicação
 
 | Status | `npx agentskit add` | Onde aparece |
 |--------|---------------------|--------------|
-| `draft` | Bloqueado | Catálogo completo, badge "Coming soon" |
-| `validated` | Funciona | Gallery + AKOS + CLI |
+| `draft` | Bloqueado | Catálogo, spec apenas |
+| `alpha` | Funciona (warning) | Gallery + CLI — experimental |
+| `validated` | Funciona | Produção — review completo |
 | `deprecated` | Bloqueado | Histórico apenas |
 
 **Fluxo:** spec em `catalog/manifest.json` → `npm run scaffold -- <id>` → implementar Zod real + `eval.ts` → `status: validated` → PR.

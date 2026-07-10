@@ -1,0 +1,68 @@
+{
+  "id": "education-accommodation-evaluator",
+  "title": "Accommodation Evaluator",
+  "description": "Evaluation typed. Accommodations. Alpha: auto-implemented typed agent — review before production.",
+  "category": "education",
+  "status": "alpha",
+  "version": "0.1.0-alpha",
+  "source": "agentskit-registry",
+  "license": "MIT",
+  "tags": [
+    "education",
+    "alpha",
+    "structured-output"
+  ],
+  "packages": [
+    "@agentskit/core",
+    "@agentskit/runtime",
+    "@agentskit/tools"
+  ],
+  "files": [
+    "agent.ts",
+    "README.md",
+    "eval.ts"
+  ],
+  "requires": {
+    "zod": "^3",
+    "zod-to-json-schema": "^3"
+  },
+  "skill": {
+    "name": "education-accommodation-evaluator",
+    "description": "Evaluation typed. Accommodations. Alpha: auto-implemented typed agent — review before production.",
+    "systemPrompt": "You are Accommodation Evaluator. Accommodations. Expected output: Evaluation typed.\n\nClassify with category, severity (critical|high|medium|low), and suggested queue. List gaps for missing input.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_accommodation_evaluator exactly once with the structured result. Stop."
+  },
+  "flow": null,
+  "a2a": {
+    "id": "io.agentskit.registry.education-accommodation-evaluator",
+    "name": "Accommodation Evaluator",
+    "description": "Evaluation typed. Accommodations. Alpha: auto-implemented typed agent — review before production.",
+    "version": "0.1.0-alpha",
+    "homepage": "https://registry.agentskit.io",
+    "skills": [
+      {
+        "name": "education-accommodation-evaluator",
+        "description": "Evaluation typed. Accommodations. Alpha: auto-implemented typed agent — review before production.",
+        "capabilities": {
+          "streaming": true,
+          "cancellation": true,
+          "requiresApproval": false
+        }
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "agent.ts",
+      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * Accommodation Evaluator — Evaluation typed\n * Pain: Accommodations\n * Status: alpha (auto-implemented; requires human review before validated).\n */\n\nexport interface AgentOutput {\n  category: string\n  severity: 'critical' | 'high' | 'medium' | 'low'\n  queue: string\n  rationale: string\n  gaps: string[]\n  openQuestions: string[]\n}\n\nexport interface AgentResult extends AgentOutput {\n  requiresReview: boolean\n}\n\nexport interface EducationAccommodationEvaluatorConfig {\n  adapter: AdapterFactory\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst Output = z.object({\n  category: z.string(),\n  severity: z.enum(['critical', 'high', 'medium', 'low']),\n  queue: z.string(),\n  rationale: z.string(),\n  gaps: z.array(z.string()).default([]),\n  openQuestions: z.array(z.string()).default([]),\n})\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\nfunction applySafetyNet(input: string, o: z.infer<typeof Output>): z.infer<typeof Output> {\n  const critical = /\\b(outage|down|breach|emergency|stroke|suicidal|data loss|security incident)\\b/i\n  if (critical.test(input) && o.severity !== 'critical') {\n    return { ...o, severity: 'critical', queue: 'escalation', rationale: o.rationale + ' [safety-net: forced critical]' }\n  }\n  return o\n}\n\nconst skill = {\n  name: 'education-accommodation-evaluator',\n  description: \"Accommodation Evaluator — typed output agent (draft spec).\",\n  systemPrompt: `You are Accommodation Evaluator. Accommodations. Expected output: Evaluation typed.\n\nClassify with category, severity (critical|high|medium|low), and suggested queue. List gaps for missing input.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_accommodation_evaluator exactly once with the structured result. Stop.`,\n  tools: ['submit_accommodation_evaluator'],\n}\n\nexport function createEducationAccommodationEvaluatorAgent(config: EducationAccommodationEvaluatorConfig) {\n  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {\n    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })\n  }\n  const submit = (): ToolDefinition =>\n    defineZodTool({\n      name: 'submit_accommodation_evaluator',\n      description: 'Submit the typed result. Call exactly once.',\n      schema: Output,\n      toJsonSchema: toJson,\n      async execute() { return 'recorded' },\n    }) as ToolDefinition\n\n  async function run(input: string): Promise<AgentResult> {\n    if (!input?.trim()) throw new Error('education-accommodation-evaluator requires non-empty input')\n    emit('run', 'start')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: `INPUT:\\n${fenceUntrustedContent(input)}`,\n      parse: (a) => applySafetyNet(input, Output.parse(a)),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    emit('run', 'ok')\n    return { ...result, requiresReview: true }\n  }\n\n  return {\n    name: 'education-accommodation-evaluator',\n    run,\n    asHandle() {\n      return { name: 'education-accommodation-evaluator', run: async (task: string) => JSON.stringify(await run(task)) }\n    },\n  }\n}\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# Accommodation Evaluator\n\n> **Status: alpha** — installable via `npx agentskit add education-accommodation-evaluator` for experimentation. Not yet `validated`.\n\n## Pain\n\nAccommodations\n\n## Output\n\nEvaluation typed\n\n## Usage\n\n```ts\nimport { createEducationAccommodationEvaluatorAgent } from './agents/education-accommodation-evaluator/agent'\nconst result = await createEducationAccommodationEvaluatorAgent({ adapter }).run(input)\n```\n\n## Gates\n\n- hitl\n\n## Promote to validated\n\nHuman review + expand `eval.ts` + set `status: validated` in meta.json.\n"
+    },
+    {
+      "path": "eval.ts",
+      "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'education-accommodation-evaluator',\n  cases: [\n    {\n      input: 'Sample input for Accommodation Evaluator: Accommodations. Provide structured output.',\n      expected: (r: string) => r.length > 10,\n    },\n    {\n      input: 'Minimal input — no details provided. List gaps instead of inventing.',\n      expected: (r: string) => /gap|openQuestion|confirm|missing/i.test(r) || r.length > 5,\n    },\n  ],\n}\n"
+    }
+  ],
+  "installable": true
+}

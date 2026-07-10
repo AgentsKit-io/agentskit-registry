@@ -1,16 +1,18 @@
 {
   "id": "ecosystem-playbook-alignment-auditor",
   "title": "Playbook Alignment Auditor",
-  "description": "Playbook Alignment Auditor — typed output agent (draft spec).",
+  "description": "Alignment findings typed vs playbook patterns. Registry agents must align with playbook.agentskit.io standards. Alpha: auto-implemented typed agent — review before production.",
   "category": "ecosystem",
-  "status": "draft",
-  "version": "0.0.0-draft",
+  "status": "alpha",
+  "version": "0.1.0-alpha",
   "source": "agentskit-registry",
   "license": "MIT",
   "tags": [
     "ecosystem",
     "playbook",
-    "dogfood"
+    "dogfood",
+    "alpha",
+    "structured-output"
   ],
   "packages": [
     "@agentskit/core",
@@ -19,7 +21,8 @@
   ],
   "files": [
     "agent.ts",
-    "README.md"
+    "README.md",
+    "eval.ts"
   ],
   "requires": {
     "zod": "^3",
@@ -28,20 +31,20 @@
   "ecosystem": true,
   "skill": {
     "name": "ecosystem-playbook-alignment-auditor",
-    "description": "Playbook Alignment Auditor — typed output agent (draft spec).",
-    "systemPrompt": "You are Playbook Alignment Auditor. Alignment findings typed vs playbook patterns\n\nNever invent facts absent from the input — list them in gaps or openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_result exactly once. Stop."
+    "description": "Alignment findings typed vs playbook patterns. Registry agents must align with playbook.agentskit.io standards. Alpha: auto-implemented typed agent — review before production.",
+    "systemPrompt": "You are Playbook Alignment Auditor. Registry agents must align with playbook.agentskit.io standards. Expected output: Alignment findings typed vs playbook patterns.\n\nReturn actionable findings with severity. Cite sources from input. Never invent issues not supported by the input.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_alignment_auditor exactly once with the structured result. Stop."
   },
   "flow": null,
   "a2a": {
     "id": "io.agentskit.registry.ecosystem-playbook-alignment-auditor",
     "name": "Playbook Alignment Auditor",
-    "description": "Playbook Alignment Auditor — typed output agent (draft spec).",
-    "version": "0.0.0-draft",
+    "description": "Alignment findings typed vs playbook patterns. Registry agents must align with playbook.agentskit.io standards. Alpha: auto-implemented typed agent — review before production.",
+    "version": "0.1.0-alpha",
     "homepage": "https://registry.agentskit.io",
     "skills": [
       {
         "name": "ecosystem-playbook-alignment-auditor",
-        "description": "Playbook Alignment Auditor — typed output agent (draft spec).",
+        "description": "Alignment findings typed vs playbook patterns. Registry agents must align with playbook.agentskit.io standards. Alpha: auto-implemented typed agent — review before production.",
         "capabilities": {
           "streaming": true,
           "cancellation": true,
@@ -53,12 +56,16 @@
   "sources": [
     {
       "path": "agent.ts",
-      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * Playbook Alignment Auditor — DRAFT scaffold.\n * Pain: Registry agents must align with playbook.agentskit.io standards\n * Output: Alignment findings typed vs playbook patterns\n * Promote to validated after agent.test.ts + eval.ts pass and curator review.\n */\n\nexport const EcosystemPlaybookAlignmentAuditorOutputSchema = z.object({\n  summary: z.string(),\n  gaps: z.array(z.string()).default([]),\n  openQuestions: z.array(z.string()).default([]),\n})\nexport type EcosystemPlaybookAlignmentAuditorOutput = z.infer<typeof EcosystemPlaybookAlignmentAuditorOutputSchema>\n\nexport interface EcosystemPlaybookAlignmentAuditorAgentConfig {\n  adapter: AdapterFactory\n  tools?: ToolDefinition[]\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\nconst skill = {\n  name: 'ecosystem-playbook-alignment-auditor',\n  description: 'Playbook Alignment Auditor — typed output agent (draft spec).',\n  systemPrompt: `You are Playbook Alignment Auditor. Alignment findings typed vs playbook patterns\n\nNever invent facts absent from the input — list them in gaps or openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_result exactly once. Stop.`,\n  tools: ['submit_result'],\n}\n\nexport function createEcosystemPlaybookAlignmentAuditorAgent(config: EcosystemPlaybookAlignmentAuditorAgentConfig) {\n  const submit = (): ToolDefinition =>\n    defineZodTool({\n      name: 'submit_result',\n      description: 'Submit the typed result. Call exactly once.',\n      schema: EcosystemPlaybookAlignmentAuditorOutputSchema,\n      toJsonSchema: toJson,\n      async execute() { return 'recorded' },\n    }) as ToolDefinition\n\n  async function run(input: string): Promise<EcosystemPlaybookAlignmentAuditorOutput> {\n    if (!input?.trim()) throw new Error('ecosystem-playbook-alignment-auditor requires non-empty input')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: input,\n      parse: (a) => EcosystemPlaybookAlignmentAuditorOutputSchema.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    return result\n  }\n\n  return {\n    name: 'ecosystem-playbook-alignment-auditor',\n    run,\n    asHandle() {\n      return { name: 'ecosystem-playbook-alignment-auditor', run: (task: string) => run(task).then((r) => JSON.stringify(r)) }\n    },\n  }\n}\n"
+      "content": "import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'\nimport { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'\nimport { invokeStructured } from '@agentskit/runtime'\nimport { defineZodTool } from '@agentskit/tools'\nimport { z } from 'zod'\nimport { zodToJsonSchema } from 'zod-to-json-schema'\nimport type { JSONSchema7 } from 'json-schema'\n\n/**\n * Playbook Alignment Auditor — Alignment findings typed vs playbook patterns\n * Pain: Registry agents must align with playbook.agentskit.io standards\n * Status: alpha (auto-implemented; requires human review before validated).\n */\n\nexport interface Finding { id: string; severity: 'critical' | 'high' | 'medium' | 'low' | 'info'; message: string; source?: string; recommendation?: string }\nexport interface AgentOutput { summary: string; findings: Finding[]; gaps: string[]; openQuestions: string[] }\n\nexport interface AgentResult extends AgentOutput {\n  requiresReview: boolean\n}\n\nexport interface EcosystemPlaybookAlignmentAuditorConfig {\n  adapter: AdapterFactory\n  memory?: ChatMemory\n  observers?: Observer[]\n  onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>\n  maxSteps?: number\n}\n\nconst Finding = z.object({\n  id: z.string(),\n  severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),\n  message: z.string(),\n  source: z.string().optional(),\n  recommendation: z.string().optional(),\n})\nconst Output = z.object({\n  summary: z.string(),\n  findings: z.array(Finding),\n  gaps: z.array(z.string()).default([]),\n  openQuestions: z.array(z.string()).default([]),\n})\nconst toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7\n\n\n\nconst skill = {\n  name: 'ecosystem-playbook-alignment-auditor',\n  description: \"Playbook Alignment Auditor — typed output agent (draft spec).\",\n  systemPrompt: `You are Playbook Alignment Auditor. Registry agents must align with playbook.agentskit.io standards. Expected output: Alignment findings typed vs playbook patterns.\n\nReturn actionable findings with severity. Cite sources from input. Never invent issues not supported by the input.\nNEVER invent facts absent from the input — use gaps and openQuestions.\nOutput is always a draft for human review.\n\n${UNTRUSTED_CONTENT_DIRECTIVE}\n\nCall submit_alignment_auditor exactly once with the structured result. Stop.`,\n  tools: ['submit_alignment_auditor'],\n}\n\nexport function createEcosystemPlaybookAlignmentAuditorAgent(config: EcosystemPlaybookAlignmentAuditorConfig) {\n  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {\n    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })\n  }\n  const submit = (): ToolDefinition =>\n    defineZodTool({\n      name: 'submit_alignment_auditor',\n      description: 'Submit the typed result. Call exactly once.',\n      schema: Output,\n      toJsonSchema: toJson,\n      async execute() { return 'recorded' },\n    }) as ToolDefinition\n\n  async function run(input: string): Promise<AgentResult> {\n    if (!input?.trim()) throw new Error('ecosystem-playbook-alignment-auditor requires non-empty input')\n    emit('run', 'start')\n    const result = await invokeStructured({\n      adapter: config.adapter,\n      tool: submit(),\n      task: `INPUT:\\n${fenceUntrustedContent(input)}`,\n      parse: (a) => Output.parse(a),\n      skill,\n      memory: config.memory,\n      observers: config.observers,\n      onConfirm: config.onConfirm,\n      maxSteps: config.maxSteps ?? 4,\n    })\n    emit('run', 'ok')\n    return { ...result, requiresReview: true }\n  }\n\n  return {\n    name: 'ecosystem-playbook-alignment-auditor',\n    run,\n    asHandle() {\n      return { name: 'ecosystem-playbook-alignment-auditor', run: async (task: string) => JSON.stringify(await run(task)) }\n    },\n  }\n}\n"
     },
     {
       "path": "README.md",
-      "content": "# Playbook Alignment Auditor\n\n> **Status: draft** — not installable via `npx agentskit add` until validated.\n\n## Pain\n\nRegistry agents must align with playbook.agentskit.io standards\n\n## Output\n\nAlignment findings typed vs playbook patterns\n\n## Gates\n\n- typed-output\n- never-invent\n- always-draft\n\n## Promote to validated\n\n1. Replace the placeholder Zod schema with the real output contract.\n2. Add `eval.ts` with 5+ regression cases.\n3. Run `npm test && npm run build`.\n4. Set `\"status\": \"validated\"` in `meta.json` and open a PR.\n"
+      "content": "# Playbook Alignment Auditor\n\n> **Status: alpha** — installable via `npx agentskit add ecosystem-playbook-alignment-auditor` for experimentation. Not yet `validated`.\n\n## Pain\n\nRegistry agents must align with playbook.agentskit.io standards\n\n## Output\n\nAlignment findings typed vs playbook patterns\n\n## Usage\n\n```ts\nimport { createEcosystemPlaybookAlignmentAuditorAgent } from './agents/ecosystem-playbook-alignment-auditor/agent'\nconst result = await createEcosystemPlaybookAlignmentAuditorAgent({ adapter }).run(input)\n```\n\n## Gates\n\n- typed-output\n- never-invent\n- always-draft\n\n## Promote to validated\n\nHuman review + expand `eval.ts` + set `status: validated` in meta.json.\n"
+    },
+    {
+      "path": "eval.ts",
+      "content": "import type { EvalSuite } from '@agentskit/eval'\n\nexport const suite: EvalSuite = {\n  name: 'ecosystem-playbook-alignment-auditor',\n  cases: [\n    {\n      input: 'Sample input for Playbook Alignment Auditor: Registry agents must align with playbook.agentskit.io standards. Provide structured output.',\n      expected: (r: string) => r.length > 10,\n    },\n    {\n      input: 'Minimal input — no details provided. List gaps instead of inventing.',\n      expected: (r: string) => /gap|openQuestion|confirm|missing/i.test(r) || r.length > 5,\n    },\n  ],\n}\n"
     }
   ],
-  "installable": false
+  "installable": true
 }

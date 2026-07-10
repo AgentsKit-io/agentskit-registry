@@ -105,18 +105,18 @@ for (const id of ids) {
   }
 
   const status = meta.status ?? 'validated'
+  const installable = status === 'alpha' || status === 'validated'
   const bundle = { ...meta, status, skill, flow, a2a, sources: files }
   const { files: _f, ...summary } = meta
 
   if (status === 'draft') {
-    // Draft implementations are browsable but not installable until promoted.
     writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...bundle, installable: false }, null, 2) + '\n')
     continue
   }
 
-  writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...bundle, installable: true }, null, 2) + '\n')
-  validatedIds.add(id)
-  index.push({ ...summary, status, runnable: skill != null, decomposable: flow != null, installable: true })
+  writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...bundle, installable }, null, 2) + '\n')
+  if (installable) validatedIds.add(id)
+  index.push({ ...summary, status, runnable: skill != null, decomposable: flow != null, installable })
   full.push({
     id: meta.id,
     title: meta.title,
@@ -135,7 +135,7 @@ if (catalogManifest?.agents) {
     const shipped = index.find((a) => a.id === entry.id)
     catalogAgents.push(
       shipped
-        ? { ...entry, ...shipped, status: 'validated', installable: true, implemented: true }
+        ? { ...entry, ...shipped, status: shipped.status, installable: shipped.installable, implemented: true }
         : { ...entry, status: entry.status ?? 'draft', installable: false, implemented: false },
     )
   }
@@ -180,8 +180,9 @@ if (catalogAgents.length) {
         generatedAt: catalogManifest?.generatedAt ?? null,
         stats: {
           total: catalogAgents.length,
-          validated: catalogAgents.filter((a) => a.status === 'validated').length,
-          draft: catalogAgents.filter((a) => a.status === 'draft').length,
+        validated: catalogAgents.filter((a) => a.status === 'validated').length,
+        alpha: catalogAgents.filter((a) => a.status === 'alpha').length,
+        draft: catalogAgents.filter((a) => a.status === 'draft').length,
           categories: [...new Set(catalogAgents.map((a) => a.category))].sort(),
         },
         stacks,

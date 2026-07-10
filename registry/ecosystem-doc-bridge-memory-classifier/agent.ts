@@ -1,5 +1,5 @@
 import type { AdapterFactory, ChatMemory, Observer, ToolCall, ToolDefinition } from '@agentskit/core'
-import { UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'
+import { fenceUntrustedContent, UNTRUSTED_CONTENT_DIRECTIVE } from '@agentskit/core/security'
 import { invokeStructured } from '@agentskit/runtime'
 import { defineZodTool } from '@agentskit/tools'
 import { z } from 'zod'
@@ -7,75 +7,101 @@ import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { JSONSchema7 } from 'json-schema'
 
 /**
- * Doc-bridge Memory Classifier — DRAFT scaffold.
+ * Doc-bridge Memory Classifier — Candidates typed: promote/hold/reject + rationale
  * Pain: Private notes → memory candidates for doc-bridge
- * Output: Candidates typed: promote/hold/reject + rationale
- * Promote to validated after agent.test.ts + eval.ts pass and curator review.
+ * Status: alpha (auto-implemented; requires human review before validated).
  */
 
-export const EcosystemDocBridgeMemoryClassifierOutputSchema = z.object({
-  summary: z.string(),
-  gaps: z.array(z.string()).default([]),
-  openQuestions: z.array(z.string()).default([]),
-})
-export type EcosystemDocBridgeMemoryClassifierOutput = z.infer<typeof EcosystemDocBridgeMemoryClassifierOutputSchema>
+export interface AgentOutput {
+  category: string
+  severity: 'critical' | 'high' | 'medium' | 'low'
+  queue: string
+  rationale: string
+  gaps: string[]
+  openQuestions: string[]
+}
 
-export interface EcosystemDocBridgeMemoryClassifierAgentConfig {
+export interface AgentResult extends AgentOutput {
+  requiresReview: boolean
+}
+
+export interface EcosystemDocBridgeMemoryClassifierConfig {
   adapter: AdapterFactory
-  tools?: ToolDefinition[]
   memory?: ChatMemory
   observers?: Observer[]
   onConfirm?: (toolCall: ToolCall) => boolean | Promise<boolean>
   maxSteps?: number
 }
 
+const Output = z.object({
+  category: z.string(),
+  severity: z.enum(['critical', 'high', 'medium', 'low']),
+  queue: z.string(),
+  rationale: z.string(),
+  gaps: z.array(z.string()).default([]),
+  openQuestions: z.array(z.string()).default([]),
+})
 const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchema7
+
+function applySafetyNet(input: string, o: z.infer<typeof Output>): z.infer<typeof Output> {
+  const critical = /\b(outage|down|breach|emergency|stroke|suicidal|data loss|security incident)\b/i
+  if (critical.test(input) && o.severity !== 'critical') {
+    return { ...o, severity: 'critical', queue: 'escalation', rationale: o.rationale + ' [safety-net: forced critical]' }
+  }
+  return o
+}
 
 const skill = {
   name: 'ecosystem-doc-bridge-memory-classifier',
-  description: 'Doc-bridge Memory Classifier — typed output agent (draft spec).',
-  systemPrompt: `You are Doc-bridge Memory Classifier. Candidates typed: promote/hold/reject + rationale
+  description: "Doc-bridge Memory Classifier — typed output agent (draft spec).",
+  systemPrompt: `You are Doc-bridge Memory Classifier. Private notes → memory candidates for doc-bridge. Expected output: Candidates typed: promote/hold/reject + rationale.
 
-Never invent facts absent from the input — list them in gaps or openQuestions.
+Classify with category, severity (critical|high|medium|low), and suggested queue. List gaps for missing input.
+NEVER invent facts absent from the input — use gaps and openQuestions.
 Output is always a draft for human review.
 
 ${UNTRUSTED_CONTENT_DIRECTIVE}
 
-Call submit_result exactly once. Stop.`,
-  tools: ['submit_result'],
+Call submit_memory_classifier exactly once with the structured result. Stop.`,
+  tools: ['submit_memory_classifier'],
 }
 
-export function createEcosystemDocBridgeMemoryClassifierAgent(config: EcosystemDocBridgeMemoryClassifierAgentConfig) {
+export function createEcosystemDocBridgeMemoryClassifierAgent(config: EcosystemDocBridgeMemoryClassifierConfig) {
+  const emit = (label: string, status: 'start' | 'ok' | 'skip' | 'error', detail?: string) => {
+    for (const o of config.observers ?? []) void o.on({ type: 'progress', label, status, detail })
+  }
   const submit = (): ToolDefinition =>
     defineZodTool({
-      name: 'submit_result',
+      name: 'submit_memory_classifier',
       description: 'Submit the typed result. Call exactly once.',
-      schema: EcosystemDocBridgeMemoryClassifierOutputSchema,
+      schema: Output,
       toJsonSchema: toJson,
       async execute() { return 'recorded' },
     }) as ToolDefinition
 
-  async function run(input: string): Promise<EcosystemDocBridgeMemoryClassifierOutput> {
+  async function run(input: string): Promise<AgentResult> {
     if (!input?.trim()) throw new Error('ecosystem-doc-bridge-memory-classifier requires non-empty input')
+    emit('run', 'start')
     const result = await invokeStructured({
       adapter: config.adapter,
       tool: submit(),
-      task: input,
-      parse: (a) => EcosystemDocBridgeMemoryClassifierOutputSchema.parse(a),
+      task: `INPUT:\n${fenceUntrustedContent(input)}`,
+      parse: (a) => applySafetyNet(input, Output.parse(a)),
       skill,
       memory: config.memory,
       observers: config.observers,
       onConfirm: config.onConfirm,
       maxSteps: config.maxSteps ?? 4,
     })
-    return result
+    emit('run', 'ok')
+    return { ...result, requiresReview: true }
   }
 
   return {
     name: 'ecosystem-doc-bridge-memory-classifier',
     run,
     asHandle() {
-      return { name: 'ecosystem-doc-bridge-memory-classifier', run: (task: string) => run(task).then((r) => JSON.stringify(r)) }
+      return { name: 'ecosystem-doc-bridge-memory-classifier', run: async (task: string) => JSON.stringify(await run(task)) }
     },
   }
 }

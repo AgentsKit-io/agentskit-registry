@@ -1,6 +1,6 @@
 # Doc-bridge Handoff Author
 
-> **Status: draft** — not installable via `npx agentskit add` until validated.
+> **Status: alpha** — installable via `npx agentskit add ecosystem-doc-bridge-handoff-author` for experimentation. Not yet `validated`.
 
 ## Pain
 
@@ -10,6 +10,13 @@ Agent handoffs between doc-bridge index and human adapters
 
 Handoff doc typed per agent-handoff-v1 schema
 
+## Usage
+
+```ts
+import { createEcosystemDocBridgeHandoffAuthorAgent } from './agents/ecosystem-doc-bridge-handoff-author/agent'
+const result = await createEcosystemDocBridgeHandoffAuthorAgent({ adapter }).run(input)
+```
+
 ## Gates
 
 - typed-output
@@ -18,7 +25,4 @@ Handoff doc typed per agent-handoff-v1 schema
 
 ## Promote to validated
 
-1. Replace the placeholder Zod schema with the real output contract.
-2. Add `eval.ts` with 5+ regression cases.
-3. Run `npm test && npm run build`.
-4. Set `"status": "validated"` in `meta.json` and open a PR.
+Human review + expand `eval.ts` + set `status: validated` in meta.json.

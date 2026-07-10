@@ -1,0 +1,23 @@
+import { describe, it, expect } from 'vitest'
+import { mockAdapter } from '@agentskit/adapters'
+import { createDevopsPagerStormSummarizerAgent } from './agent'
+
+const model = (payload: Record<string, unknown>) =>
+  mockAdapter({
+    response: () => [
+      { type: 'tool_call', toolCall: { id: '1', name: 'submit_storm_summarizer', args: JSON.stringify(payload) } },
+      { type: 'done' },
+    ],
+  })
+
+describe('devops-pager-storm-summarizer', () => {
+  it('returns typed output', async () => {
+    const r = await createDevopsPagerStormSummarizerAgent({ adapter: model({"title":"doc","sections":[{"heading":"h","body":"b","citations":[]}],"gaps":[],"openQuestions":[]}) }).run('sample input for devops-pager-storm-summarizer')
+    expect(r.requiresReview).toBe(true)
+    expect(r.sections.length).toBeGreaterThan(0)
+  })
+
+  it('refuses empty input', async () => {
+    await expect(createDevopsPagerStormSummarizerAgent({ adapter: model({}) }).run('  ')).rejects.toThrow()
+  })
+})

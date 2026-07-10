@@ -1,6 +1,6 @@
 # Doc-bridge Memory Classifier
 
-> **Status: draft** — not installable via `npx agentskit add` until validated.
+> **Status: alpha** — installable via `npx agentskit add ecosystem-doc-bridge-memory-classifier` for experimentation. Not yet `validated`.
 
 ## Pain
 
@@ -10,6 +10,13 @@ Private notes → memory candidates for doc-bridge
 
 Candidates typed: promote/hold/reject + rationale
 
+## Usage
+
+```ts
+import { createEcosystemDocBridgeMemoryClassifierAgent } from './agents/ecosystem-doc-bridge-memory-classifier/agent'
+const result = await createEcosystemDocBridgeMemoryClassifierAgent({ adapter }).run(input)
+```
+
 ## Gates
 
 - typed-output
@@ -18,7 +25,4 @@ Candidates typed: promote/hold/reject + rationale
 
 ## Promote to validated
 
-1. Replace the placeholder Zod schema with the real output contract.
-2. Add `eval.ts` with 5+ regression cases.
-3. Run `npm test && npm run build`.
-4. Set `"status": "validated"` in `meta.json` and open a PR.
+Human review + expand `eval.ts` + set `status: validated` in meta.json.
