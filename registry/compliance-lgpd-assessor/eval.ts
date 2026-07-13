@@ -14,7 +14,7 @@ export const suite: EvalSuite = {
       input: 'Security breach exposed 10k customer CPF numbers last week.',
       expected: (r: string) => {
         const j = JSON.parse(r)
-        return j.findings.some((f: { severity: string; article?: string }) => f.severity === 'critical' && /48|breach|vazamento|incidente/i.test(`${f.article} ${f.message}`))
+        return j.findings.some((f: { severity: string; article?: string; message?: string }) => f.severity === 'critical' && /48|breach|vazamento|incidente/i.test(`${f.article} ${f.message}`))
       },
     },
     {
