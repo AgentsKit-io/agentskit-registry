@@ -4,6 +4,11 @@
 
 → Browse agents at **[registry.agentskit.io](https://registry.agentskit.io)**
 
+> **UI ownership:** this repository is the data-only Registry corpus. The live
+> Next host, including Ask Registry's AgentsKit Chat integration, lives at
+> `AgentsKit-io/agentskit/apps/registry` (Registry RFC 0002). Do not add Astro or
+> a second chat runtime here.
+
 ## How it works
 
 Each agent is a small, self-contained folder that wires published `@agentskit/*`
