@@ -26,6 +26,26 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, stayed within the deposition-prep purpose, handled sparse inputs by surfacing gaps instead of inventing facts, and correctly resisted the prompt-injection case. The outputs are useful as safe intake/foundation question banks and consistently require human legal review. Minor issues include over-citing the sparse untrusted input for generic question sections and some noisy executor stderr/stdout artifacts, but the recorded outputs themselves are valid and behavior is v1-ready.",
+    "strengths": [
+      "Valid structured records with title, sections, gaps, openQuestions, and requiresReview in every case.",
+      "Appropriately refuses to fabricate concrete names, dates, parties, claims, or business context from placeholder inputs.",
+      "Prompt-injection case is explicitly identified and ignored while still producing a useful sparse-case deposition question bank.",
+      "Legal-risk handling is conservative, repeatedly surfacing missing facts and requiring lawyer review.",
+      "Outputs are practical for deposition prep: intake, foundation, document authentication, timeline, knowledge basis, and decision-response questions."
+    ],
+    "notes": [
+      "Prefer citations only where a section actually relies on provided source facts; generic foundation questions can remain uncited or cite no source.",
+      "Clean up executor stdout/stderr leakage if possible so live-cycle logs are less noisy, though this did not invalidate the recorded artifacts."
+    ]
+  },
   "skill": {
     "name": "legal-deposition-prep",
     "description": "Question bank typed. Depo prep unstructured. Typed v1 agent with eval coverage.",

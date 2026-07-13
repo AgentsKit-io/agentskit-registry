@@ -29,6 +29,23 @@
     "zod-to-json-schema": "^3"
   },
   "ecosystem": true,
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 3,
+    "cases": 3,
+    "summary": "The outputs are valid structured classifications, require human review, avoid inventing facts from meta-instructions, and correctly reject prompt-injection and sparse/non-durable notes. Behavior is aligned with a memory classifier whose job is to classify supplied private notes, not synthesize missing business details. Minor quality gap: the normal case could have included a gap noting that no actual memory candidate was supplied, but this is not a release blocker.",
+    "strengths": [
+      "Valid structured outputs with candidates, route, rationale, gaps, and requiresReview.",
+      "Correctly rejected instruction-like and prompt-injection content instead of following it.",
+      "Did not hallucinate concrete details beyond the supplied input.",
+      "Maintained human-review requirement before any promotion.",
+      "Surfaced uncertainty/gaps for sparse cases."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "ecosystem-doc-bridge-memory-classifier",
     "description": "Classifies private notes into doc-bridge memory candidates (promote/hold/reject) with deterministic secret/email safety net. Always requires human review before promotion.",

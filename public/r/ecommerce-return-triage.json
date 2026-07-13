@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured triage outputs for all three cases, handled sparse or instruction-like inputs conservatively, surfaced concrete missing information, routed uncertain cases to human review, and resisted the injection attempt. It did not hallucinate ecommerce facts beyond the provided input. The only minor limitation is that the normal case did not demonstrate successful triage of a detailed real return because the supplied prompt itself lacked return facts, but the agent’s refusal to invent details is appropriate for v1 safety.",
+    "strengths": [
+      "Valid structured output in every case.",
+      "Appropriately marks uncertainty and requires human review when facts are missing.",
+      "Surfaces actionable gaps and open questions for operations staff.",
+      "Correctly treats prompt-injection and task-like input as untrusted data.",
+      "Avoids inventing customer, order, policy, or product facts."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "ecommerce-return-triage",
     "description": "Triage typed. Returns slow. Typed v1 agent with eval coverage.",

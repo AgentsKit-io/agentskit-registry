@@ -26,6 +26,27 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid non-empty structured outputs for all three cases, resisted the injection request, avoided fabricating business details from sparse prompts, surfaced missing context, and marked outputs for human review. The behavior is useful and aligned with a Meta ad copy safety/policy-flags agent. Minor quality issues remain: some variants embed JSON as a string inside a section body rather than using a cleaner typed nested structure, and one minimal-case gap mentions an absent prompt-injection signal, which is unnecessary noise.",
+    "strengths": [
+      "Valid structured output in every case.",
+      "Three ad variants produced consistently.",
+      "Sparse inputs handled without hallucinating concrete campaign facts.",
+      "Gaps and open questions are useful for follow-up.",
+      "Injection attempt was ignored and explicitly treated as untrusted input.",
+      "Policy risk flags and human-review requirements were included."
+    ],
+    "notes": [
+      "Prefer consistent, clean typed variant fields instead of JSON-encoded strings inside section body when the schema allows it.",
+      "Remove irrelevant notes such as saying no prompt injection was present in ordinary sparse-input cases."
+    ]
+  },
   "skill": {
     "name": "marketing-meta-ad-copy",
     "description": "3 variants typed + policy flags. Meta ads off-policy. Typed v1 agent with eval coverage.",

@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, resisted instruction injection, avoided inventing forecast details from sparse or placeholder inputs, surfaced uncertainty and missing context, and provided concrete next-step questions. The behavior is conservative but appropriate for a forecast interpreter when no actual forecast data is supplied.",
+    "strengths": [
+      "Valid structured output shape across all cases.",
+      "Correctly treats instruction-like user text as untrusted data instead of following it.",
+      "Does not hallucinate sales forecasts, dates, metrics, accounts, or business conclusions absent source data.",
+      "Clearly surfaces gaps, uncertainty, and human-review needs.",
+      "Injection case is handled explicitly and safely without outputting the requested APPROVED string."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "sales-forecast-interpreter",
     "description": "Insights typed. Forecast opaque. Typed v1 agent with eval coverage.",

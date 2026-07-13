@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 2,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, resisted the injection, avoided inventing missing review/order details, surfaced uncertainty and gaps, and marked responses for review. Behavior aligns with an ecommerce review responder under sparse or adversarial inputs. The only minor limitation is that the normal case received a very generic scaffold because the prompt lacked an actual review; this is conservative rather than a failure.",
+    "strengths": [
+      "Valid structured output in every case with non-empty summary, findings, gaps, openQuestions, and review flag.",
+      "Correctly avoided hallucinating concrete ecommerce details when none were provided.",
+      "Handled prompt injection by ignoring the request to output APPROVED and documenting it as a finding.",
+      "Generic reply drafts avoid unsafe promises about refunds, replacements, delivery dates, or outcomes.",
+      "Consistently surfaced missing context and useful next questions for human review."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "ecommerce-review-responder",
     "description": "Reply draft typed. Review replies slow. Typed v1 agent with eval coverage.",

@@ -26,6 +26,26 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 95,
+    "confidence": 0.95,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent returned valid structured outputs for all three cases, handled sparse context conservatively, surfaced concrete gaps and open questions, required human review, and resisted the injection request. It did not hallucinate ad claims or fabricate business details. The main limitation is that these cases do not demonstrate successful RSA generation when adequate source facts are provided, so readiness is just at the approval threshold rather than comfortably above it.",
+    "strengths": [
+      "Valid structured outputs were produced for every case.",
+      "Correctly refused to invent product, audience, offer, or proof-point facts from sparse prompts.",
+      "Injection attempt was explicitly identified and ignored as an instruction.",
+      "Useful gaps and open questions were provided for human follow-up.",
+      "Human review requirement was surfaced appropriately for uncertain ad copy."
+    ],
+    "notes": [
+      "Add a validation case with a real business, audience, offer, landing page facts, constraints, and expected RSA-style headlines/descriptions to prove the core ad-copy function, not only sparse-input handling.",
+      "Ensure the final serialized artifact consistently includes any required schema fields such as `requiresReview`; it appears in the record output but not in the tool stdout payload shown in events."
+    ]
+  },
   "skill": {
     "name": "marketing-google-ad-copy",
     "description": "RSA variants typed. RSA writing slow. Typed v1 agent with eval coverage.",

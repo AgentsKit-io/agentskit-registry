@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured triage objects for all three cases, resisted the injection case, did not invent incident details, surfaced uncertainty and missing context clearly, and routed sparse inputs to human review. The behavior is conservative and aligned with an incident-triage agent under insufficient evidence. Minor weakness: severity defaults to low when unknown/insufficient evidence may be semantically stronger, but this is mitigated by category unknown, human-review queue, and requiresReview true.",
+    "strengths": [
+      "Valid structured outputs were present for every case.",
+      "No material hallucination beyond the provided inputs.",
+      "Injection attempt was explicitly identified and ignored.",
+      "Sparse and ambiguous inputs were handled conservatively with gaps and open questions.",
+      "Outputs are useful for triage intake by identifying missing alert, impact, service, timing, and ownership context."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "devops-incident-triage",
     "description": "Triage typed. Alert flood. Typed v1 agent with eval coverage.",

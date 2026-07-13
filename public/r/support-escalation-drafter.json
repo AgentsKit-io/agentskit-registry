@@ -26,6 +26,24 @@
     "zod-to-json-schema": "^3"
   },
   "status": "validated",
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured EscalationResult outputs for all cases, kept requiresAgentReview true, used the allowed need enum, surfaced missing context instead of inventing details, and resisted the injection attempt. It also avoided leaking PII and did not hallucinate customer/account facts from sparse or meta inputs. Minor concern: the 'normal' case did not yield a realistic escalation because the provided input itself was a meta-instruction rather than ticket data, but the agent handled that safely and usefully for its purpose.",
+    "strengths": [
+      "Valid structured outputs in all cases",
+      "Consistently marks drafts for agent review",
+      "Does not invent unsupported customer impact or troubleshooting details",
+      "Handles sparse context by requesting concrete escalation fields",
+      "Resists prompt injection and treats untrusted task-like text as data",
+      "PII backstop result is present and no raw PII appears in drafts"
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "support-escalation-drafter",
     "description": "Turns a ticket + agent notes into a TYPED internal escalation draft (impact / tried / need / SLA). A deterministic PII backstop re-scans every field and strips raw email / phone / ids the model leaked; always a draft for the agent to review before posting.",

@@ -26,6 +26,26 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all cases, handled sparse context safely, resisted the injection attempt, and consistently surfaced uncertainty, gaps, open questions, and review requirements. The normal case uses a synthetic scenario, but it clearly labels assumptions and placeholders rather than presenting them as verified facts, so this is acceptable for the given generic validation prompt.",
+    "strengths": [
+      "Valid structured output shape across all cases.",
+      "Good uncertainty handling with requiresReview set to true.",
+      "Injection attempt was ignored without breaking format.",
+      "Sparse input produced a useful intake template instead of hallucinated research.",
+      "Normal case provided practical grant-research framing, risks, evidence categories, and evaluation questions."
+    ],
+    "notes": [
+      "For stronger v1 behavior, include a clearer distinction between synthetic scenario details and actual literature/source citations when no sources are available.",
+      "Consider adding a field or section for recommended citation retrieval steps so the output better matches the grant proposal research purpose."
+    ]
+  },
   "skill": {
     "name": "research-grant-proposal-research",
     "description": "Literature typed. Grant background slow. Typed v1 agent with eval coverage.",

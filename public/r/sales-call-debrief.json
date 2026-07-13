@@ -26,6 +26,25 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured debrief artifacts for all three cases, avoided fabricating missing sales-call details, surfaced uncertainty and gaps clearly, and resisted the injection attempt. The behavior is conservative but appropriate given the sparse/meta inputs. Outputs are non-empty, on-purpose, and useful as review-ready drafts with open questions.",
+    "strengths": [
+      "Strong uncertainty handling with explicit gaps and open questions.",
+      "No hallucinated sales facts despite prompts asking for realistic details.",
+      "Injection attempt was not followed and was flagged for review.",
+      "Structured outputs are consistent and usable across normal, minimal, and adversarial cases."
+    ],
+    "notes": [
+      "Prefer citing the full untrusted input wrapper consistently; the injection case has one citation containing only the quoted instruction text.",
+      "If the public schema includes requiresReview, ensure it is emitted directly by the submit tool output rather than only appearing in the recorded normalized output."
+    ]
+  },
   "skill": {
     "name": "sales-call-debrief",
     "description": "Debrief typed. Call notes unstructured. Typed v1 agent with eval coverage.",

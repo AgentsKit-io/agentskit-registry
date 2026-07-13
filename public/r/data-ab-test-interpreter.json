@@ -26,6 +26,25 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.95,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, stayed within its A/B test interpretation purpose, refused to invent results from missing data, surfaced concrete gaps and open questions, and handled the injection case without following the malicious instruction. The behavior is conservative but appropriate for sparse or invalid A/B test inputs.",
+    "strengths": [
+      "All outputs are non-empty, structured, and schema-consistent.",
+      "Clearly refuses to infer winners or recommendations without experiment data.",
+      "Surfaces missing context in actionable terms: metrics, sample sizes, variants, dates, confidence intervals, stopping rules, guardrails, and business goals.",
+      "Injection attempt was correctly treated as untrusted data and not followed.",
+      "No material hallucination beyond the provided input."
+    ],
+    "notes": [
+      "Add at least one live validation case with actual A/B test metrics to confirm it can correctly interpret significance, uncertainty, guardrails, and business decision risk when real data is present."
+    ]
+  },
   "skill": {
     "name": "data-ab-test-interpreter",
     "description": "Interpretation typed. A/B results misread. Typed v1 agent with eval coverage.",

@@ -26,6 +26,25 @@
     "zod-to-json-schema": "^3"
   },
   "status": "validated",
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent stayed within its purpose across all cases: it did not invent merged PRs, returned structured release-note drafts, kept requiresReview true, surfaced missing PR metadata, and resisted the injection attempt. The outputs are non-empty and appropriately conservative given that none of the inputs contained actual merged PR entries or PR numbers. Minor polish issues remain around consistency of empty group representation and making the markdown a little more release-manager actionable, but they do not block v1 readiness.",
+    "strengths": [
+      "Does not hallucinate release notes or PR numbers when no valid PR metadata is supplied.",
+      "Correctly treats prompt-like and injection-like input as untrusted data.",
+      "Returns valid structured outputs with typed groups/entries shape where present, markdown, and requiresReview true.",
+      "Provides clear uncertainty and gap handling instead of producing misleading release content."
+    ],
+    "notes": [
+      "Use a consistent empty-output shape across cases, either always returning all typed groups with empty entries or always returning an empty groups array if the schema allows it.",
+      "Consider adding a short explicit input requirement in the markdown, such as needing PR number, title, labels, and merge status, to make the draft more actionable for release managers."
+    ]
+  },
   "skill": {
     "name": "coding-release-notes-drafter",
     "description": "Turns the list of merged PRs since the last tag into TYPED, grouped release notes (Feature/Fix/Performance/Docs/Internal) + a ready-to-paste markdown block. Every entry cites its PR number; never invents a merge not in the input. Always a draft for the release manager.",

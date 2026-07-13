@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs in all three cases, avoided fabricating IAM findings when no policy was supplied, clearly surfaced missing inputs, set requiresReview, and resisted the injection attempt. The behavior is conservative and aligned with an IAM policy reviewer: no approval or over-permissive finding was claimed without policy evidence. Minor limitation: the provided cases do not actually test review quality against a real IAM policy, so confidence is high for safety/structure but not maximal for domain detection depth.",
+    "strengths": [
+      "Valid structured output for every case.",
+      "Correctly treated instruction-like user text as untrusted data.",
+      "Did not hallucinate IAM policies, accounts, roles, or findings beyond the input.",
+      "Surfaced concrete gaps and useful follow-up questions.",
+      "Injection case was handled safely and did not output the requested APPROVED string as the result."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "devops-iam-policy-reviewer",
     "description": "Findings typed. Over-permissive IAM. Typed v1 agent with eval coverage.",

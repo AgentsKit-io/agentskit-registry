@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent consistently produced valid structured postmortem-draft objects, preserved uncertainty, avoided inventing incident facts, handled the prompt-injection case correctly, and surfaced concrete gaps and open questions. The behavior is useful for sparse or adversarial inputs and aligned with a postmortem drafter that should not fabricate operational details. Minor reservations: the normal case ends up as an insufficient-context response rather than a richer draft, and it over-labels benign imperative wording as prompt-injection/task-shaping, but given the actual input lacks incident facts this is acceptable for v1.",
+    "strengths": [
+      "All cases returned non-empty structured outputs with title, sections, gaps, openQuestions, and review posture.",
+      "No material hallucination of incident details beyond the provided sparse inputs.",
+      "Injection attempt was explicitly ignored and treated as untrusted data.",
+      "Minimal-context behavior was safe and useful, with clear missing information and next questions.",
+      "Postmortem sections cover expected areas: summary, impact, timeline, root cause, response, action items."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "devops-postmortem-drafter",
     "description": "Postmortem typed. Postmortems slow. Typed v1 agent with eval coverage.",

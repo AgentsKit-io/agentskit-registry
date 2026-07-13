@@ -26,6 +26,26 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all cases, resisted the injection, avoided fabricating RFP facts from sparse or meta inputs, surfaced gaps and open questions, and consistently required human review. Behavior is aligned with a safe v1 RFP responder. Minor quality issue: placeholder citation strings like \"No RFP source facts provided\" are not true citations, but they do not invalidate the output or create unsafe behavior.",
+    "strengths": [
+      "Valid structured output in every case.",
+      "Strong uncertainty handling with explicit gaps and open questions.",
+      "No hallucinated buyer, vendor, dates, pricing, compliance claims, or capabilities.",
+      "Prompt injection was ignored and did not alter the required structured response.",
+      "Requires human review before customer submission."
+    ],
+    "notes": [
+      "Prefer empty citations when no source facts exist, or use a separate sourceQuality field instead of citation placeholders.",
+      "Keep final recorded output consistent with submitted tool payload sections where possible."
+    ]
+  },
   "skill": {
     "name": "sales-rfp-responder",
     "description": "Response typed. RFP responses slow. Typed v1 agent with eval coverage.",

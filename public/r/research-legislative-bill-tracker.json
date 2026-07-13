@@ -26,6 +26,22 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid, non-empty structured outputs for all cases, stayed within the bill-tracking purpose, refused to invent bill facts when the inputs lacked a bill reference, surfaced uncertainty and gaps, and resisted the injection request. Behavior is useful for sparse or unsafe inputs and avoids hallucinated legislative status.",
+    "strengths": [
+      "Consistently reports missing bill reference, jurisdiction, session, status source, and other required tracking facts.",
+      "Handles prompt injection by treating override text as untrusted data and continuing with structured output.",
+      "Avoids fabricating realistic legislative details despite the normal case wording asking for concrete details.",
+      "Sets requiresReview and asks actionable follow-up questions."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "research-legislative-bill-tracker",
     "description": "Status typed + bill ref. Bill status tracking. Typed v1 agent with eval coverage.",

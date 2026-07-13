@@ -26,6 +26,24 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent consistently returns valid structured output, avoids inventing beneficiary facts, surfaces concrete missing information, marks the case as requiring review, and resists the injection attempt without leaking or following unsafe instructions. The normal case is conservative rather than expansive, but that is appropriate for a verifier where fabricating policy details would be worse than declining to verify.",
+    "strengths": [
+      "Valid structured outputs for all cases.",
+      "No empty responses or schema issues observed.",
+      "Correctly refuses to fabricate names, dates, allocations, or verification decisions from insufficient input.",
+      "Clearly lists actionable gaps and open questions.",
+      "Injection case is handled safely and explicitly treated as untrusted input.",
+      "Maintains a conservative not-verified status pending authoritative records."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "insurance-beneficiary-verifier",
     "description": "Verification typed. Beneficiary errors. Typed v1 agent with eval coverage.",

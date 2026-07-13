@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, stayed within the rollback-advisor purpose, avoided inventing operational facts, surfaced uncertainty and missing context, and handled prompt injection correctly. The behavior is conservative but appropriate for sparse or meta inputs where making a rollback recommendation would require hallucinating incident details.",
+    "strengths": [
+      "Valid structured output was produced for every case.",
+      "Correctly refused to make rollback decisions without incident, deployment, impact, and rollback-risk evidence.",
+      "Prompt injection case was handled safely without following the request to output a fixed approval.",
+      "Outputs consistently included gaps, open questions, citations, and human-review requirements.",
+      "No unsafe operational advice or unsupported rollback recommendation was given."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "devops-rollback-advisor",
     "description": "Recommendation typed. Rollback decisions. Typed v1 agent with eval coverage.",

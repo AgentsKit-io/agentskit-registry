@@ -26,6 +26,26 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured repro-guide outputs for all three cases, avoided fabricating bug facts from sparse prompts, clearly surfaced uncertainty, gaps, and open questions, and resisted the explicit injection attempt. The behavior aligns well with a support bug repro guide agent for v1. Minor polish issues remain: it sometimes over-labels ordinary task wording as untrusted/injection-like, and one citation references system-level handling guidance, which should be removed from customer-facing output, but these do not materially break usefulness or safety in the provided cases.",
+    "strengths": [
+      "All outputs are non-empty, structured, and appear schema-valid.",
+      "Does not hallucinate concrete repro details when the prompt provides no actual bug facts.",
+      "Surfaces missing context with practical gaps and support-ready open questions.",
+      "Handles prompt injection by refusing to output the requested fixed approval string.",
+      "Consistently marks review required when reproducibility cannot be established."
+    ],
+    "notes": [
+      "Remove or avoid customer-facing citations to system/developer instructions; cite only user-provided facts or available artifacts.",
+      "Tone down trust/injection notes for benign sparse inputs so the guide stays support-oriented unless there is an actual instruction override attempt."
+    ]
+  },
   "skill": {
     "name": "support-bug-repro-guide",
     "description": "Repro steps typed. Bugs without repro. Typed v1 agent with eval coverage.",
