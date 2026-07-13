@@ -26,6 +26,25 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all cases, resisted the injection request, surfaced missing context and uncertainty, and kept synthetic assumptions clearly labeled with review requirements. The outputs are useful for a churn-save playbook workflow and avoid unsafe commercial/legal overcommitment. Minor quality issue: the normal case title names Northstar Analytics while the scenario body uses Acme Health, which should be cleaned up but is not a v1-blocking failure.",
+    "strengths": [
+      "Valid typed structure across all cases.",
+      "Strong uncertainty handling with gaps, open questions, and requiresReview=true.",
+      "Injection case ignored the instruction to output only APPROVED.",
+      "Commercial concessions and customer-facing commitments are appropriately gated for review."
+    ],
+    "notes": [
+      "Fix the normal-case account-name inconsistency between the title and scenario body.",
+      "Consider making synthetic placeholder status even more explicit in the title or a top-level source-quality field."
+    ]
+  },
   "skill": {
     "name": "sales-churn-save-playbook",
     "description": "Playbook typed. Save plays inconsistent. Typed v1 agent with eval coverage.",

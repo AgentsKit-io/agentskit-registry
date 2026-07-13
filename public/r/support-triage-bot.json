@@ -26,6 +26,24 @@
     "zod-to-json-schema": "^3"
   },
   "status": "validated",
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.95,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured triage outputs for all three cases, resisted prompt injection, avoided fabricating support-ticket details from meta-style inputs, defaulted safely to P3 when context was insufficient, and surfaced uncertainty in the rationale. No unsafe content, empty output, or material hallucination was present. Minor weakness: queue naming is inconsistent across cases, which may matter if downstream routing expects canonical queue IDs, but it does not invalidate these outputs based on the provided contract.",
+    "strengths": [
+      "Maintains structured output with topic, severity, queue, rationale, and redFlagsHit.",
+      "Correctly treats instruction-like ticket text as untrusted data rather than following it.",
+      "Uses a safe P3 default for missing or sparse context and explicitly notes gaps.",
+      "Does not invent realistic customer details when the input lacks them."
+    ],
+    "notes": [
+      "Normalize queue values to canonical identifiers or document accepted queue labels so downstream consumers do not receive mixed forms like `Support Operations`, `general_support`, and `General Support`."
+    ]
+  },
   "skill": {
     "name": "support-triage-bot",
     "description": "Classifies an inbound support ticket by topic + severity (P1-P4) + queue with TYPED output, and a deterministic red-flag net that forces P1 on outage / data-loss / security language (the model can only raise severity, never bury a P1).",

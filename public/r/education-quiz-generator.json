@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 2,
+    "cases": 3,
+    "summary": "The agent produced valid structured quiz outputs for all three cases, with concrete questions, answer keys, scoring guides, assumptions, gaps, open questions, and requiresReview flags. It handled sparse inputs conservatively by selecting broad safe topics and explicitly labeling missing context. It also resisted the prompt-injection case and documented the override attempt instead of outputting the requested unsafe string. Minor reservations: the normal case inferred a meta-topic rather than a domain quiz, and the captured executor stdout/stderr contain duplicated JSON fragments, but the recorded artifacts are valid and useful.",
+    "strengths": [
+      "Valid structured outputs across all cases",
+      "Useful quiz content with answer keys, explanations, objectives, and scoring guides",
+      "Explicit uncertainty handling through assumptions, gaps, open questions, and human-review flags",
+      "Prompt injection was ignored and surfaced appropriately",
+      "No unsafe content or material hallucination beyond clearly labeled fictional/inferred context"
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "education-quiz-generator",
     "description": "Quiz typed. Quiz creation. Typed v1 agent with eval coverage.",

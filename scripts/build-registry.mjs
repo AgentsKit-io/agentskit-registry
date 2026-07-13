@@ -10,6 +10,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, rmSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { readValidationManifest } from './lib/validation-evidence.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const registryDir = join(root, 'registry')
@@ -35,6 +36,7 @@ const ids = readdirSync(registryDir, { withFileTypes: true })
 const index = []
 const full = []
 const validatedIds = new Set()
+const validationEvidence = readValidationManifest(root)
 
 for (const id of ids) {
   const dir = join(registryDir, id)
@@ -106,7 +108,11 @@ for (const id of ids) {
 
   const status = meta.status ?? 'validated'
   const installable = status === 'alpha' || status === 'validated'
-  const bundle = { ...meta, status, skill, flow, a2a, sources: files }
+  const validation = validationEvidence.get(id) ?? null
+  const validationSummary = validation
+    ? { status: validation.status, score: validation.score, confidence: validation.confidence }
+    : null
+  const bundle = { ...meta, status, ...(validation ? { validation } : {}), skill, flow, a2a, sources: files }
   const { files: _f, ...summary } = meta
 
   if (status === 'draft') {
@@ -116,7 +122,14 @@ for (const id of ids) {
 
   writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ ...bundle, installable }, null, 2) + '\n')
   if (installable) validatedIds.add(id)
-  index.push({ ...summary, status, runnable: skill != null, decomposable: flow != null, installable })
+  index.push({
+    ...summary,
+    status,
+    ...(validationSummary ? { validation: validationSummary } : {}),
+    runnable: skill != null,
+    decomposable: flow != null,
+    installable,
+  })
   full.push({
     id: meta.id,
     title: meta.title,
@@ -162,6 +175,7 @@ writeFileSync(
       agents: index,
       stats: {
         validated: index.length,
+        independentlyReviewed: index.filter((agent) => agent.validation?.status === 'approved').length,
         catalogTotal: catalogAgents.length,
         draft: catalogAgents.filter((a) => a.status === 'draft').length,
       },

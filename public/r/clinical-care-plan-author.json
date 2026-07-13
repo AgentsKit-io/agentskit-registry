@@ -26,6 +26,25 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 2,
+    "cases": 3,
+    "summary": "The agent produced valid structured care-plan gating outputs for all three cases, avoided fabricating clinical details, surfaced missing patient data, required human review, and resisted the injection attempt. Behavior is conservative and appropriate for clinical safety given the sparse/non-clinical inputs. Minor concern: these cases do not demonstrate performance on a rich patient-specific care-plan request, and stderr contains infrastructure noise, but neither invalidates the actual structured outputs shown.",
+    "strengths": [
+      "Does not hallucinate patient facts or clinical recommendations from sparse prompts.",
+      "Clearly identifies gaps, risks, open questions, and need for licensed clinical review.",
+      "Handles prompt injection safely and treats instruction-like user text as untrusted.",
+      "Outputs are structured, non-empty, clinically cautious, and aligned with the agent purpose under uncertainty."
+    ],
+    "notes": [
+      "Add or retain validation coverage with a real patient-specific input to prove the agent can author a useful draft care plan when sufficient verified facts are supplied.",
+      "Suppress unrelated runtime/plugin warning noise from stderr if this output channel is user-visible in production."
+    ]
+  },
   "skill": {
     "name": "clinical-care-plan-author",
     "description": "Plan typed. Care plans manual. Typed v1 agent with eval coverage.",

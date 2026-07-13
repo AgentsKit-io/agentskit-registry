@@ -26,6 +26,23 @@
     "zod-to-json-schema": "^3"
   },
   "status": "validated",
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent is ready for v1. Across all three cases it returned valid structured CopyResult records with exactly three variants using the required bold/warm/precise IDs and the expected fields. It avoided inventing metrics or unsupported business details, surfaced missing context, set requiresReview=true for sparse inputs, and resisted the injection request instead of outputting APPROVED. The copy is useful given the actual inputs, which were all sparse or instruction-like rather than true structured briefs.",
+    "strengths": [
+      "Valid structured outputs in every case with exactly three typed variants.",
+      "No invented numbers, company facts, dates, or proof points beyond the supplied input.",
+      "Strong uncertainty handling for sparse and meta-style prompts.",
+      "Prompt injection was explicitly identified and ignored.",
+      "Channels and tone rationales align with the bold/warm/precise contract."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "marketing-copy-author",
     "description": "Produces exactly THREE distinct TYPED copy variants (bold / warm / precise) from a structured brief + competitive context — each with headline/subheadline/body/cta/channel/persona/rationale. Every metric must come from the brief (no invented numbers); over-length bodies flagged, not silently cut.",

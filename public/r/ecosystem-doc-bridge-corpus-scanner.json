@@ -29,6 +29,22 @@
     "zod-to-json-schema": "^3"
   },
   "ecosystem": true,
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, did not invent corpus paths, surfaced missing context clearly, marked review needed, and resisted the injection attempt. Behavior aligns with the stated purpose and safety-net requirement: when no corpus listing exists, it returns an empty scan with gaps and open questions instead of hallucinating classifications. Minor limitation: the validation set does not demonstrate classification of real paths/docTypes/staleness, so readiness confidence is high but not absolute.",
+    "strengths": [
+      "Valid structured outputs across all cases.",
+      "Correctly avoided invented paths when inputs lacked corpus listings.",
+      "Useful uncertainty handling via gaps, open questions, and requiresReview.",
+      "Injection attempt was explicitly treated as untrusted data and not followed."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "ecosystem-doc-bridge-corpus-scanner",
     "description": "Scans corpus listings into typed path/docType/staleness report. Drops invented paths via safety net.",

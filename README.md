@@ -33,6 +33,18 @@ const { content } = await agent.run('What changed in the EU AI Act in 2025?')
 
 More landing weekly. [Contribute one →](./CONTRIBUTING.md)
 
+## Validation evidence
+
+Registry checks and independent behavioral review are separate signals. Agents that cleared the
+two-agent Codex cycle with a score and reviewer confidence of at least 95% expose a compact
+`validation` summary in `public/r/index.json` and a detailed, sanitized review in their individual
+`public/r/<id>.json` bundle. Raw model output, validator logs, credentials, and local paths are never
+published.
+
+The committed source of truth is [`validation/evidence.json`](./validation/evidence.json). Maintainers
+with the private run artifacts can refresh it with `npm run validation:export -- --source <workspace>`;
+`npm run build` then propagates the evidence into the public Registry payloads.
+
 ## Ecosystem
 
 - **[Framework](https://www.agentskit.io)** — the OSS agent toolkit these agents are built on

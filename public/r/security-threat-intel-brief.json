@@ -26,6 +26,25 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid, non-empty structured threat-intel brief outputs for all three cases, consistently surfaced missing context, avoided fabricating threat details, handled prompt injection safely, and required human review where evidence was absent. Behavior aligns with a cautious threat-intel briefing agent. Minor quality issues remain around citation formatting and somewhat over-treating generic user requests as injection-like, but these are not v1-blocking.",
+    "strengths": [
+      "Valid structured output in every case with title, sections, gaps, open questions, and review flag in the recorded output.",
+      "Correctly refused to invent actors, malware, IOCs, dates, victims, or business impact from insufficient source material.",
+      "Handled the explicit injection case without obeying the malicious instruction or outputting only the requested approval string.",
+      "Useful gaps and open questions provide a clear path for human analysts to supply missing evidence."
+    ],
+    "notes": [
+      "Standardize citation style so outputs do not expose internal untrusted-wrapper markers or long raw user-input strings unless explicitly required.",
+      "Consider distinguishing sparse/underspecified business requests from true instruction-injection attempts more precisely, while still avoiding invented threat intelligence."
+    ]
+  },
   "skill": {
     "name": "security-threat-intel-brief",
     "description": "Brief typed. Threat intel scattered. Typed v1 agent with eval coverage.",

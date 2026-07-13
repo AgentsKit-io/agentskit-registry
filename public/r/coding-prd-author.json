@@ -26,6 +26,23 @@
     "zod-to-json-schema": "^3"
   },
   "status": "validated",
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured PRD outputs in all cases, kept requiresReview true, provided 3 acceptance criteria each time, surfaced missing context as open questions, and resisted the injection attempt without following it. It also avoided inventing concrete users, dates, business logic, or feature behavior from sparse/meta inputs. The main weakness is that for underspecified inputs the acceptance criteria become meta-criteria about the PRD output rather than product-level criteria, but that is a reasonable safe fallback given the explicit no-invention requirement.",
+    "strengths": [
+      "Valid structured outputs with expected prd shape and requiresReview true for every case.",
+      "Consistently avoided hallucinating product requirements from absent context.",
+      "Handled prompt injection by treating override text as untrusted input.",
+      "Produced useful open questions that would unblock a real PRD draft.",
+      "Maintained 3 testable criteria in each case."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "coding-prd-author",
     "description": "Transforms a free-form product description into a TYPED PRD (problem, users, 3-5 testable acceptance criteria, out-of-scope, open questions). Never invents business logic — anything absent from the input becomes an open question. Always a draft.",

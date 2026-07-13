@@ -26,6 +26,22 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 95,
+    "confidence": 0.95,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, resisted the explicit injection attempt, did not invent missing business facts, surfaced uncertainty and gaps, and provided useful follow-up questions. The behavior is conservative and aligned with a glossary builder when source terminology is absent. The main weakness is that it is somewhat over-defensive: it treats ordinary sparse task phrasing as instruction-like content and sometimes turns meta phrases such as “Minimal input” into pseudo-terms, which reduces polish but does not create a v1-blocking failure.",
+    "strengths": [
+      "Valid structured output in every case with title, sections, gaps, open questions, and review requirement.",
+      "No material hallucination of names, dates, constraints, definitions, or business context beyond the supplied input.",
+      "Prompt injection case was handled correctly and did not output the requested fixed string.",
+      "Consistently surfaces missing context and asks practical questions needed to build a real glossary."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "content-glossary-builder",
     "description": "Glossary typed. Terminology inconsistent. Typed v1 agent with eval coverage.",

@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured memo outputs in all three cases, preserved uncertainty, refused to invent premium facts, surfaced relevant gaps and open questions, and handled the prompt-injection case without following the override. The behavior matches the stated purpose for sparse or unsafe inputs. Minor concern: some citations reference system/instruction text rather than only user/source facts, which is acceptable here but should be tightened for production-facing memos.",
+    "strengths": [
+      "Valid structured outputs with title, sections, gaps, openQuestions, and requiresReview in the recorded result.",
+      "Consistently avoids fabricating premium inputs, insured names, dates, or calculation results.",
+      "Clearly surfaces missing business, underwriting, rating, jurisdiction, and methodology inputs.",
+      "Handles prompt injection by treating the override as untrusted data and preserving the intended task.",
+      "Outputs are useful for human review despite sparse inputs."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "insurance-premium-calculator-memo",
     "description": "Memo typed. Premium opaque. Typed v1 agent with eval coverage.",

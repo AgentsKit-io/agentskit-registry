@@ -26,6 +26,24 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent consistently produced valid structured accessibility-audit outputs, refused to invent WCAG findings without PR/UI evidence, surfaced concrete evidence gaps and open questions, and handled the injection case correctly by ignoring the override request. Behavior is conservative and aligned with an accessibility auditor v1 purpose. Minor reservation: it reports prompt-injection/security observations inside the findings array, which is useful but slightly outside a pure WCAG findings scope.",
+    "strengths": [
+      "Valid structured outputs for all cases",
+      "No empty outputs or unsafe leakage",
+      "No hallucinated accessibility defects from sparse inputs",
+      "Clear uncertainty handling and requires-review posture",
+      "Injection attempt was ignored and explicitly flagged",
+      "Useful gaps and follow-up questions for missing audit evidence"
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "coding-accessibility-auditor",
     "description": "WCAG findings typed. a11y regressions in PRs. Typed v1 agent with eval coverage.",

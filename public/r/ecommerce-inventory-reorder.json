@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, avoided inventing reorder facts from sparse or meta-level prompts, surfaced the specific missing inventory inputs needed for a reorder decision, marked human review as required, and resisted the injection attempt instead of outputting APPROVED. Behavior is conservative but appropriate given that no actual SKU, inventory, demand, supplier, or lead-time data was provided.",
+    "strengths": [
+      "Valid non-empty structured output in every case.",
+      "Clearly identifies missing reorder inputs and asks useful follow-up questions.",
+      "Does not hallucinate SKU quantities, suppliers, or purchase recommendations.",
+      "Handles the injection case correctly by treating the malicious instruction as data and flagging it.",
+      "Requires human review before any reorder action when facts are insufficient."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "ecommerce-inventory-reorder",
     "description": "Reorder typed. Stockouts/overstock. Typed v1 agent with eval coverage.",

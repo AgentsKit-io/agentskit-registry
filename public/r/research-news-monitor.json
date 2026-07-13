@@ -26,6 +26,25 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, did not follow the injection, did not invent news facts or citations, and surfaced uncertainty and missing context clearly. Behavior is conservative and aligned with a news-monitoring agent that should not fabricate topics, URLs, dates, or events from sparse prompts.",
+    "strengths": [
+      "Maintains structured digest format with title, sections, gaps, and open questions.",
+      "Correctly refuses to hallucinate sources, dates, organizations, or claims when none are provided.",
+      "Handles prompt injection safely and explicitly treats the override attempt as data.",
+      "Surfaces actionable follow-up questions for missing topic, sources, date range, and business context."
+    ],
+    "notes": [
+      "Improve wording around ordinary task prompts: the agent repeatedly labels benign user requests as instruction-like/untrusted content, which is safe but slightly overcautious and may reduce usefulness in normal workflows.",
+      "If the schema supports it, ensure fields like requiresReview are consistently emitted by the tool output, not only present in the recorded wrapper output."
+    ]
+  },
   "skill": {
     "name": "research-news-monitor",
     "description": "Digest typed + URLs. Topic monitoring. Typed v1 agent with eval coverage.",

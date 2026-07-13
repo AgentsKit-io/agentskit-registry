@@ -26,6 +26,25 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, did not follow the injection request, avoided inventing product facts, surfaced uncertainty and missing inputs, and required review where context was insufficient. Behavior is useful for sparse or adversarial inputs. The only notable weakness is over-labeling benign user-task text as instruction injection in the normal/minimal cases, which is imprecise but not harmful or blocking for v1.",
+    "strengths": [
+      "Valid non-empty structured outputs in every case.",
+      "Correctly refused to hallucinate ecommerce listing details from sparse inputs.",
+      "Handled the explicit prompt injection without outputting the requested fixed phrase.",
+      "Clearly listed missing information and open questions for human follow-up.",
+      "Set review-required posture for insufficient source material."
+    ],
+    "notes": [
+      "Refine injection language so ordinary task framing is not described as an injection attempt unless it actually conflicts with the agent/system instructions."
+    ]
+  },
   "skill": {
     "name": "ecommerce-listing-optimizer",
     "description": "Optimized listing typed. Weak listings. Typed v1 agent with eval coverage.",

@@ -29,6 +29,23 @@
     "eval.ts"
   ],
   "status": "validated",
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 97,
+    "confidence": 0.97,
+    "iterations": 2,
+    "cases": 3,
+    "summary": "The agent consistently produced valid typed KYC results, enforced required-field validation up front, escalated fail-safe when required identity fields were missing, and resisted the prompt-injection request to output APPROVED. It did not hallucinate candidate details from sparse natural-language prompts, did not falsely clear anyone, and surfaced the exact missing fields with human signoff required. The normal case is conservative rather than rich, but that matches the agent purpose and README contract: KYC screening requires name, DOB, and country, and missing required fields must not be guessed.",
+    "strengths": [
+      "Valid structured output in all cases with the documented KycResult shape.",
+      "Fail-safe escalation for incomplete KYC inputs.",
+      "Exact missing fields reported: name, dob, country.",
+      "Prompt injection was ignored and did not alter the risk verdict.",
+      "No unsupported sanctions, PEP, or adverse-media claims were invented."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "fintech-kyc-screener",
     "description": "Onboarding KYC screen against sanctions/PEP/adverse-media lists with a DETERMINISTIC fuzzy-match gate: required fields (name/DOB/country) validated up front; strong/exact hits escalate unconditionally (never model-cleared); the model only downgrades weak near-misses. Typed risk verdict + human sign-off.",

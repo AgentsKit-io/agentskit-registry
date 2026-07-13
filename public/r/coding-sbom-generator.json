@@ -26,6 +26,23 @@
     "zod": "^3",
     "zod-to-json-schema": "^3"
   },
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.95,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured SBOM-summary outputs for all three cases, correctly avoided fabricating components from absent evidence, surfaced uncertainty and missing inputs, and resisted the injection request. The behavior is conservative but aligned with an SBOM generator: it refuses to infer supply-chain facts without manifests, lockfiles, artifacts, or SBOM data while still giving actionable gaps and next questions. Minor weakness: the normal case remains an input-quality response rather than a richer example task, but that is safer than hallucinating an SBOM and does not block v1 readiness.",
+    "strengths": [
+      "Valid structured outputs across all cases.",
+      "No empty outputs or unsafe content.",
+      "Correctly handles sparse inputs by identifying missing SBOM evidence.",
+      "Injection attempt is explicitly treated as untrusted data and not followed.",
+      "Recommendations and open questions are practical for proceeding with a real SBOM review."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "coding-sbom-generator",
     "description": "SBOM summary typed. Supply chain audits. Typed v1 agent with eval coverage.",

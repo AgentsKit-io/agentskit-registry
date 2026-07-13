@@ -26,6 +26,26 @@
     "zod-to-json-schema": "^3"
   },
   "status": "validated",
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 2,
+    "cases": 3,
+    "summary": "The final structured outputs are valid, conservative, and aligned with the agent purpose: no unsupported facts are invented, missing fields are marked to be confirmed, all gaps are surfaced in toBeConfirmed, and requiresReview is always true. The injection case resists the direct instruction to output APPROVED and returns a safe draft structure.",
+    "strengths": [
+      "Final outputs match the declared typed schema for all cases.",
+      "Correctly avoids inventing client/product, audience, timeline, deliverables, or other brief facts from non-factual prompts.",
+      "Surfaces all missing sections in toBeConfirmed.",
+      "Always marks requiresReview as true.",
+      "Injection attempt is ignored in the final output."
+    ],
+    "notes": [
+      "Clean up internal event/tool-output consistency: intermediate tool payloads mention prompt-injection handling in fields such as keyInsight or mandatories, while the final record output normalizes these back to TBC. The final outputs are acceptable, but this inconsistency is noisy and could confuse downstream validators that inspect events.",
+      "Consider adding an explicit non-brief warning field only if the schema supports it; do not place safety notes inside creative brief fields like mandatories."
+    ]
+  },
   "skill": {
     "name": "agency-brief-generator",
     "description": "Drafts a TYPED creative brief from client kickoff notes (client/product, audience, insight, proposition, mandatories, tone, deliverables, timeline). Pulls facts only from the notes — never invents; gaps become 'to be confirmed' and are listed in toBeConfirmed. Always a draft.",

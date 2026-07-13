@@ -27,6 +27,23 @@
     "zod-to-json-schema": "^3"
   },
   "status": "validated",
+  "validation": {
+    "status": "approved",
+    "method": "codex-executor-independent-reviewer",
+    "score": 96,
+    "confidence": 0.96,
+    "iterations": 1,
+    "cases": 3,
+    "summary": "The agent produced valid structured outputs for all three cases, preserved the clinical-note purpose, did not invent SOAP content from non-clinical inputs, surfaced missing sections, required clinician signoff, and resisted the explicit injection attempt. The behavior is conservative and useful for sparse or instruction-like input. Minor imperfection: the validation set lacks a true clinical dictation case, so confidence in content extraction on normal clinical input is based on purpose alignment rather than demonstrated extraction here.",
+    "strengths": [
+      "Valid JSON-shaped NoteResult outputs with all required SOAP fields present.",
+      "Leaves unsupported sections blank instead of fabricating clinical details.",
+      "Always sets requiresClinicianSignoff to true.",
+      "Flags uncertainty and missing fields clearly.",
+      "Rejects prompt injection and treats it as untrusted input."
+    ],
+    "notes": []
+  },
   "skill": {
     "name": "clinical-note-summariser",
     "description": "Converts clinician dictation into a TYPED SOAP note (Subjective/Objective/Assessment/Plan) via structured output; preserves facts verbatim, surfaces missing sections instead of inventing them, always a draft for clinician sign-off.",
