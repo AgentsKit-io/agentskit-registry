@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "manifestSchemaVersion": 2,
+  "products": [
+    {
+      "productId": "agentskit",
+      "source": {
+        "type": "endpoint",
+        "url": "https://www.agentskit.io/api/stats.json"
+      },
+      "verification": "declared",
+      "claims": []
+    },
+    {
+      "productId": "registry",
+      "source": {
+        "type": "endpoint",
+        "url": "https://registry.agentskit.io/r/index.json"
+      },
+      "verification": "verified",
+      "claims": [
+        {
+          "id": "validated-agents",
+          "value": 346,
+          "noun": "validated agents",
+          "conservativeFloor": 300,
+          "evidence": {
+            "type": "repository-derivation",
+            "repo": "AgentsKit-io/agentskit-registry",
+            "path": "scripts/build-registry.mjs",
+            "summary": "Installable non-draft agent bundles emitted in public/r/index.json."
+          }
+        },
+        {
+          "id": "independently-reviewed-agents",
+          "value": 333,
+          "noun": "independently reviewed agents",
+          "conservativeFloor": 300,
+          "evidence": {
+            "type": "repository-derivation",
+            "repo": "AgentsKit-io/agentskit-registry",
+            "path": "validation/evidence.json",
+            "summary": "Approved public validation summaries joined into the generated index."
+          }
+        },
+        {
+          "id": "agent-categories",
+          "value": 23,
+          "noun": "agent categories",
+          "evidence": {
+            "type": "repository-derivation",
+            "repo": "AgentsKit-io/agentskit-registry",
+            "path": "public/r/index.json",
+            "summary": "Distinct categories in the generated installable agent index."
+          }
+        }
+      ]
+    },
+    {
+      "productId": "agentskit-chat",
+      "source": {
+        "type": "repository",
+        "repo": "AgentsKit-io/agentskit-chat"
+      },
+      "verification": "declared",
+      "claims": []
+    },
+    {
+      "productId": "playbook",
+      "source": {
+        "type": "endpoint",
+        "url": "https://playbook.agentskit.io/api/stats.json"
+      },
+      "verification": "declared",
+      "claims": []
+    },
+    {
+      "productId": "doc-bridge",
+      "source": {
+        "type": "repository",
+        "repo": "AgentsKit-io/doc-bridge"
+      },
+      "verification": "declared",
+      "claims": []
+    },
+    {
+      "productId": "code-review",
+      "source": {
+        "type": "repository",
+        "repo": "AgentsKit-io/code-review-cli"
+      },
+      "verification": "declared",
+      "claims": []
+    },
+    {
+      "productId": "akos",
+      "source": {
+        "type": "endpoint",
+        "url": "https://akos.agentskit.io/api/stats.json"
+      },
+      "verification": "declared",
+      "claims": []
+    }
+  ]
+}

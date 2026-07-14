@@ -11,7 +11,10 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "node scripts/build-registry.mjs",
+    "build": "node scripts/build-registry.mjs && node scripts/generate-ecosystem-claims.mjs",
+    "discovery:build": "node scripts/build-discovery.mjs",
+    "claims:generate": "node scripts/generate-ecosystem-claims.mjs",
+    "docs:bridge:config": "node scripts/generate-doc-bridge-config.mjs",
     "catalog:generate": "node scripts/generate-catalog.mjs",
     "catalog:validate": "node scripts/validate-catalog.mjs",
     "scaffold": "node scripts/scaffold-draft.mjs",
@@ -23,16 +26,20 @@
     "validation:export": "node scripts/export-validation-evidence.mjs",
     "validate:v1": "node scripts/validate-v1.mjs",
     "validate": "node scripts/validate-agents.mjs && node scripts/validate-catalog.mjs",
+    "pretest": "npm run discovery:build",
     "test": "vitest run",
+    "test:quickstart": "vitest run scripts/quickstart.test.mjs",
     "lint": "tsc --noEmit",
     "docs:bridge:index": "ak-docs index",
     "docs:bridge:gate": "ak-docs gate run",
+    "docs:bridge:conformance": "ak-docs conformance run documentation-standard-v1 --text",
     "docs:bridge:query": "ak-docs query"
   },
   "devDependencies": {
+    "@agentskit/chat-protocol": "^0.2.0",
     "@agentskit/adapters": "^0.12.2",
-    "@agentskit/core": "^1.10.0",
-    "@agentskit/doc-bridge": "^1.0.2",
+    "@agentskit/core": "^1.12.3",
+    "@agentskit/doc-bridge": "^1.1.1",
     "@agentskit/eval": "^0.4.5",
     "@agentskit/runtime": "^0.10.0",
     "@agentskit/skills": "^0.8.2",
@@ -40,7 +47,7 @@
     "@types/json-schema": "^7.0.15",
     "@types/node": "^22.19.20",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.9",
+    "vitest": "^4.1.10",
     "zod": "^3.25.0",
     "zod-to-json-schema": "^3.24.0"
   }

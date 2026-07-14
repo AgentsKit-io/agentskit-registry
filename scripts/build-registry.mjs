@@ -11,6 +11,11 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, rmSync
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readValidationManifest } from './lib/validation-evidence.mjs'
+import {
+  createRegistryDiscoveryArtifact,
+  createRegistrySiteConfig,
+  readRegistryDiscoverySource,
+} from './lib/deterministic-discovery.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const registryDir = join(root, 'registry')
@@ -296,7 +301,17 @@ writeFileSync(
     '\n',
 )
 
+const deterministic = await createRegistryDiscoveryArtifact(readRegistryDiscoverySource(root))
+const deterministicDir = join(publicDir, 'deterministic')
+mkdirSync(deterministicDir, { recursive: true })
+writeFileSync(join(deterministicDir, 'knowledge.json'), deterministic.serialized)
+writeFileSync(
+  join(deterministicDir, 'site-config.json'),
+  `${JSON.stringify(createRegistrySiteConfig(deterministic.artifact.contentHash), null, 2)}\n`,
+)
+
 console.log(
   `registry built: ${ids.length} registry folders, ${index.length} validated installable, ` +
-    `${catalogAgents.length} catalog entries → public/r/ + llms.txt`,
+    `${catalogAgents.length} catalog entries → public/r/ + llms.txt; ` +
+    `${deterministic.artifact.entries.length} deterministic entries (${deterministic.bytes} bytes)`,
 )

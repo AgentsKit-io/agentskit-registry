@@ -1,62 +1,122 @@
 # AgentsKit Registry
 
-**Ready-to-use AI agents for [AgentsKit](https://www.agentskit.io).** Copy the source into your project — you own the code. No new framework dependency, no lock-in.
+[![CI](https://github.com/AgentsKit-io/agentskit-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/AgentsKit-io/agentskit-registry/actions/workflows/ci.yml)
+[![Agents](https://img.shields.io/badge/validated_agents-346-58A6FF)](https://registry.agentskit.io/agents)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2EA043)](./LICENSE)
 
-→ Browse agents at **[registry.agentskit.io](https://registry.agentskit.io)**
+**Copy a production-minded AI agent into your project and own the source.**
+AgentsKit Registry is a shadcn-style catalog of 346 validated agents built with
+[AgentsKit](https://www.agentskit.io/docs). It adds no Registry runtime and no
+lock-in: the CLI copies readable TypeScript that your team can review and edit.
 
-> **UI ownership:** this repository is the data-only Registry corpus. The live
-> Next host, including Ask Registry's AgentsKit Chat integration, lives at
-> `AgentsKit-io/agentskit/apps/registry` (Registry RFC 0002). Do not add Astro or
-> a second chat runtime here.
+[Browse the Registry](https://registry.agentskit.io/agents) ·
+[Start in five minutes](./docs/getting-started.md) ·
+[Contribute an agent](./CONTRIBUTING.md)
 
-## How it works
+![AgentsKit Registry deterministic-first discovery: 346 validated agents resolve exact questions locally and escalate semantic questions only when needed.](./docs/assets/registry-discovery.svg)
 
-Each agent is a small, self-contained folder that wires published `@agentskit/*`
-packages (a skill + tools + the runtime) into a one-call factory. The CLI copies
-that source into your project — shadcn-style — so you can read it, edit it, and keep it.
+> Registry is **beta**. All 346 entries pass structural and repository tests;
+> 333 also publish sanitized independent-review evidence. Templates remain code
+> you must review against your provider, tools, data policy, and risk profile.
+
+## From catalog to code
+
+```mermaid
+flowchart LR
+  F["Find by ID, category, or capability"] --> A["npx agentskit add <id>"]
+  A --> C["Readable source copied locally"]
+  C --> R["Review and adapt"]
+  R --> S["Ship with your adapter and policy"]
+```
 
 ```bash
-npx agentskit add research      # copies the research agent into ./agents/research/
-npx agentskit add code-review
+npx agentskit add research
 ```
 
 ```ts
 import { openai } from '@agentskit/adapters'
 import { createResearchAgent } from './agents/research/agent'
 
-const agent = createResearchAgent({ adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }) })
-const { content } = await agent.run('What changed in the EU AI Act in 2025?')
+const agent = createResearchAgent({
+  adapter: openai({
+    apiKey: process.env.OPENAI_API_KEY!,
+    model: 'gpt-4o',
+  }),
+})
+
+const result = await agent.run('What changed in the EU AI Act?')
+console.log(result.content)
 ```
 
-## Agents
+Swap the adapter, tools, memory, model, and policy through supported AgentsKit
+contracts. The copied factory stays ordinary application code.
 
-| Agent | Category | What it does |
-|-------|----------|--------------|
-| [`research`](./registry/research) | research | Citation-first web research |
-| [`code-review`](./registry/code-review) | coding | Deep, low-noise review: 7 lenses + adversarial verify → typed findings & patches; git diff / PR / files; Markdown / SARIF / PR comments; blocking CI gate |
-| [`knowledge-promoter`](./registry/knowledge-promoter) | ops | Turns curated private notes into public docs PRs: classify → sanitize → adversarial leak-gate → draft PR (never merges) |
+## What is actually here
 
-More landing weekly. [Contribute one →](./CONTRIBUTING.md)
+- **346 validated, installable agents** across 23 categories, from coding and
+  security to legal, clinical, marketing, operations, support, and research.
+- **333 independent-review summaries** with scores, confidence, strengths, and
+  required adjustments; private raw reviewer output is never published.
+- **Typed source + focused tests + usage guide** for every installable entry.
+- **Eval replay fixtures** for repeatable behavioral checks without live keys.
+- **JSON, `llms.txt`, MCP, and deterministic discovery artifacts** for people,
+  tools, and LLMs to navigate the same canonical catalog.
 
-## Validation evidence
+Claims are derived from [`public/r/index.json`](./public/r/index.json) and the
+generated [`ecosystem-claims.json`](./ecosystem-claims.json), not hand-maintained
+marketing copy.
 
-Registry checks and independent behavioral review are separate signals. Agents that cleared the
-two-agent Codex cycle with a score and reviewer confidence of at least 95% expose a compact
-`validation` summary in `public/r/index.json` and a detailed, sanitized review in their individual
-`public/r/<id>.json` bundle. Raw model output, validator logs, credentials, and local paths are never
-published.
+## Discovery without unnecessary backend calls
 
-The committed source of truth is [`validation/evidence.json`](./validation/evidence.json). Maintainers
-with the private run artifacts can refresh it with `npm run validation:export -- --source <workspace>`;
-`npm run build` then propagates the evidence into the public Registry payloads.
+Exact agent IDs, titles, install commands, categories, capabilities,
+contribution links, and ecosystem navigation resolve from a signed local
+artifact. Semantic requests such as “which agent fits my incident workflow?”
+escalate through AgentsKit Chat to the trusted cited backend only after a
+validated local miss.
 
-## Ecosystem
+See [architecture and ownership](./docs/architecture.md) for the full boundary.
 
-- **[Framework](https://www.agentskit.io)** — the OSS agent toolkit these agents are built on
-- **[Playbook](https://playbook.agentskit.io)** — engineering standards
-- **Registry** — you are here
-- **[AKOS](https://akos.agentskit.io)** — the enterprise OS for agents (orchestration, egress, RBAC)
+## Repository ownership
 
-## License
+This repository owns catalog data and generated machine artifacts. The live
+Fumadocs application and its AgentsChat presentation live in
+[`AgentsKit-io/agentskit/apps/registry`](https://github.com/AgentsKit-io/agentskit/tree/main/apps/registry).
+AgentsKit owns runtime primitives and the CLI; AgentsKit Chat owns the shared
+answer protocol and renderer behavior. There is no second framework here.
 
-MIT
+## Contributing
+
+New agents and improvements are welcome. Follow [CONTRIBUTING.md](./CONTRIBUTING.md),
+use a neighboring validated agent as a reference, and run:
+
+```bash
+npm run validate
+npm run lint
+npm test
+npm run eval:run -- --ecosystem-doc-bridge
+npm run build
+npm run docs:bridge:gate
+```
+
+Generated indexes, claims, deterministic artifacts, and Doc Bridge handoffs
+must remain fresh in the pull request.
+
+## AgentsKit ecosystem
+
+- [AgentsKit](https://www.agentskit.io/docs) — build the agent runtime.
+- **Registry** — start from owned, ready-made source.
+- [AgentsKit Chat](https://github.com/AgentsKit-io/agentskit-chat) — deliver one
+  agent experience across Web, native, and terminal interfaces.
+- [Agents Playbook](https://playbook.agentskit.io/docs) — apply production
+  engineering and review discipline.
+- [Doc Bridge](https://github.com/AgentsKit-io/doc-bridge) — turn documentation
+  into executable agent handoffs.
+- [Code Review](https://github.com/AgentsKit-io/code-review-cli) — run deep,
+  low-noise review with the model already in use.
+- [AgentsKit OS](https://akos.agentskit.io/docs) — operate and govern agents.
+
+## Compatibility and license
+
+Registry source targets the package ranges declared by each `meta.json`; the
+repository CI currently runs on Node.js 22. Review an agent's generated bundle
+before upgrading its dependencies. Licensed under [MIT](./LICENSE).
