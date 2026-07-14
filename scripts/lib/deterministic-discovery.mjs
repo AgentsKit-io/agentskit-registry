@@ -26,10 +26,10 @@ const uniqueAliases = (values) => {
 
 const citation = (id, title, href) => ({ id, title, href })
 
-const listAgents = (agents, filterHref) => {
+const listAgents = (agents, overflowHref, overflowLabel = `View all ${agents.length} matches`) => {
   const visible = agents.slice(0, MAX_LISTED_AGENTS)
   const lines = visible.map((agent) => `- [${agent.title}](${SITE}/agents/${agent.id}) — \`${agent.id}\``)
-  if (agents.length > visible.length) lines.push(`- [View all ${agents.length} matches](${filterHref})`)
+  if (agents.length > visible.length) lines.push(`- [${overflowLabel}](${overflowHref})`)
   return lines.join('\n')
 }
 
@@ -127,14 +127,14 @@ export const createRegistryDiscoveryArtifact = async ({ agents, generatedAt }) =
     .sort()
   const capabilityEntries = capabilities.map((capability) => {
     const matches = sorted.filter((agent) => (agent.tags ?? []).includes(capability))
-    const href = `${SITE}/?q=${encodeURIComponent(capability)}#agents`
+    const href = `${SITE}/#agents`
     return {
       id: `capability:${capability}`,
       kind: 'navigation',
       label: `${capability} capability`,
       match: { type: 'exact', values: capabilityAliases(capability, reserved) },
       answer: {
-        markdown: `## ${matches.length} agents with ${capability}\n\n${listAgents(matches, href)}`,
+        markdown: `## ${matches.length} agents with ${capability}\n\n${listAgents(matches, href, 'Browse the full catalog')}`,
         citations: [citation(`capability:${capability}`, `${capability} agents`, href)],
       },
     }
