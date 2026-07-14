@@ -14,12 +14,18 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - name: Generate Doc Bridge ownership for every agent
+        run: npm run docs:bridge:config
       - name: Validate agent structure (CONTRIBUTING bar)
         run: npm run validate
       - run: npm run lint
       - run: npm test
+      - run: npm run test:quickstart
       - name: Eval replay (doc-bridge pack)
         run: npm run eval:run -- --ecosystem-doc-bridge
       - run: npm run build
-      - name: Committed index (public/r) is up to date
-        run: git diff --exit-code public/r || (echo "public/r is stale — run 'npm run build' and commit." && exit 1)
+      - run: npm run docs:bridge:index
+      - run: npm run docs:bridge:gate
+      - run: npm run docs:bridge:conformance
+      - name: Committed machine artifacts and handoffs are up to date
+        run: git diff --exit-code public ecosystem-claims.json doc-bridge.config.json .doc-bridge || (echo "Generated Registry artifacts are stale — regenerate and commit them." && exit 1)
