@@ -26,11 +26,11 @@ Object.assign(ownership, {
   },
   'registry-catalog': {
     path: 'catalog', group: 'catalog', purpose: 'Agent lifecycle, stacks, policy, and catalog generation',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/discovery', checks,
+    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
   },
   'registry-discovery': {
     path: 'scripts/lib/deterministic-discovery.mjs', group: 'discovery', purpose: 'Canonical deterministic knowledge artifact generation',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/discovery', checks,
+    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
   },
   'registry-validation': {
     path: 'validation', group: 'validation', purpose: 'Public independent-review evidence summaries',

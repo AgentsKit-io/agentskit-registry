@@ -127,7 +127,7 @@ export const createRegistryDiscoveryArtifact = async ({ agents, generatedAt }) =
     .sort()
   const capabilityEntries = capabilities.map((capability) => {
     const matches = sorted.filter((agent) => (agent.tags ?? []).includes(capability))
-    const href = `${SITE}/?q=${encodeURIComponent(capability.replaceAll('-', ' '))}#agents`
+    const href = `${SITE}/?q=${encodeURIComponent(capability)}#agents`
     return {
       id: `capability:${capability}`,
       kind: 'navigation',

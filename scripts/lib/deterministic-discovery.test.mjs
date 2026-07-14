@@ -49,7 +49,7 @@ describe('Registry deterministic discovery artifact', () => {
     expect(matches(artifact, 'category research').map((entry) => entry.id)).toEqual(['category:research'])
     expect(matches(artifact, 'capability prompt injection defense').map((entry) => entry.id)).toEqual(['capability:prompt-injection-defense'])
     expect(matches(artifact, 'category research')[0].answer.citations[0].href).toBe('https://registry.agentskit.io/categories/research')
-    expect(matches(artifact, 'capability prompt injection defense')[0].answer.citations[0].href).toBe('https://registry.agentskit.io/?q=prompt%20injection%20defense#agents')
+    expect(matches(artifact, 'capability prompt injection defense')[0].answer.citations[0].href).toBe('https://registry.agentskit.io/?q=prompt-injection-defense#agents')
     expect(matches(artifact, 'browse agents')[0].answer.citations[0].href).toBe('https://registry.agentskit.io/#agents')
     expect(matches(artifact, 'install an agent')[0].answer.citations[0].href).toBe('https://registry.agentskit.io/docs/quick-start')
     expect(matches(artifact, 'a semantic problem with no declared exact fact')).toEqual([])
@@ -82,5 +82,30 @@ describe('Registry deterministic discovery artifact', () => {
     expect(matches(artifact, 'meeting action extractor')).toEqual([])
     expect(matches(artifact, 'ops-meeting-action-extractor')).toHaveLength(1)
     expect(matches(artifact, 'productivity-meeting-action-extractor')).toHaveLength(1)
+  })
+
+  it('keeps every capability citation searchable by the published catalog', async () => {
+    const capabilityEntries = result.artifact.entries.filter((entry) => entry.id.startsWith('capability:'))
+
+    for (const entry of capabilityEntries) {
+      const href = new URL(entry.answer.citations[0].href)
+      const query = href.searchParams.get('q')
+      const expectedTag = entry.id.slice('capability:'.length)
+      const catalogMatches = source.agents.filter((agent) => [
+        agent.title,
+        agent.description,
+        agent.id,
+        agent.category,
+        ...(agent.tags ?? []),
+      ].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()))
+      const taggedAgents = source.agents.filter((agent) => agent.tags?.includes(expectedTag))
+
+      expect(href.pathname).toBe('/')
+      expect(href.hash).toBe('#agents')
+      expect(query).toBe(expectedTag)
+      expect(catalogMatches.length, entry.id).toBeGreaterThan(0)
+      expect(taggedAgents.length, entry.id).toBeGreaterThan(0)
+      expect(taggedAgents.every((agent) => catalogMatches.includes(agent)), entry.id).toBe(true)
+    }
   })
 })
