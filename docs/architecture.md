@@ -24,8 +24,9 @@ flowchart LR
   per-agent usage guide.
 - `scripts/build-registry.mjs` owns committed install bundles, catalog indexes,
   `llms.txt`, and discovery artifacts. Generated files are never hand-edited.
-- `@agentskit/chat-protocol` owns artifact schemas, normalization, canonical
-  serialization, limits, and SHA-256 verification. Registry does not fork it.
+- `@agentskit/chat/protocol` (AgentsKit Chat 0.3.x consolidated surface) owns
+  artifact schemas, normalization, canonical serialization, limits, and
+  SHA-256 verification. Registry does not fork it and does not ship a chat UI.
 - AgentsKit CLI owns transactional `agentskit add`; Registry supplies the data.
 - AgentsChat owns exact lookup, local choice resolution, and safe escalation.
 - The authenticated backend derives the corpus and persona server-side and
