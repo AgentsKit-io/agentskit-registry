@@ -22,15 +22,15 @@ const ownership = Object.fromEntries(ids.map((id) => [id, {
 Object.assign(ownership, {
   'registry-architecture': {
     path: 'docs', group: 'documentation', purpose: 'Registry ownership, boundaries, quickstart, and contribution journey',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/getting-started', checks,
+    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/quick-start', checks,
   },
   'registry-catalog': {
     path: 'catalog', group: 'catalog', purpose: 'Agent lifecycle, stacks, policy, and catalog generation',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/architecture', checks,
+    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/discovery', checks,
   },
   'registry-discovery': {
     path: 'scripts/lib/deterministic-discovery.mjs', group: 'discovery', purpose: 'Canonical deterministic knowledge artifact generation',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/architecture', checks,
+    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/discovery', checks,
   },
   'registry-validation': {
     path: 'validation', group: 'validation', purpose: 'Public independent-review evidence summaries',

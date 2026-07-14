@@ -33,7 +33,7 @@ const listAgents = (agents, filterHref) => {
   return lines.join('\n')
 }
 
-const agentAliases = (agent) => uniqueAliases([
+const agentAliasCandidates = (agent) => uniqueAliases([
   agent.id,
   agent.title,
   agent.title.replace(/\bagent\b/giu, '').trim(),
@@ -64,6 +64,17 @@ const capabilityAliases = (capability, reserved) => {
 
 export const createRegistryDiscoveryArtifact = async ({ agents, generatedAt }) => {
   const sorted = [...agents].sort((left, right) => left.id.localeCompare(right.id))
+  const aliasOwners = new Map()
+  for (const agent of sorted) {
+    for (const alias of agentAliasCandidates(agent)) {
+      const normalized = normalizeKnowledgeKey(alias)
+      const owners = aliasOwners.get(normalized) ?? new Set()
+      owners.add(agent.id)
+      aliasOwners.set(normalized, owners)
+    }
+  }
+  const agentAliases = (agent) => agentAliasCandidates(agent)
+    .filter((alias) => aliasOwners.get(normalizeKnowledgeKey(alias))?.size === 1)
   const reserved = new Set(sorted.flatMap((agent) => agentAliases(agent).map(normalizeKnowledgeKey)))
   const categories = [...new Set(sorted.map((agent) => agent.category))].sort()
   const categorySet = new Set(categories)
@@ -98,7 +109,7 @@ export const createRegistryDiscoveryArtifact = async ({ agents, generatedAt }) =
 
   const categoryEntries = categories.map((category) => {
     const matches = sorted.filter((agent) => agent.category === category)
-    const href = `${SITE}/agents?category=${encodeURIComponent(category)}`
+    const href = `${SITE}/categories/${encodeURIComponent(category)}`
     return {
       id: `category:${category}`,
       kind: 'navigation',
@@ -116,7 +127,7 @@ export const createRegistryDiscoveryArtifact = async ({ agents, generatedAt }) =
     .sort()
   const capabilityEntries = capabilities.map((capability) => {
     const matches = sorted.filter((agent) => (agent.tags ?? []).includes(capability))
-    const href = `${SITE}/agents?capability=${encodeURIComponent(capability)}`
+    const href = `${SITE}/?q=${encodeURIComponent(capability.replaceAll('-', ' '))}#agents`
     return {
       id: `capability:${capability}`,
       kind: 'navigation',
@@ -134,13 +145,13 @@ export const createRegistryDiscoveryArtifact = async ({ agents, generatedAt }) =
       id: 'command:add', kind: 'command', label: 'Install an agent',
       values: ['install an agent', 'add an agent', 'agentskit add', 'registry install command'],
       markdown: 'Install any Registry agent with `npx agentskit add <agent-id>`. The CLI copies readable source into your project, so you own and can edit it.',
-      title: 'Install from AgentsKit Registry', href: `${SITE}/docs/getting-started`,
+      title: 'Install from AgentsKit Registry', href: `${SITE}/docs/quick-start`,
     },
     {
       id: 'nav:catalog', kind: 'navigation', label: 'Browse all agents',
       values: ['browse agents', 'all agents', 'agent catalog', 'registry catalog'],
       markdown: `Browse all ${sorted.length} validated agents by category and capability.`,
-      title: 'AgentsKit Registry catalog', href: `${SITE}/agents`,
+      title: 'AgentsKit Registry catalog', href: `${SITE}/#agents`,
     },
     {
       id: 'nav:contribute', kind: 'contribution', label: 'Contribute an agent',
