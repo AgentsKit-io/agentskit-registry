@@ -9,7 +9,7 @@ import {
   LocalKnowledgeArtifactSchema,
   computeLocalKnowledgeArtifactContentHash,
   normalizeKnowledgeKey,
-} from '@agentskit/chat-protocol'
+} from '@agentskit/chat/protocol'
 
 const SITE = 'https://registry.agentskit.io'
 const MAX_LISTED_AGENTS = 8

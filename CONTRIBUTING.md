@@ -9,7 +9,8 @@ Agents here are intentionally small and self-contained. To add one:
    - `agent.test.ts` — at minimum, "constructs and runs against `mockAdapter`".
    - `README.md` — concept + `npx agentskit add <id>` + usage + required env.
 2. `npm run lint && npm test && npm run build` must pass.
-3. Open a PR.
+3. Deterministic discovery uses `@agentskit/chat/protocol` via exact `@agentskit/chat@0.3.0` only — never reintroduce `@agentskit/chat-protocol` or a chat UI runtime (`npm run check:no-legacy-chat-imports`).
+4. Open a PR.
 
 ## Principles (inherited from the AgentsKit Manifesto)
 

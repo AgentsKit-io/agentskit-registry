@@ -6,7 +6,7 @@ import {
   DETERMINISTIC_ARTIFACT_MAX_BYTES,
   normalizeKnowledgeKey,
   verifyLocalKnowledgeArtifactSync,
-} from '@agentskit/chat-protocol'
+} from '@agentskit/chat/protocol'
 import {
   createRegistryDiscoveryArtifact,
   createRegistrySiteConfig,
