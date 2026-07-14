@@ -90,7 +90,7 @@ const config = {
       ecosystemContract: { manifest: 'ecosystem.json', claims: 'ecosystem-claims.json', productId: 'registry' },
       quickstarts: [{
         id: 'add-and-run', doc: 'docs/getting-started.md', test: 'scripts/quickstart.test.mjs', command: 'npm run test:quickstart',
-        testContains: ['representative add and run quickstart', 'coding-prd-author'],
+        testContains: ['representative add and run quickstart', 'createResearchAgent'],
       }],
       visuals: ['docs/assets/agentskit-mark.svg', 'docs/assets/registry-discovery.svg'],
       diagrams: [{ path: 'docs/architecture.md', contains: ['```mermaid'] }],

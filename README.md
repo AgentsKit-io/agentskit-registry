@@ -1,5 +1,7 @@
 # AgentsKit Registry
 
+Profile: <code>top-level-repository</code>
+
 [![CI](https://github.com/AgentsKit-io/agentskit-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/AgentsKit-io/agentskit-registry/actions/workflows/ci.yml)
 [![Agents](https://img.shields.io/badge/validated_agents-346-58A6FF)](https://registry.agentskit.io/agents)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2EA043)](./LICENSE)
@@ -9,11 +11,27 @@ AgentsKit Registry is a shadcn-style catalog of 346 validated agents built with
 [AgentsKit](https://www.agentskit.io/docs). It adds no Registry runtime and no
 lock-in: the CLI copies readable TypeScript that your team can review and edit.
 
+It is intended for teams that want a ready agent starting point without adopting
+a proprietary registry runtime.
+
+**Tags:** `agentskit` · `agent-registry` · `typescript` · `ai-agents` · `shadcn-style`
+
+**Topics:** `ai-agents` · `registry` · `developer-experience`
+
 [Browse the Registry](https://registry.agentskit.io/agents) ·
 [Start in five minutes](./docs/getting-started.md) ·
 [Contribute an agent](./CONTRIBUTING.md)
 
 ![AgentsKit Registry deterministic-first discovery: 346 validated agents resolve exact questions locally and escalate semantic questions only when needed.](./docs/assets/registry-discovery.svg)
+
+## Verified proof
+
+- Catalog counts come from [`public/r/index.json`](./public/r/index.json) and [`ecosystem-claims.json`](./ecosystem-claims.json).
+- Clean-fixture install/run contract: `npm run test:quickstart` (`scripts/quickstart.test.mjs`).
+- Structural validation and Doc Bridge gates: `npm run validate`, `npm run docs:bridge:gate`.
+- Deterministic discovery build: `npm run discovery:build`.
+- Credential-free catalog proof: `node examples/verify-readme.mjs`.
+
 
 > Registry is **beta**. All 346 entries pass structural and repository tests;
 > 333 also publish sanitized independent-review evidence. Templates remain code
@@ -29,6 +47,7 @@ flowchart LR
   R --> S["Ship with your adapter and policy"]
 ```
 
+<!-- readme-example:add-research -->
 ```bash
 npx agentskit add research
 ```
@@ -100,6 +119,12 @@ npm run docs:bridge:gate
 
 Generated indexes, claims, deterministic artifacts, and Doc Bridge handoffs
 must remain fresh in the pull request.
+
+## Maturity
+
+Registry is **beta**. All 346 entries pass structural and repository tests; 333
+also publish sanitized independent-review evidence. Templates remain code you
+must review against your provider, tools, data policy, and risk profile.
 
 ## AgentsKit ecosystem
 
