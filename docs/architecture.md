@@ -28,6 +28,17 @@ flowchart LR
   artifact schemas, normalization, canonical serialization, limits, and
   SHA-256 verification. Registry does not fork it and does not ship a chat UI.
 - AgentsKit CLI owns transactional `agentskit add`; Registry supplies the data.
+
+## Upstream adoption (AgentsKit Chat 0.3)
+
+| Record | Detail |
+|--------|--------|
+| Inspected | Published `@agentskit/chat@0.3.0` (`exports["./protocol"]`) |
+| Reused exports | `LocalKnowledgeArtifactSchema`, `computeLocalKnowledgeArtifactContentHash`, `normalizeKnowledgeKey`, `verifyLocalKnowledgeArtifactSync`, protocol version constants, size limits |
+| Local behavior | Registry only builds discovery entries + site config; no protocol schemas copied, no chat UI/runtime |
+| Removed | `@agentskit/chat-protocol@0.2` dependency and imports |
+| Pin | Exact `@agentskit/chat@0.3.0` (no caret) |
+| Gate | `npm run check:no-legacy-chat-imports` (+ mechanical vitest) |
 - AgentsChat owns exact lookup, local choice resolution, and safe escalation.
 - The authenticated backend derives the corpus and persona server-side and
   requires grounded citations for semantic recommendations.
