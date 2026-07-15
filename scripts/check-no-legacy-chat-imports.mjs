@@ -66,7 +66,9 @@ function walk(directory, out = []) {
     }
     if (!entry.isFile()) continue
     const rel = relative(root, full).split(sep).join('/')
-    if (rel === thisScript) continue
+    // Self + companion mechanical test may mention legacy names only as
+    // negative assertions; they are not production imports.
+    if (rel === thisScript || rel === 'scripts/check-no-legacy-chat-imports.test.mjs') continue
     if (rel === 'package-lock.json' || rel === 'pnpm-lock.yaml' || rel === 'package.json' || rel.endsWith('/package.json')) {
       out.push(full)
       continue
