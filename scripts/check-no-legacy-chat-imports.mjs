@@ -146,13 +146,13 @@ if (!('@agentskit/chat' in allDeps)) {
 }
 
 const chatVersion = allDeps['@agentskit/chat']
-if (chatVersion !== '0.3.0') {
+if (chatVersion !== '0.4.0') {
   process.stderr.write(
-    `package.json must pin @agentskit/chat to exact stable 0.3.0 (found ${JSON.stringify(chatVersion)}).\n`,
+    `package.json must pin @agentskit/chat to exact stable 0.4.0 (found ${JSON.stringify(chatVersion)}).\n`,
   )
   process.exit(1)
 }
 
 process.stdout.write(
-  'check-no-legacy-chat-imports: ok (@agentskit/chat@0.3.0 /protocol only; no legacy packages)\n',
+  'check-no-legacy-chat-imports: ok (@agentskit/chat@0.4.0 /protocol only; no legacy packages)\n',
 )

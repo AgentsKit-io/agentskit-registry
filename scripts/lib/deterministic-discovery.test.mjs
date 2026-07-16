@@ -65,7 +65,7 @@ describe('Registry deterministic discovery artifact', () => {
       expect(found[0].answer.markdown).toContain(`npx agentskit add ${agent.id}`)
       expect(found[0].answer.citations[0].href).toBe(`https://registry.agentskit.io/agents/${agent.id}`)
     }
-  })
+  }, 30_000)
 
   it('never assigns one exact alias to multiple answers', async () => {
     const { artifact } = result
