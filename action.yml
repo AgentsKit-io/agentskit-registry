@@ -1,0 +1,22 @@
+name: AgentsKit Agent Validation
+description: Validate one or more copy-owned agent definitions against the AgentsKit Registry contribution contract.
+author: AgentsKit
+
+branding:
+  icon: check-circle
+  color: purple
+
+inputs:
+  path:
+    description: Repository-relative path to one agent folder or a directory of agent folders.
+    required: false
+    default: agents
+
+runs:
+  using: composite
+  steps:
+    - name: Validate agent definitions
+      shell: bash
+      env:
+        AGENT_VALIDATION_PATH: ${{ inputs.path }}
+      run: node "$GITHUB_ACTION_PATH/scripts/validate-external-agents.mjs" "$GITHUB_WORKSPACE" "$AGENT_VALIDATION_PATH"

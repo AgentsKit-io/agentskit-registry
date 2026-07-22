@@ -32,6 +32,34 @@ a proprietary registry runtime.
 - Deterministic discovery build: `npm run discovery:build`.
 - Credential-free catalog proof: `node examples/verify-readme.mjs`.
 
+## Validate agents in GitHub Actions
+
+Use the Registry contract as a CI gate for copy-owned agent folders in another
+repository. The action checks required source, test, metadata, and README files;
+metadata IDs and referenced files; and the Registry content policy. It does not
+send source code to an API or require credentials.
+
+```yaml
+name: Validate agents
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  agentskit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: AgentsKit-io/agentskit-registry@v1
+        with:
+          path: agents
+```
+
+The `path` input may point to one agent folder or to a directory whose immediate
+children are agent folders.
+
 
 > Registry is **beta**. All 346 entries pass structural and repository tests;
 > 333 also publish sanitized independent-review evidence. Templates remain code
