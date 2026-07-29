@@ -2,6 +2,13 @@
 
 Agents here are intentionally small and self-contained. To add one:
 
+By participating, you agree to follow the
+[Code of Conduct](./CODE_OF_CONDUCT.md). Project decisions and maintainer
+responsibilities are documented in [GOVERNANCE.md](./GOVERNANCE.md). Report
+suspected vulnerabilities privately according to [SECURITY.md](./SECURITY.md);
+never put credentials, tokens, private prompts, customer data, or proprietary
+source in an issue, pull request, test, fixture, or recording.
+
 1. Create `registry/<id>/` with:
    - `agent.ts` — a `create<Name>Agent(config)` factory that wires **published**
      `@agentskit/*` packages (skill + tools + `createRuntime`). No private/internal imports.

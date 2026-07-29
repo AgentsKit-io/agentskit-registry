@@ -20,7 +20,10 @@ a proprietary registry runtime.
 
 [Browse the Registry](https://registry.agentskit.io/agents) ·
 [Start in five minutes](./docs/getting-started.md) ·
-[Contribute an agent](./CONTRIBUTING.md)
+[Contribute an agent](./CONTRIBUTING.md) ·
+[Security](./SECURITY.md) ·
+[Governance](./GOVERNANCE.md) ·
+[Code of Conduct](./CODE_OF_CONDUCT.md)
 
 ![AgentsKit Registry deterministic-first discovery: 346 validated agents resolve exact questions locally and escalate semantic questions only when needed.](./docs/assets/registry-discovery.svg)
 
