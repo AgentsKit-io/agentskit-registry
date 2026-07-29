@@ -5,6 +5,7 @@ Profile: <code>top-level-repository</code>
 [![CI](https://github.com/AgentsKit-io/agentskit-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/AgentsKit-io/agentskit-registry/actions/workflows/ci.yml)
 [![Agents](https://img.shields.io/badge/validated_agents-346-58A6FF)](https://registry.agentskit.io/agents)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2EA043)](./LICENSE)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13876/baseline)](https://www.bestpractices.dev/projects/13876)
 
 **Copy a production-minded AI agent into your project and own the source.**
 AgentsKit Registry is a shadcn-style catalog of 346 validated agents built with
