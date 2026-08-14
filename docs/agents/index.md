@@ -7,6 +7,7 @@ The guides are assistance surfaces, not proof of production readiness. Review so
 ## Guide catalog
 
 - [Application patterns](application-patterns.md) — synthetic starting points, inspection targets, and contribution paths
+- [Application patterns — Wave 02](application-patterns-wave-02.md) — 25 cross-category workflows for engineering, research, data, and operations
 
 - [Fact Checker](content-fact-checker.md)
 - [Newsletter Author](content-newsletter-author.md)
