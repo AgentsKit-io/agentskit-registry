@@ -48,6 +48,7 @@ or environment.
 ## Next steps
 
 - [Browse all agents](https://registry.agentskit.io/agents)
+- [Try application patterns](https://registry.agentskit.io/docs/agents/application-patterns)
 - [Learn the AgentsKit framework](https://www.agentskit.io/docs)
 - [Apply production practices](https://playbook.agentskit.io/docs)
 - [Build an interactive experience with AgentsKit Chat](https://github.com/AgentsKit-io/agentskit-chat)

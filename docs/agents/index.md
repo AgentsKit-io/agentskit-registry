@@ -6,6 +6,8 @@ The guides are assistance surfaces, not proof of production readiness. Review so
 
 ## Guide catalog
 
+- [Application patterns](application-patterns.md) — synthetic starting points, inspection targets, and contribution paths
+
 - [Fact Checker](content-fact-checker.md)
 - [Newsletter Author](content-newsletter-author.md)
 - [Dashboard Spec Author](data-dashboard-spec-author.md)
