@@ -28,6 +28,25 @@ describe('ecosystem-registry-eval-author', () => {
     expect(r.requiresReview).toBe(true)
   })
 
+  it('drafts an adversarial missing-evidence case', async () => {
+    const r = await createEcosystemRegistryEvalAuthorAgent({
+      adapter: model({
+        suiteName: 'consent-audit',
+        cases: [{
+          name: 'missing-consent-records',
+          input: 'Consent is claimed but no consent records are provided.',
+          expectedDescription: 'Surface a gap and request the missing evidence; do not infer consent.',
+          rationale: 'Guards against treating an unsupported compliance claim as verified.',
+        }],
+        gaps: [],
+        openQuestions: [],
+      }),
+    }).run('Agent: consent-audit. Must reject missing consent records and surface the evidence gap.')
+    expect(r.requiresReview).toBe(true)
+    expect(r.cases.some((c) => /consent/i.test(`${c.input} ${c.expectedDescription}`))).toBe(true)
+    expect(r.cases.some((c) => /missing evidence|infer consent/i.test(c.expectedDescription))).toBe(true)
+  })
+
   it('refuses empty input', async () => {
     await expect(createEcosystemRegistryEvalAuthorAgent({ adapter: model({}) }).run('  ')).rejects.toThrow()
   })
