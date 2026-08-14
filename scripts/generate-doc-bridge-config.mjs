@@ -10,12 +10,29 @@ const ids = readdirSync(join(root, 'registry'), { withFileTypes: true })
   .sort()
 
 const checks = ['npm run validate', 'npm test', 'npm run build', 'npm run docs:bridge:gate']
+const publishedHumanGuides = new Set([
+  'content-fact-checker',
+  'content-newsletter-author',
+  'data-dashboard-spec-author',
+  'data-metric-definer',
+  'ecosystem-changelog-ecosystem',
+  'ecosystem-doc-bridge-corpus-scanner',
+  'ecosystem-doc-bridge-handoff-author',
+  'ecosystem-integration-mapper',
+  'ecosystem-playbook-alignment-auditor',
+  'ecosystem-registry-agent-spec-author',
+  'ecosystem-registry-eval-author',
+  'ecosystem-rfc-author',
+  'product-beta-feedback-triage',
+  'research-industry-benchmark',
+  'research-market-sizing',
+])
 const ownership = Object.fromEntries(ids.map((id) => [id, {
   path: `registry/${id}`,
   group: 'agent-catalog',
   purpose: `Registry agent: ${id}`,
   agentDoc: `registry/${id}/README.md`,
-  humanDoc: `https://registry.agentskit.io/agents/${id}`,
+  humanDoc: publishedHumanGuides.has(id) ? `/docs/agents/${id}` : `https://registry.agentskit.io/agents/${id}`,
   checks,
 }]))
 
