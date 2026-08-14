@@ -52,6 +52,25 @@ describe('ecosystem-doc-bridge-corpus-scanner', () => {
     expect(r.gaps.some((g) => /no .md/i.test(g))).toBe(true)
   })
 
+  it('surfaces stale and symlink review signals without inventing paths', async () => {
+    const r = await createEcosystemDocBridgeCorpusScannerAgent({
+      adapter: model({
+        summary: 'edge-case corpus',
+        scannedPaths: [
+          { path: 'packages/auth.md', docType: 'agent-doc', staleness: 'unknown', notes: 'symlink target requires review' },
+          { path: 'docs/getting-started.md', docType: 'human-doc', staleness: 'stale', notes: 'last touched in 2023' },
+          { path: 'config/phantom.md', docType: 'config', staleness: 'fresh' },
+        ],
+        gaps: [],
+        openQuestions: ['Confirm symlink target and stale guide owner'],
+      }),
+    }).run('Corpus files: packages/auth.md (symlink to packages/legacy/auth.md), docs/getting-started.md (last touched in 2023), config/README.txt')
+    expect(r.requiresReview).toBe(true)
+    expect(r.scannedPaths.map((entry) => entry.path)).toEqual(['packages/auth.md', 'docs/getting-started.md'])
+    expect(r.scannedPaths.some((entry) => entry.staleness === 'stale')).toBe(true)
+    expect(r.gaps.some((gap) => /dropped 1 path/i.test(gap))).toBe(true)
+  })
+
   it('refuses empty input', async () => {
     await expect(createEcosystemDocBridgeCorpusScannerAgent({ adapter: model({}) }).run('  ')).rejects.toThrow()
   })

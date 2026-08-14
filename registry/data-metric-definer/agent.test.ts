@@ -11,6 +11,20 @@ describe('data-metric-definer', () => {
     expect(r.requiresReview).toBe(true)
     expect(r.sections.length).toBeGreaterThan(0)
   })
+
+  it('keeps denominator ambiguity reviewable', async () => {
+    const r = await createDataMetricDefinerAgent({
+      adapter: model({
+        title: 'Weekly activation rate',
+        sections: [{ heading: 'Denominator', body: 'Invited users or onboarded users must be selected by the owner.', citations: [] }],
+        gaps: ['Denominator is not confirmed'],
+        openQuestions: ['Which denominator should the product owner approve?'],
+      }),
+    }).run('Define weekly activation rate for invited workspace users. Possible denominators are all invited users or users who completed onboarding.')
+    expect(r.requiresReview).toBe(true)
+    expect(r.sections.some((section) => /denominator/i.test(`${section.heading} ${section.body}`))).toBe(true)
+    expect(r.openQuestions.some((question) => /denominator/i.test(question))).toBe(true)
+  })
   
   it('refuses empty input', async () => {
     await expect(createDataMetricDefinerAgent({ adapter: model({}) }).run('  ')).rejects.toThrow()
