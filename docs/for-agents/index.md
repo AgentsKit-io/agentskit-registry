@@ -6,6 +6,7 @@ or agent behavior.
 
 - [Architecture and ownership](../architecture.md)
 - [Human quickstart](../getting-started.md)
+- [Human agent guide catalog](../agents/index.md)
 - [Contribution journey](../contributing.md)
 - [Root contribution contract](../../CONTRIBUTING.md)
 
