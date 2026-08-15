@@ -9,6 +9,7 @@ The guides are assistance surfaces, not proof of production readiness. Review so
 - [Application patterns](application-patterns.md) — synthetic starting points, inspection targets, and contribution paths
 - [Application patterns — Wave 02](application-patterns-wave-02.md) — 25 cross-category workflows for engineering, research, data, and operations
 - [Application patterns — Wave 03](application-patterns-wave-03.md) — 20 domain workflows for regulated review, commerce, people, revenue, support, and product
+- [Application patterns — Wave 04](application-patterns-wave-04.md) — 20 evidence-first workflows for engineering, data, security, operations, research, product, and revenue
 
 - [Fact Checker](content-fact-checker.md)
 - [Newsletter Author](content-newsletter-author.md)
