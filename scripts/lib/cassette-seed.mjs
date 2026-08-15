@@ -32,6 +32,54 @@ function parsePrdCriteria(input) {
 }
 
 const HANDLERS = {
+  'clinical-chart-redactor': (input) => {
+    const redacted = input
+      .replace(/\b\d{3}-\d{2}-\d{4}\b/g, '[REDACTED_SSN]')
+      .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, '[REDACTED_EMAIL]')
+      .replace(/\b(?:\+?\d[\d ()-]{8,}\d)\b/g, '[REDACTED_PHONE]')
+    return {
+      redacted,
+      log: [{ type: 'seed-redaction', location: 'structured identifiers', rationale: 'offline cassette seed' }],
+    }
+  },
+
+  'clinical-intake-triage': (input) => {
+    const emergency = /chest pain|stroke|suicid|kill myself|end(?:ing)? my life|self.?harm|severe bleeding|trouble breathing/i.test(input)
+    const administrative = /copay|billing|insurance|appointment/i.test(input)
+    const urgency = emergency ? 'emergency' : administrative ? 'administrative' : 'routine'
+    return {
+      urgency,
+      rationale: emergency ? 'red-flag safety net' : 'offline cassette seed',
+      queue: emergency ? 'EMERGENCY-911' : administrative ? 'front-desk' : 'nurse-triage',
+    }
+  },
+
+  'support-escalation-drafter': (input) => {
+    const insufficient = /no account id|no product area|no reproduction|haven't been able to reach/i.test(input)
+    const need = insufficient
+      ? 'other'
+      : /refund|reimburse|credit/i.test(input)
+      ? 'refund-approval'
+      : /account manager|renewal|commercial/i.test(input)
+        ? 'account-manager-call'
+        : 'engineering-investigation'
+    return {
+      customerImpact: insufficient
+        ? 'Insufficient information: missing account id, product area, and reproduction steps; unable to draft a complete escalation.'
+        : need === 'account-manager-call'
+          ? 'Renewal and churn risk affect the customer relationship; an account-manager call is needed.'
+          : 'Customer impact captured for internal review.',
+      whatWeTried: insufficient
+        ? 'Unable to complete investigation because the supplied notes lack the required details.'
+        : 'Support investigation steps captured from the supplied notes.',
+      whatWeNeed: insufficient
+        ? 'Need more context before routing the escalation.'
+        : 'Review the reported issue and determine the next action.',
+      need,
+      suggestedSla: 'Within one business day',
+    }
+  },
+
   'coding-prd-author': (input) => {
     const vague = /make the app better|increase engagement/i.test(input)
     const needsTechChoice = /whatever realtime|makes sense/i.test(input)
