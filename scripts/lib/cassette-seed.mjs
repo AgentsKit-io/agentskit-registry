@@ -32,6 +32,89 @@ function parsePrdCriteria(input) {
 }
 
 const HANDLERS = {
+  'clinical-patient-summary': (input) => ({
+    reasonForVisit: /HTN f\/u|hypertension/i.test(input) ? 'HTN follow-up' : 'Pre-visit review',
+    activeProblems: /hyperlipidemia/i.test(input) ? ['hypertension', 'hyperlipidemia'] : ['not in chart'],
+    medications: /lisinopril/i.test(input) ? ['lisinopril 10mg', 'atorvastatin 20mg'] : [],
+    allergies: /penicillin/i.test(input) ? ['penicillin'] : [],
+    vitalsTrend: /138\/86.*150\/95/i.test(input) ? 'BP improving from 150/95 to 138/86' : 'not in chart',
+    followUps: /lipid panel/i.test(input) ? ['lipid panel pending'] : [],
+    openQuestions: ['Confirm medication adherence and follow-up plan with clinician'],
+  }),
+
+  'fintech-transaction-investigator': (input) => {
+    const structured = /TX-101|ACC-771|9,500|structur/i.test(input)
+    return {
+      findings: structured
+        ? [{
+            id: 'seed-structuring',
+            severity: 'high',
+            title: 'Possible structuring pattern',
+            detail: 'Several deposits cluster below a reporting threshold before an overseas wire-out.',
+            category: 'structuring',
+            location: 'TX-101, TX-102, TX-103, TX-104, TX-105',
+            confidence: 0.8,
+            remediation: 'Escalate to AML investigator for human review.',
+          }]
+        : [],
+      summary: structured
+        ? 'Possible structuring pattern requires human AML review.'
+        : 'Insufficient evidence — monitor; supplied history does not establish an anomalous pattern.',
+      insufficientEvidence: !structured,
+    }
+  },
+
+  'legal-case-summariser': (input) => {
+    const hasMatter = /DOC-\d+/.test(input)
+    const hasDateConflict = /DOC-100|DOC-205|2022-04-01|2022-06-15/.test(input)
+    const hasPaymentFacts = /DOC-301|DOC-302|DOC-303/.test(input)
+    if (!hasMatter) {
+      return {
+        partiesAndCounsel: 'Not provided in the reviewed material.',
+        proceduralPosture: 'Not provided in the reviewed material.',
+        keyFacts: [],
+        openIssues: ['Missing document IDs, parties, court, and procedural history; obtain the reviewed documents before relying on a summary.'],
+        conflicts: [],
+      }
+    }
+    if (hasDateConflict) {
+      return {
+        partiesAndCounsel: 'Not provided in the supplied excerpts.',
+        proceduralPosture: 'Reviewer notes flag inconsistent contract signature dates.',
+        keyFacts: [
+          { fact: 'The deposition transcript states that the contract was signed on 2022-04-01.', citation: 'DOC-100' },
+          { fact: 'The executed agreement PDF shows a signature date of 2022-06-15.', citation: 'DOC-205' },
+        ],
+        openIssues: ['Supervising attorney should resolve which signature date controls.'],
+        conflicts: [{ issue: 'contract signature date', positions: ['2022-04-01 per DOC-100', '2022-06-15 per DOC-205'] }],
+      }
+    }
+    if (hasPaymentFacts) {
+      return {
+        partiesAndCounsel: 'Not provided in the supplied excerpts.',
+        proceduralPosture: 'Payment and demand-letter materials were supplied for review.',
+        keyFacts: [
+          { fact: 'Invoice dated 2023-05-02 for $84,000.', citation: 'DOC-301' },
+          { fact: 'Payment record shows $40,000 wired on 2023-06-10.', citation: 'DOC-302' },
+          { fact: 'Demand letter dated 2023-08-01 claims $44,000 outstanding.', citation: 'DOC-303' },
+        ],
+        openIssues: ['Confirm the balance and supporting payment records.'],
+        conflicts: [],
+      }
+    }
+    return {
+      partiesAndCounsel: 'Hawthorne Mfg. v. Delta Supply Co.; plaintiff counsel R. Singh (Singh LLP); defendant counsel T. Brooks (Brooks & Hale).',
+      proceduralPosture: 'Complaint filed 2023-02-01 in S.D.N.Y.; order on motion to compel entered 2023-08-19.',
+      keyFacts: [
+        { fact: 'The complaint names Hawthorne Mfg. and Delta Supply Co.', citation: 'DOC-001' },
+        { fact: 'The reviewer note states that the MSA was executed 2021-11-05 and three delivery milestones were missed in Q2-Q4 2022.', citation: 'DOC-014' },
+        { fact: 'The court entered an order on a motion to compel on 2023-08-19.', citation: 'DOC-022' },
+      ],
+      openIssues: ['Damages model not yet produced.'],
+      conflicts: [],
+    }
+  },
+
   'clinical-chart-redactor': (input) => {
     const redacted = input
       .replace(/\b\d{3}-\d{2}-\d{4}\b/g, '[REDACTED_SSN]')
