@@ -53,6 +53,7 @@ or environment.
 - [Try Wave 03 patterns](https://registry.agentskit.io/docs/agents/application-patterns-wave-03)
 - [Try Wave 04 patterns](https://registry.agentskit.io/docs/agents/application-patterns-wave-04)
 - [Try Wave 05 patterns](https://registry.agentskit.io/docs/agents/application-patterns-wave-05)
+- [Try Wave 06 patterns](https://registry.agentskit.io/docs/agents/application-patterns-wave-06)
 - [Learn the AgentsKit framework](https://www.agentskit.io/docs)
 - [Apply production practices](https://playbook.agentskit.io/docs)
 - [Build an interactive experience with AgentsKit Chat](https://github.com/AgentsKit-io/agentskit-chat)
