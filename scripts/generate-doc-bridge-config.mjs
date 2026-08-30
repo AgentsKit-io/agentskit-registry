@@ -88,6 +88,14 @@ const config = {
     capabilities: { enabled: true, outFile: '.doc-bridge/capabilities.json' },
   },
   gates: { preset: 'standard', include: ['documentation-standard-v1'] },
+  reconciliation: {
+    scope: 'package',
+    requiredRelationKinds: ['depends-on'],
+    requiredRelationTargets: 'internal',
+  },
+  safety: {
+    exclude: ['**/.astro/**', '**/.vercel/**'],
+  },
   conformance: {
     documentationStandardV1: {
       rawSources: ['README.md', 'docs/getting-started.md', 'docs/for-agents/index.md'],
