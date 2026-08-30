@@ -1,12 +1,15 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, join, relative, resolve, sep } from 'node:path'
+import { PROJECTION_STATUSES, RUNNER_TARGETS } from './runner-projections.mjs'
 
 const requiredFiles = ['agent.ts', 'meta.json', 'agent.test.ts', 'README.md']
 const requiredMeta = ['id', 'title', 'description', 'category', 'packages', 'files']
 const idPattern = /^[a-z][a-z0-9-]*$/
+const toolNamePattern = /^[A-Za-z0-9_.-]{1,128}$/
 const allowedMeta = new Set([
   'id', 'title', 'description', 'version', 'source', 'license', 'requires', 'status',
   'category', 'locale', 'ecosystem', 'tags', 'packages', 'env', 'files',
+  'projections',
 ])
 const allowedCategories = new Set([
   'research', 'coding', 'data', 'support', 'ops', 'content', 'productivity',
@@ -14,6 +17,7 @@ const allowedCategories = new Set([
   'ecommerce', 'product', 'cybersecurity', 'insurance', 'realestate', 'education',
   'compliance', 'ecosystem',
 ])
+const projectionModes = new Set(['skill', 'typed'])
 
 function readMeta(directory, errors) {
   const metaPath = join(directory, 'meta.json')
@@ -73,6 +77,39 @@ export function validateExternalAgents(root, policy) {
     if (!Array.isArray(meta.packages) || meta.packages.length === 0) errors.push({ file: join(directory, 'meta.json'), message: 'packages must contain at least one published dependency' })
     else if (meta.packages.some((name) => typeof name !== 'string' || name.trim() === '')) errors.push({ file: join(directory, 'meta.json'), message: 'packages must contain only non-empty strings' })
     if (!Array.isArray(meta.files) || meta.files.length === 0) errors.push({ file: join(directory, 'meta.json'), message: 'files must contain at least one copied file' })
+    if (meta.projections !== undefined) {
+      if (meta.projections === null || typeof meta.projections !== 'object' || Array.isArray(meta.projections)) {
+        errors.push({ file: join(directory, 'meta.json'), message: 'projections must be an object' })
+      } else {
+        for (const [target, projection] of Object.entries(meta.projections)) {
+          if (!RUNNER_TARGETS.includes(target)) {
+            errors.push({ file: join(directory, 'meta.json'), message: `unsupported projection target ${JSON.stringify(target)}` })
+            continue
+          }
+          if (projection === null || typeof projection !== 'object' || Array.isArray(projection)) {
+            errors.push({ file: join(directory, 'meta.json'), message: `projection ${target} must be an object` })
+            continue
+          }
+          if (!PROJECTION_STATUSES.includes(projection.status)) {
+            errors.push({ file: join(directory, 'meta.json'), message: `projection ${target}.status must be one of ${PROJECTION_STATUSES.join(', ')}` })
+          }
+          if (projection.mode !== undefined && !projectionModes.has(projection.mode)) {
+            errors.push({ file: join(directory, 'meta.json'), message: `projection ${target}.mode must be one of skill, typed` })
+          }
+          if (projection.resultToolName !== undefined && (typeof projection.resultToolName !== 'string' || !toolNamePattern.test(projection.resultToolName))) {
+            errors.push({ file: join(directory, 'meta.json'), message: `projection ${target}.resultToolName must be a valid tool name` })
+          }
+          for (const schemaField of ['inputSchema', 'outputSchema']) {
+            if (projection[schemaField] !== undefined && (projection[schemaField] === null || typeof projection[schemaField] !== 'object' || Array.isArray(projection[schemaField]))) {
+              errors.push({ file: join(directory, 'meta.json'), message: `projection ${target}.${schemaField} must be an object` })
+            }
+          }
+          if (projection.mode === 'typed' && (projection.outputSchema === undefined || projection.outputSchema === null || typeof projection.outputSchema !== 'object' || Array.isArray(projection.outputSchema))) {
+            errors.push({ file: join(directory, 'meta.json'), message: `projection ${target}.outputSchema is required for typed projections` })
+          }
+        }
+      }
+    }
     for (const file of Array.isArray(meta.files) ? meta.files : []) {
       const candidate = typeof file === 'string' ? resolve(directory, file) : directory
       if (typeof file !== 'string' || candidate === directory || !candidate.startsWith(`${resolve(directory)}${sep}`)) {

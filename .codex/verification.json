@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "project": "agentskit-registry",
+  "root": "..",
+  "stateDir": ".codex/verification",
+  "profile": "strict",
+  "benchmark": {
+    "suiteId": "agentskit-registry-validation",
+    "taskId": "registry-documentation-and-discovery",
+    "mode": "harness"
+  },
+  "contract": {
+    "intent": "Validate and improve the Registry's canonical source, generated discovery artifacts, documentation, and agent-consumer workflow.",
+    "scope": {
+      "inScope": [
+        "registry/**",
+        "docs/**",
+        "scripts/**",
+        "public/r/**",
+        "ecosystem-claims.json",
+        "registry.schema.json",
+        "README.md",
+        "CONTRIBUTING.md",
+        "doc-bridge.config.json",
+        ".doc-bridge/**",
+        ".codex/verification.json"
+      ],
+      "outOfScope": [
+        "external publication or PR creation",
+        "live provider/API calls requiring credentials",
+        "runtime behavior owned by AgentsKit packages",
+        "UI, endpoint, database, and MCP product surfaces"
+      ]
+    },
+    "ambiguities": [],
+    "outcomes": [
+      {
+        "id": "registry-integrity",
+        "statement": "Every installable Registry entry satisfies the structural, schema, catalog, and legacy-boundary rules.",
+        "checks": ["registry-validate", "registry-catalog", "registry-legacy"]
+      },
+      {
+        "id": "registry-behavior",
+        "statement": "The Registry's real local consumer flows pass, including quickstart, evaluation replay, and deterministic artifact generation.",
+        "checks": ["registry-tests", "registry-quickstart", "registry-eval", "registry-discovery", "registry-build"]
+      },
+      {
+        "id": "registry-knowledge",
+        "statement": "Human and agent documentation are indexed, searchable through a real handoff, conformance-checked, and linked to the canonical Registry sources.",
+        "checks": ["registry-doc-index", "registry-doc-query", "registry-doc-gate", "registry-doc-conformance", "registry-readme", "registry-lint"]
+      },
+      {
+        "id": "documentation-audit",
+        "statement": "Documentation quality and documentation-to-structure gaps are measured with current evidence.",
+        "checks": ["documentation-audit"]
+      }
+    ]
+  },
+  "surfaces": {
+    "logic": true,
+    "endpoint": { "required": false, "reason": "This repository does not implement an endpoint surface." },
+    "database": { "required": false, "reason": "This repository has no database-backed behavior." },
+    "cli": true,
+    "mcp": { "required": false, "reason": "MCP exposure is provided by Doc Bridge and is not a Registry product surface in this phase." },
+    "ui": { "required": false, "reason": "The Registry repository owns catalog sources and artifacts, not the hosted UI." },
+    "docs": true
+  },
+  "checks": [
+    { "id": "registry-validate", "category": "logic", "command": "pnpm validate", "evidence": "structured", "timeoutMs": 180000 },
+    { "id": "registry-catalog", "category": "logic", "command": "pnpm catalog:validate", "evidence": "structured", "timeoutMs": 120000 },
+    { "id": "registry-legacy", "category": "logic", "command": "pnpm check:no-legacy-chat-imports", "evidence": "structured", "timeoutMs": 30000 },
+    { "id": "registry-tests", "category": "logic", "command": "pnpm test", "evidence": "structured", "timeoutMs": 240000 },
+    { "id": "registry-quickstart", "category": "cli", "execution": "real", "command": "pnpm test:quickstart", "evidence": "structured", "timeoutMs": 120000 },
+    { "id": "registry-eval", "category": "cli", "execution": "real", "command": "pnpm eval:run --ecosystem-doc-bridge", "evidence": "structured", "timeoutMs": 240000 },
+    { "id": "registry-discovery", "category": "logic", "command": "pnpm discovery:build", "evidence": "structured", "timeoutMs": 120000 },
+    { "id": "registry-build", "category": "build", "command": "pnpm build", "evidence": "structured", "timeoutMs": 180000 },
+    { "id": "registry-lint", "category": "lint", "command": "pnpm lint", "evidence": "structured", "timeoutMs": 120000 },
+    { "id": "registry-doc-index", "category": "docs", "command": "pnpm docs:bridge:index", "evidence": "structured", "timeoutMs": 180000 },
+    { "id": "registry-doc-query", "category": "cli", "execution": "real", "command": "pnpm docs:bridge:query -- package research --agent", "evidence": "structured", "timeoutMs": 120000 },
+    { "id": "registry-doc-gate", "category": "docs", "command": "pnpm docs:bridge:gate", "evidence": "structured", "timeoutMs": 120000 },
+    { "id": "registry-doc-conformance", "category": "docs", "command": "pnpm docs:bridge:conformance", "evidence": "structured", "timeoutMs": 120000 },
+    { "id": "registry-readme", "category": "docs", "command": "pnpm check:readme-standard", "evidence": "structured", "timeoutMs": 120000 },
+    { "id": "documentation-audit", "evidence": "structured", "category": "docs", "command": "node /Users/rebecabraun/workspace/EmersonBraun/doc-bridge/bin/ak-docs.js audit documentation --json --config doc-bridge.config.json", "timeoutMs": 240000 }
+  ],
+  "tracking": {
+    "required": false,
+    "reason": "The approved phase validates the repository locally; external issue/PR transitions require a separate authorization."
+  },
+  "budget": { "maxDurationMs": 1200000 },
+  "cleanup": { "roots": [".codex/verification/tmp"] }
+}
