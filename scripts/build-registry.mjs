@@ -16,6 +16,7 @@ import {
   createRegistrySiteConfig,
   readRegistryDiscoverySource,
 } from './lib/deterministic-discovery.mjs'
+import { createRunnerProjections } from './lib/runner-projections.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const registryDir = join(root, 'registry')
@@ -113,11 +114,28 @@ for (const id of ids) {
 
   const status = meta.status ?? 'validated'
   const installable = status === 'alpha' || status === 'validated'
+  const runnerProjections = meta.projections === undefined
+    ? undefined
+    : createRunnerProjections({
+        id: meta.id,
+        installable,
+        runnable: skill != null,
+        overrides: meta.projections,
+      })
   const validation = validationEvidence.get(id) ?? null
   const validationSummary = validation
     ? { status: validation.status, score: validation.score, confidence: validation.confidence }
     : null
-  const bundle = { ...meta, status, ...(validation ? { validation } : {}), skill, flow, a2a, sources: files }
+  const bundle = {
+    ...meta,
+    status,
+    ...(validation ? { validation } : {}),
+    skill,
+    flow,
+    a2a,
+    ...(runnerProjections ? { runnerProjections } : {}),
+    sources: files,
+  }
   const { files: _f, ...summary } = meta
 
   if (status === 'draft') {
@@ -134,6 +152,7 @@ for (const id of ids) {
     runnable: skill != null,
     decomposable: flow != null,
     installable,
+    ...(runnerProjections ? { runnerProjections } : {}),
   })
   full.push({
     id: meta.id,

@@ -17,6 +17,87 @@
     "@agentskit/runtime",
     "@agentskit/tools"
   ],
+  "projections": {
+    "mcp": {
+      "status": "partial",
+      "mode": "typed",
+      "version": "0.4.2",
+      "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+      "resultToolName": "submit_academic_synthesizer",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "heading": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "citations": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "heading",
+                "body",
+                "citations"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "gaps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "openQuestions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requiresReview": {
+            "const": true
+          }
+        },
+        "required": [
+          "title",
+          "sections",
+          "gaps",
+          "openQuestions",
+          "requiresReview"
+        ],
+        "additionalProperties": false
+      },
+      "note": "Published @agentskit/mcp@0.4.2 preserves invokeStructured and human-review semantics for this typed projection; host-specific approval and invocation smoke tests remain pending. Do not flatten this agent into the generic task-to-text wrapper."
+    }
+  },
   "files": [
     "agent.ts",
     "README.md",
@@ -66,6 +147,117 @@
       }
     ]
   },
+  "runnerProjections": {
+    "source": {
+      "status": "verified",
+      "command": "npx agentskit add research-academic-synthesizer"
+    },
+    "mcp": {
+      "status": "partial",
+      "transport": "stdio",
+      "package": "@agentskit/mcp",
+      "mode": "typed",
+      "version": "0.4.2",
+      "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+      "resultToolName": "submit_academic_synthesizer",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "heading": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "citations": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "heading",
+                "body",
+                "citations"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "gaps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "openQuestions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requiresReview": {
+            "const": true
+          }
+        },
+        "required": [
+          "title",
+          "sections",
+          "gaps",
+          "openQuestions",
+          "requiresReview"
+        ],
+        "additionalProperties": false
+      },
+      "note": "Published @agentskit/mcp@0.4.2 preserves invokeStructured and human-review semantics for this typed projection; host-specific approval and invocation smoke tests remain pending. Do not flatten this agent into the generic task-to-text wrapper."
+    },
+    "codex": {
+      "status": "planned"
+    },
+    "claude": {
+      "status": "planned"
+    },
+    "cursor": {
+      "status": "planned"
+    },
+    "deepseek": {
+      "status": "planned"
+    },
+    "gemini": {
+      "status": "planned"
+    },
+    "kimi": {
+      "status": "planned"
+    },
+    "grok": {
+      "status": "planned"
+    },
+    "hermes": {
+      "status": "planned"
+    }
+  },
   "sources": [
     {
       "path": "agent.ts",
@@ -73,7 +265,7 @@
     },
     {
       "path": "README.md",
-      "content": "# Academic Synthesizer\n\n> **v1 validated** — `npx agentskit add research-academic-synthesizer`\n\n## Pain\nPaper overload\n\n## Output\nClaims typed + DOI/URL\n"
+      "content": "# Academic Synthesizer\n\n> **v1 validated** — `npx agentskit add research-academic-synthesizer`\n\n## Pain\nPaper overload\n\n## Output\nClaims typed + DOI/URL\n\n## Runner projection\nThe source contract is typed and human-reviewable. An MCP projection is\nplanned with explicit input/output schemas; until its typed adapter ships, use\nthe copied source rather than the generic task-to-text MCP wrapper.\n"
     },
     {
       "path": "eval.ts",

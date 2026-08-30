@@ -12016,6 +12016,35 @@
         "@agentskit/skills",
         "@agentskit/tools"
       ],
+      "projections": {
+        "mcp": {
+          "status": "partial",
+          "mode": "skill",
+          "version": "0.4.2",
+          "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+          "note": "Published @agentskit/mcp@0.4.2 exposes the Registry research agent over stdio with bounded fetch_url and web_search tools; host-specific approval UX remains to be verified."
+        },
+        "codex": {
+          "status": "planned",
+          "note": "Codex accepted the pinned stdio configuration through a read-only config override; real tool invocation is pending."
+        },
+        "claude": {
+          "status": "planned",
+          "note": "Claude Code accepted the project .mcp.json shape in an isolated project; the server remains pending host approval until an invocation is captured."
+        },
+        "cursor": {
+          "status": "planned",
+          "note": "Cursor 3.14.27 exposes --add-mcp and accepts the MCP payload shape; clean workspace invocation is still pending."
+        },
+        "deepseek": {
+          "status": "planned",
+          "note": "DeepSeek Harness exposes stdio MCP tools through @deepseek-ai/dsh-mcp-client under mcp__<serverName>__<tool>; official client smoke is pending."
+        },
+        "grok": {
+          "status": "partial",
+          "note": "Grok 1.0.5 accepted a project-scoped MCP config and detected the pinned server; doctor withheld startup because the temporary project was untrusted."
+        }
+      },
       "env": [
         {
           "name": "OPENAI_API_KEY",
@@ -12032,6 +12061,50 @@
       "runnable": true,
       "decomposable": false,
       "installable": true,
+      "runnerProjections": {
+        "source": {
+          "status": "verified",
+          "command": "npx agentskit add research"
+        },
+        "mcp": {
+          "status": "partial",
+          "transport": "stdio",
+          "package": "@agentskit/mcp",
+          "mode": "skill",
+          "version": "0.4.2",
+          "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+          "note": "Published @agentskit/mcp@0.4.2 exposes the Registry research agent over stdio with bounded fetch_url and web_search tools; host-specific approval UX remains to be verified."
+        },
+        "codex": {
+          "status": "planned",
+          "note": "Codex accepted the pinned stdio configuration through a read-only config override; real tool invocation is pending."
+        },
+        "claude": {
+          "status": "planned",
+          "note": "Claude Code accepted the project .mcp.json shape in an isolated project; the server remains pending host approval until an invocation is captured."
+        },
+        "cursor": {
+          "status": "planned",
+          "note": "Cursor 3.14.27 exposes --add-mcp and accepts the MCP payload shape; clean workspace invocation is still pending."
+        },
+        "deepseek": {
+          "status": "planned",
+          "note": "DeepSeek Harness exposes stdio MCP tools through @deepseek-ai/dsh-mcp-client under mcp__<serverName>__<tool>; official client smoke is pending."
+        },
+        "gemini": {
+          "status": "planned"
+        },
+        "kimi": {
+          "status": "planned"
+        },
+        "grok": {
+          "status": "partial",
+          "note": "Grok 1.0.5 accepted a project-scoped MCP config and detected the pinned server; doctor withheld startup because the temporary project was untrusted."
+        },
+        "hermes": {
+          "status": "planned"
+        }
+      },
       "implemented": true
     },
     {
@@ -12064,6 +12137,87 @@
       "version": "1.0.0",
       "source": "agentskit-registry",
       "license": "MIT",
+      "projections": {
+        "mcp": {
+          "status": "partial",
+          "mode": "typed",
+          "version": "0.4.2",
+          "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+          "resultToolName": "submit_academic_synthesizer",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "input"
+            ],
+            "additionalProperties": false
+          },
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "sections": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "heading": {
+                      "type": "string"
+                    },
+                    "body": {
+                      "type": "string"
+                    },
+                    "citations": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "heading",
+                    "body",
+                    "citations"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "gaps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "openQuestions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "requiresReview": {
+                "const": true
+              }
+            },
+            "required": [
+              "title",
+              "sections",
+              "gaps",
+              "openQuestions",
+              "requiresReview"
+            ],
+            "additionalProperties": false
+          },
+          "note": "Published @agentskit/mcp@0.4.2 preserves invokeStructured and human-review semantics for this typed projection; host-specific approval and invocation smoke tests remain pending. Do not flatten this agent into the generic task-to-text wrapper."
+        }
+      },
       "requires": {
         "zod": "^3",
         "zod-to-json-schema": "^3"
@@ -12076,6 +12230,117 @@
       "runnable": true,
       "decomposable": false,
       "installable": true,
+      "runnerProjections": {
+        "source": {
+          "status": "verified",
+          "command": "npx agentskit add research-academic-synthesizer"
+        },
+        "mcp": {
+          "status": "partial",
+          "transport": "stdio",
+          "package": "@agentskit/mcp",
+          "mode": "typed",
+          "version": "0.4.2",
+          "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+          "resultToolName": "submit_academic_synthesizer",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "input"
+            ],
+            "additionalProperties": false
+          },
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "sections": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "heading": {
+                      "type": "string"
+                    },
+                    "body": {
+                      "type": "string"
+                    },
+                    "citations": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "heading",
+                    "body",
+                    "citations"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "gaps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "openQuestions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "requiresReview": {
+                "const": true
+              }
+            },
+            "required": [
+              "title",
+              "sections",
+              "gaps",
+              "openQuestions",
+              "requiresReview"
+            ],
+            "additionalProperties": false
+          },
+          "note": "Published @agentskit/mcp@0.4.2 preserves invokeStructured and human-review semantics for this typed projection; host-specific approval and invocation smoke tests remain pending. Do not flatten this agent into the generic task-to-text wrapper."
+        },
+        "codex": {
+          "status": "planned"
+        },
+        "claude": {
+          "status": "planned"
+        },
+        "cursor": {
+          "status": "planned"
+        },
+        "deepseek": {
+          "status": "planned"
+        },
+        "gemini": {
+          "status": "planned"
+        },
+        "kimi": {
+          "status": "planned"
+        },
+        "grok": {
+          "status": "planned"
+        },
+        "hermes": {
+          "status": "planned"
+        }
+      },
       "implemented": true
     },
     {

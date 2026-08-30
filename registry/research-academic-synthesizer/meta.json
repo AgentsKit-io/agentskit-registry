@@ -17,6 +17,49 @@
     "@agentskit/runtime",
     "@agentskit/tools"
   ],
+  "projections": {
+    "mcp": {
+      "status": "partial",
+      "mode": "typed",
+      "version": "0.4.2",
+      "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+      "resultToolName": "submit_academic_synthesizer",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": { "type": "string", "minLength": 1 }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "sections": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "heading": { "type": "string" },
+                "body": { "type": "string" },
+                "citations": { "type": "array", "items": { "type": "string" } }
+              },
+              "required": ["heading", "body", "citations"],
+              "additionalProperties": false
+            }
+          },
+          "gaps": { "type": "array", "items": { "type": "string" } },
+          "openQuestions": { "type": "array", "items": { "type": "string" } },
+          "requiresReview": { "const": true }
+        },
+        "required": ["title", "sections", "gaps", "openQuestions", "requiresReview"],
+        "additionalProperties": false
+      },
+      "note": "Published @agentskit/mcp@0.4.2 preserves invokeStructured and human-review semantics for this typed projection; host-specific approval and invocation smoke tests remain pending. Do not flatten this agent into the generic task-to-text wrapper."
+    }
+  },
   "files": [
     "agent.ts",
     "README.md",

@@ -19,6 +19,35 @@
     "@agentskit/skills",
     "@agentskit/tools"
   ],
+  "projections": {
+    "mcp": {
+      "status": "partial",
+      "mode": "skill",
+      "version": "0.4.2",
+      "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+      "note": "Published @agentskit/mcp@0.4.2 exposes the Registry research agent over stdio with bounded fetch_url and web_search tools; host-specific approval UX remains to be verified."
+    },
+    "codex": {
+      "status": "planned",
+      "note": "Codex accepted the pinned stdio configuration through a read-only config override; real tool invocation is pending."
+    },
+    "claude": {
+      "status": "planned",
+      "note": "Claude Code accepted the project .mcp.json shape in an isolated project; the server remains pending host approval until an invocation is captured."
+    },
+    "cursor": {
+      "status": "planned",
+      "note": "Cursor 3.14.27 exposes --add-mcp and accepts the MCP payload shape; clean workspace invocation is still pending."
+    },
+    "deepseek": {
+      "status": "planned",
+      "note": "DeepSeek Harness exposes stdio MCP tools through @deepseek-ai/dsh-mcp-client under mcp__<serverName>__<tool>; official client smoke is pending."
+    },
+    "grok": {
+      "status": "partial",
+      "note": "Grok 1.0.5 accepted a project-scoped MCP config and detected the pinned server; doctor withheld startup because the temporary project was untrusted."
+    }
+  },
   "env": [
     {
       "name": "OPENAI_API_KEY",
@@ -71,6 +100,50 @@
       }
     ]
   },
+  "runnerProjections": {
+    "source": {
+      "status": "verified",
+      "command": "npx agentskit add research"
+    },
+    "mcp": {
+      "status": "partial",
+      "transport": "stdio",
+      "package": "@agentskit/mcp",
+      "mode": "skill",
+      "version": "0.4.2",
+      "integrity": "sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==",
+      "note": "Published @agentskit/mcp@0.4.2 exposes the Registry research agent over stdio with bounded fetch_url and web_search tools; host-specific approval UX remains to be verified."
+    },
+    "codex": {
+      "status": "planned",
+      "note": "Codex accepted the pinned stdio configuration through a read-only config override; real tool invocation is pending."
+    },
+    "claude": {
+      "status": "planned",
+      "note": "Claude Code accepted the project .mcp.json shape in an isolated project; the server remains pending host approval until an invocation is captured."
+    },
+    "cursor": {
+      "status": "planned",
+      "note": "Cursor 3.14.27 exposes --add-mcp and accepts the MCP payload shape; clean workspace invocation is still pending."
+    },
+    "deepseek": {
+      "status": "planned",
+      "note": "DeepSeek Harness exposes stdio MCP tools through @deepseek-ai/dsh-mcp-client under mcp__<serverName>__<tool>; official client smoke is pending."
+    },
+    "gemini": {
+      "status": "planned"
+    },
+    "kimi": {
+      "status": "planned"
+    },
+    "grok": {
+      "status": "partial",
+      "note": "Grok 1.0.5 accepted a project-scoped MCP config and detected the pinned server; doctor withheld startup because the temporary project was untrusted."
+    },
+    "hermes": {
+      "status": "planned"
+    }
+  },
   "sources": [
     {
       "path": "agent.ts",
@@ -78,7 +151,7 @@
     },
     {
       "path": "README.md",
-      "content": "# Research Agent\n\nCitation-first research agent. The [`researcher`](https://www.agentskit.io/docs/reference/packages/skills) skill wired to web search + URL fetching — every claim is anchored to a source URL.\n\n## Add it\n\n```bash\nnpx agentskit add research\n```\n\nThis copies `agent.ts` into your project (default `./agents/research/`). You own the code.\n\n## Use it\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createResearchAgent } from './agents/research/agent'\n\nconst agent = createResearchAgent({\n  adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }),\n})\n\nconst { content } = await agent.run('What changed in the EU AI Act in 2025?')\nconsole.log(content)\n```\n\nSwap `openai` for any AgentsKit adapter (`anthropic`, `gemini`, `ollama`, …) — no lock-in.\n\n## Packages\n\n`@agentskit/core` · `@agentskit/runtime` · `@agentskit/skills` · `@agentskit/tools`\n"
+      "content": "# Research Agent\n\nCitation-first research agent. The [`researcher`](https://www.agentskit.io/docs/reference/packages/skills) skill wired to web search + URL fetching — every claim is anchored to a source URL.\n\n## Add it\n\n```bash\nnpx agentskit add research\n```\n\nThis copies `agent.ts` into your project (default `./agents/research/`). You own the code.\n\n## Use it\n\n```ts\nimport { openai } from '@agentskit/adapters'\nimport { createResearchAgent } from './agents/research/agent'\n\nconst agent = createResearchAgent({\n  adapter: openai({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }),\n})\n\nconst { content } = await agent.run('What changed in the EU AI Act in 2025?')\nconsole.log(content)\n```\n\nSwap `openai` for any AgentsKit adapter (`anthropic`, `gemini`, `ollama`, …) — no lock-in.\n\n## Use it from an MCP host\n\nThe same validated skill can be exposed as one MCP tool. Pin the bridge version\nin committed host configuration and keep the default fetch/search tools explicit:\n\n```bash\nnpx -y @agentskit/mcp@0.4.2 \\\n  --agents research \\\n  --provider openai \\\n  --model gpt-4o \\\n  --tools fetch,search\n```\n\nPublished tarball integrity: `sha512-PzCxQwAGOySk9IDgFaoosbqETkswVAEyUuE2TdVVg9E4zRyUwq7tGRTTuzHSSg8zBmvShPpBOQNZn1brnx3FiA==`.\n\n### Host configuration previews\n\nThese are copyable MCP configurations for Codex, Claude Code, and Cursor. The\nserver is stdio-only, keeps shell/filesystem disabled, and remains subject to\neach host's approval prompt; host-specific conformance is still **planned**.\n\n```bash\n# Codex\ncodex mcp add agentskit -- npx -y @agentskit/mcp@0.4.2 --agents research --provider openai --model gpt-4o --tools fetch,search\n\n# Claude Code\nclaude mcp add --scope project --transport stdio agentskit -- npx -y @agentskit/mcp@0.4.2 --agents research --provider openai --model gpt-4o --tools fetch,search\n```\n\nFor Cursor, add the same stdio server to `.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"agentskit\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@agentskit/mcp@0.4.2\", \"--agents\", \"research\", \"--provider\", \"openai\", \"--model\", \"gpt-4o\", \"--tools\", \"fetch,search\"]\n    }\n  }\n}\n```\n\nDeepSeek Harness uses its official MCP client plugin in `cordis.yml`:\n\n```yaml\n- id: mcp-agentskit-research\n  name: '@deepseek-ai/dsh-mcp-client'\n  config:\n    serverName: agentskit\n    transport: stdio\n    command: npx\n    args: ['-y', '@agentskit/mcp@0.4.2', '--agents', 'research', '--provider', 'ollama', '--model', 'llama3', '--tools', 'fetch,search']\n    failOnStartupError: true\n```\n\nThe Harness client namespaces discovered tools as\n`mcp__agentskit__fetch_url`, `mcp__agentskit__research`, and\n`mcp__agentskit__web_search`. This follows the official\n[`@deepseek-ai/dsh-mcp-client` contract](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/mcp/mcp-client/README.md);\nthe clean Harness invocation remains planned.\n\nSet `OPENAI_API_KEY` for the OpenAI command above, or provide the provider\ncredentials required by the selected adapter. The DeepSeek preview uses local\nOllama (`ollama serve`, model `llama3`) so it does not require an OpenAI key.\nThe bridge keeps filesystem and shell tools disabled, and the host remains\nresponsible for its own approval policy. MCP host compatibility is currently **partial** until a clean-host\nsmoke test is recorded for each host. The published bridge smoke test exposed\n`fetch_url`, `research`, and `web_search` over stdio; host-specific approval UX\nis still being verified.\n\n## Packages\n\n`@agentskit/core` · `@agentskit/runtime` · `@agentskit/skills` · `@agentskit/tools`\n"
     }
   ],
   "installable": true

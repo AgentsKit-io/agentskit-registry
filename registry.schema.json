@@ -62,5 +62,25 @@
       "items": { "type": "string" },
       "minItems": 1
     },
+    "projections": {
+      "description": "Evidence state for runner projections. Unknown hosts must remain planned or unsupported.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status"],
+        "additionalProperties": true,
+        "properties": {
+          "status": { "enum": ["verified", "partial", "planned", "unsupported"] },
+          "mode": { "enum": ["skill", "typed"] },
+          "version": { "type": "string" },
+          "integrity": { "type": "string" },
+          "resultToolName": { "type": "string" },
+          "inputSchema": { "type": "object" },
+          "outputSchema": { "type": "object" },
+          "evidence": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    }
   }
 }
