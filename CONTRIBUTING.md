@@ -16,7 +16,7 @@ source in an issue, pull request, test, fixture, or recording.
    - `agent.test.ts` — at minimum, "constructs and runs against `mockAdapter`".
    - `README.md` — concept + `npx agentskit add <id>` + usage + required env.
 2. `npm run lint && npm test && npm run build` must pass.
-3. Deterministic discovery uses `@agentskit/chat/protocol` via exact `@agentskit/chat@0.4.0` only — never reintroduce `@agentskit/chat-protocol` or a chat UI runtime (`npm run check:no-legacy-chat-imports`).
+3. Deterministic discovery uses `@agentskit/chat/protocol` via exact `@agentskit/chat@0.4.1` only — never reintroduce `@agentskit/chat-protocol` or a chat UI runtime (`npm run check:no-legacy-chat-imports`).
 4. Open a PR.
 
 ## Principles (inherited from the AgentsKit Manifesto)

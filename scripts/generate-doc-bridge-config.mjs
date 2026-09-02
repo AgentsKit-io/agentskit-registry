@@ -107,8 +107,8 @@ const config = {
       links: [
         { url: 'https://www.agentskit.io/docs', paths: ['README.md', 'docs/getting-started.md'] },
         { url: 'https://playbook.agentskit.io/docs', paths: ['README.md', 'docs/getting-started.md'] },
-        { url: 'https://github.com/AgentsKit-io/agentskit-chat', paths: ['README.md', 'docs/getting-started.md'] },
-        { url: 'https://github.com/AgentsKit-io/doc-bridge', paths: ['README.md'] },
+        { url: 'https://chat.agentskit.io', paths: ['README.md', 'docs/getting-started.md'] },
+        { url: 'https://doc-bridge.agentskit.io', paths: ['README.md'] },
         { url: 'https://github.com/AgentsKit-io/code-review-cli', paths: ['README.md'] },
         { url: 'https://akos.agentskit.io/docs', paths: ['README.md'] },
       ],
@@ -130,7 +130,7 @@ const config = {
     sources: [
       { id: 'agentskit', llmsTxt: 'https://www.agentskit.io/llms.txt' },
       { id: 'playbook', llmsTxt: 'https://playbook.agentskit.io/llms.txt', rawBaseUrl: 'https://playbook.agentskit.io/raw/' },
-      { id: 'agentskit-chat', llmsTxt: 'https://github.com/AgentsKit-io/agentskit-chat/blob/main/.doc-bridge/llms.txt' },
+      { id: 'agentskit-chat', llmsTxt: 'https://chat.agentskit.io/llms.txt' },
     ],
   },
 }
