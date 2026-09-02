@@ -175,13 +175,13 @@ export const createRegistryDiscoveryArtifact = async ({ agents, generatedAt }) =
       id: 'ecosystem:chat', kind: 'ecosystem', label: 'AgentsKit Chat',
       values: ['agentskit chat', 'agentschat', 'chat framework'],
       markdown: 'AgentsKit Chat turns one AgentsKit behavior definition into native interactive experiences across React, React Native, Ink, Vue, Svelte, Solid, and Angular.',
-      title: 'AgentsKit Chat', href: 'https://github.com/AgentsKit-io/agentskit-chat',
+      title: 'AgentsKit Chat', href: 'https://chat.agentskit.io',
     },
     {
       id: 'ecosystem:doc-bridge', kind: 'ecosystem', label: 'Doc Bridge',
       values: ['doc bridge', 'doc-bridge', 'documentation bridge'],
       markdown: 'Doc Bridge turns repository documentation into validated indexes, machine-readable context, and precise handoffs for coding agents.',
-      title: 'Doc Bridge', href: 'https://github.com/AgentsKit-io/doc-bridge',
+      title: 'Doc Bridge', href: 'https://doc-bridge.agentskit.io',
     },
   ].map((entry) => ({
     id: entry.id,

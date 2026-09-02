@@ -162,11 +162,11 @@ must review against your provider, tools, data policy, and risk profile.
 
 - [AgentsKit](https://www.agentskit.io/docs) — build the agent runtime.
 - **Registry** — start from owned, ready-made source.
-- [AgentsKit Chat](https://github.com/AgentsKit-io/agentskit-chat) — deliver one
+- [AgentsKit Chat](https://chat.agentskit.io) — deliver one
   agent experience across Web, native, and terminal interfaces.
 - [Agents Playbook](https://playbook.agentskit.io/docs) — apply production
   engineering and review discipline.
-- [Doc Bridge](https://github.com/AgentsKit-io/doc-bridge) — turn documentation
+- [Doc Bridge](https://doc-bridge.agentskit.io) — turn documentation
   into executable agent handoffs.
 - [Code Review](https://github.com/AgentsKit-io/code-review-cli) — run deep,
   low-noise review with the model already in use.
