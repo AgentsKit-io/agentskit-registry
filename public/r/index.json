@@ -8,7 +8,7 @@
       "description": "Drafts a TYPED creative brief from client kickoff notes (client/product, audience, insight, proposition, mandatories, tone, deliverables, timeline). Pulls facts only from the notes — never invents; gaps become 'to be confirmed' and are listed in toBeConfirmed. Always a draft.",
       "category": "agency",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "agency",
@@ -72,7 +72,7 @@
       "description": "Reads draft creative against a brand-voice guide and returns TYPED misalignments (line, current text, suggested rewrite, rationale) + an overall assessment. Suggests, never imposes (never rewrites the whole piece); contentious brand-intent calls set routeToHuman for the account lead.",
       "category": "agency",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "agency",
@@ -136,7 +136,7 @@
       "description": "Drafts a TYPED pitch/status deck (typed slides with bullets + citations) from project artifacts. Every number must cite its source artifact — uncited metrics are flagged in uncitedMetrics, missing data becomes 'data to be confirmed'. Configurable sections; always a draft.",
       "category": "agency",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "agency",
@@ -264,7 +264,7 @@
       "description": "Drafts a TYPED multi-channel publish schedule (date/channel/asset/rationale) from approved drafts + channel constraints. Flags conflicts (window collisions, embargoes, frequency-cap breaches) instead of silently dropping items; never schedules jobs itself — always requiresApproval by the account lead.",
       "category": "agency",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "agency",
@@ -488,7 +488,7 @@
       "description": "Redacts HIPAA identifiers from a clinical chart with a DETERMINISTIC backstop: the model does the bulk redaction, then createPIIRedactor re-scans and strips any structured identifier it missed (email/phone/SSN + your MRN/DOB rules) — the emitted chart is always clean of those patterns regardless of the model. Clinical findings preserved.",
       "category": "clinical",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "clinical",
@@ -586,7 +586,7 @@
       "description": "Classifies an inbound patient message by urgency (emergency/urgent/routine/administrative/unclear) and routes it — typed output with a DETERMINISTIC red-flag safety net: chest pain / stroke / suicidal ideation / severe bleeding force 'emergency' regardless of the model (the model can only escalate, never downgrade). Unclear/emergency → human triage.",
       "category": "clinical",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "clinical",
@@ -684,7 +684,7 @@
       "description": "Converts clinician dictation into a TYPED SOAP note (Subjective/Objective/Assessment/Plan) via structured output; preserves facts verbatim, surfaces missing sections instead of inventing them, always a draft for clinician sign-off.",
       "category": "clinical",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "clinical",
@@ -717,7 +717,7 @@
       "description": "Drafts a TYPED one-page pre-visit summary from chart excerpts (reason, active problems, meds, allergies, vitals trend, follow-ups, open questions); never invents values, always a draft for clinician confirmation.",
       "category": "clinical",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "clinical",
@@ -781,7 +781,7 @@
       "description": "Routes a referral packet to the receiving specialty + urgency with typed output. Incomplete packets are NOT assigned — missing critical fields (reason/meds/prior workup) are surfaced and the case escalates to a human coordinator. Fail-safe on error.",
       "category": "clinical",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "clinical",
@@ -1022,7 +1022,7 @@
       "description": "Runs the project's test/lint/type-check commands through a caller-injected runner, then turns the REAL captured output into a TYPED failure report (shortest reproducer, message, root cause), grouped by cause. Execution stays in YOUR sandbox (no shell spawned by the agent); reports, never fixes.",
       "category": "coding",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "coding",
@@ -1118,7 +1118,7 @@
       "description": "Proposes a TYPED minimal patch plan (file changes with full new contents + PR title + notes) that makes the QA specs pass. Proposes, never writes (the plan is data you apply); optional openPr transport turns the approved plan into a real PR, fail-closed HITL. House rules: named exports, Zod at boundaries, no any.",
       "category": "coding",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "coding",
@@ -1246,7 +1246,7 @@
       "description": "Drafts one TYPED GitHub issue per PRD acceptance criterion, then creates them through a caller-injected createIssue transport. Real creation or honest draft (no transport => drafts + created:[], never a faked number); fail-closed HITL (no approve + autoApprove off => nothing created); reports the real issue number/url.",
       "category": "coding",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "coding",
@@ -1465,7 +1465,7 @@
       "description": "Transforms a free-form product description into a TYPED PRD (problem, users, 3-5 testable acceptance criteria, out-of-scope, open questions). Never invents business logic — anything absent from the input becomes an open question. Always a draft.",
       "category": "coding",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "coding",
@@ -1497,7 +1497,7 @@
       "description": "Turns a PRD's acceptance criteria into TYPED Vitest spec stubs (one+ describe/it block per criterion, each referencing its number). Returns { specs: [{ path, body, criteria }] } and flags uncovered criteria rather than silently dropping coverage.",
       "category": "coding",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "coding",
@@ -1524,7 +1524,7 @@
       "description": "Turns the list of merged PRs since the last tag into TYPED, grouped release notes (Feature/Fix/Performance/Docs/Internal) + a ready-to-paste markdown block. Every entry cites its PR number; never invents a merge not in the input. Always a draft for the release manager.",
       "category": "coding",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "coding",
@@ -1684,7 +1684,7 @@
       "description": "Parses raw Vitest stdout/stderr into a TYPED test report: totals + per-failure details (test, file, message, one-sentence root-cause hypothesis), grouped by suspected cause. Analyses captured output; does not execute anything itself. Reports only what the output shows, never invents.",
       "category": "coding",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "coding",
@@ -4242,7 +4242,7 @@
     {
       "id": "ecosystem-changelog-ecosystem",
       "title": "Ecosystem Changelog",
-      "description": "Changelog typed across www/registry/playbook/akos. Cross-repo ecosystem changes need unified changelog. Typed v1 agent with eval coverage.",
+      "description": "Changelog typed across www/registry/playbook. Cross-repo ecosystem changes need unified changelog. Typed v1 agent with eval coverage.",
       "category": "ecosystem",
       "status": "validated",
       "version": "1.0.0",
@@ -5117,7 +5117,7 @@
       "description": "Onboarding KYC screen against sanctions/PEP/adverse-media lists with a DETERMINISTIC fuzzy-match gate: required fields (name/DOB/country) validated up front; strong/exact hits escalate unconditionally (never model-cleared); the model only downgrades weak near-misses. Typed risk verdict + human sign-off.",
       "category": "fintech",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "fintech",
@@ -5243,7 +5243,7 @@
       "description": "Screens a customer/counterparty against a sanctions list with a DETERMINISTIC fuzzy-match gate: strong/exact hits escalate unconditionally (never model-cleared), the model only adjudicates weak near-misses (and can only make screening stricter). Typed verdict + human sign-off.",
       "category": "fintech",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "fintech",
@@ -5342,7 +5342,7 @@
       "description": "Scans a transaction history for anomalous patterns (velocity, structuring, geo, round-number, rapid-movement) and drafts a TYPED case file as canonical Findings citing the transaction IDs + rule. Two modes (fraud / aml SAR-ready); always a draft for human review, fail-safe (insufficientEvidence over false positives), never freezes accounts or files SARs.",
       "category": "fintech",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "fintech",
@@ -6522,7 +6522,7 @@
       "description": "Extracts a TYPED structured analysis from a case file (parties, venue, posture, claims, defenses, key dates, open discovery). Every datum cites its source document + page; gaps are 'not in record' (never inferred); SOL/filing-deadline risks surfaced separately. Always a draft for the attorney.",
       "category": "legal",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "legal",
@@ -6554,7 +6554,7 @@
       "description": "Produces a TYPED, court-ready matter summary from reviewed documents + reviewer notes. Every factual claim cites the underlying document ID; inconsistent notes are flagged as conflicts (competing positions surfaced) rather than resolved by picking a side. Always a draft for the attorney.",
       "category": "legal",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "legal",
@@ -6650,7 +6650,7 @@
       "description": "Drafts a legal document (memo / motion / demand-letter / client-update) from an approved fact pattern. Cites every factual claim to its source record; flags every inference inline + in a typed list for attorney verification; ALWAYS a draft (never final, never a signature) ending with open questions for sign-off.",
       "category": "legal",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "legal",
@@ -6908,7 +6908,7 @@
       "description": "Redacts PII from a legal document with a DETERMINISTIC backstop (createPIIRedactor strips any structured identifier the model missed — SSN/email/phone + your gov-ID/account rules), and surfaces privileged spans for attorney review instead of silently redacting them. Output is always clean of the covered patterns.",
       "category": "legal",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "legal",
@@ -7065,7 +7065,7 @@
       "description": "Reads an incoming campaign brief and produces a TYPED structured brief (objective/audience/key messages/tone/channels/timeline/mandatories) downstream agents reference. Never invents client details; missing required fields listed in gaps (ask, don't guess); optional voice guide flags conflicting language.",
       "category": "marketing",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "marketing",
@@ -7097,7 +7097,7 @@
       "description": "Turns the week's scheduled social posts into a TYPED digest (per-channel groups + a ready-to-paste Slack markdown block). Delivery is optional and HITL-gated — reported delivered only when the transport really returned an id; never fakes a post.",
       "category": "marketing",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "marketing",
@@ -7129,7 +7129,7 @@
       "description": "Searches + fetches competitor web content (webSearch / fetchUrl), diffs it against the RAG competitor baseline, and produces a structured competitive-landscape report. Hardened: fetched pages are treated as attacker-controlled data (prompt-injection defense), and unfetchable sources are flagged, never fabricated.",
       "category": "marketing",
       "version": "1.1.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "marketing",
@@ -7157,7 +7157,7 @@
       "description": "Produces exactly THREE distinct TYPED copy variants (bold / warm / precise) from a structured brief + competitive context — each with headline/subheadline/body/cta/channel/persona/rationale. Every metric must come from the brief (no invented numbers); over-length bodies flagged, not silently cut.",
       "category": "marketing",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "marketing",
@@ -7445,7 +7445,7 @@
       "description": "Formats one approved copy variant per platform and DELIVERS it through caller-injected transports. Real delivery or honest failure (no faked sends), fail-closed HITL (nothing posts without explicit approval), typed result with the real provider id per platform.",
       "category": "marketing",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "marketing",
@@ -11044,7 +11044,7 @@
       "description": "Turns a ticket + agent notes into a TYPED internal escalation draft (impact / tried / need / SLA). A deterministic PII backstop re-scans every field and strips raw email / phone / ids the model leaked; always a draft for the agent to review before posting.",
       "category": "support",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "support",
@@ -11140,7 +11140,7 @@
       "description": "Matches a support ticket to the top knowledge-base articles as TYPED hits with a 1-5 confidence score. Optional retriever grounds answers in YOUR corpus — only retrieved candidates can be cited; never invents an article (returns noMatch + a suggested topic instead).",
       "category": "support",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "support",
@@ -11332,7 +11332,7 @@
       "description": "Classifies an inbound support ticket by topic + severity (P1-P4) + queue with TYPED output, and a deterministic red-flag net that forces P1 on outage / data-loss / security language (the model can only raise severity, never bury a P1).",
       "category": "support",
       "version": "2.0.0",
-      "source": "AKOS",
+      "source": "AgentsKit Registry",
       "license": "MIT",
       "tags": [
         "support",

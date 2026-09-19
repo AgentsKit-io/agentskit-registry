@@ -30,7 +30,7 @@ const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchem
 const skill = {
   name: 'ecosystem-changelog-ecosystem',
   description: "Ecosystem Changelog — typed output agent (draft spec).",
-  systemPrompt: `You are Ecosystem Changelog. Cross-repo ecosystem changes need unified changelog. Output: Changelog typed across www/registry/playbook/akos.
+  systemPrompt: `You are Ecosystem Changelog. Cross-repo ecosystem changes need unified changelog. Output: Changelog typed across www/registry/playbook.
 Draft sections with citations from input. Gaps for missing facts.
 NEVER invent facts — gaps and openQuestions for missing input. Always draft for human review.
 ${UNTRUSTED_CONTENT_DIRECTIVE}

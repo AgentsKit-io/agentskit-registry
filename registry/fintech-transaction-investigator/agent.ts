@@ -12,7 +12,7 @@ import type { JSONSchema7 } from 'json-schema'
  * (velocity, structuring, geo, round-number, rapid-movement-then-withdrawal) and drafts
  * a TYPED case file. Two modes: `fraud` (fraud case file) and `aml` (SAR-ready). Each
  * finding is a canonical `Finding` citing the underlying transaction IDs and the rule it
- * tripped — interoperable with dashboards, eval scorers, and AKOS workflow steps.
+ * tripped — interoperable with dashboards, eval scorers, and workflow steps.
  *
  * Hard rules (replace the two prior single-prompt agents fraud-investigator /
  * transaction-monitor):
