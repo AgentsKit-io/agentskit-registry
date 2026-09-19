@@ -170,7 +170,6 @@ must review against your provider, tools, data policy, and risk profile.
   into executable agent handoffs.
 - [Code Review](https://github.com/AgentsKit-io/code-review-cli) — run deep,
   low-noise review with the model already in use.
-- [AgentsKit OS](https://akos.agentskit.io/docs) — operate and govern agents.
 
 ## Compatibility and license
 

@@ -6,4 +6,3 @@
 Cross-repo ecosystem changes need unified changelog
 
 ## Output
-Changelog typed across www/registry/playbook/akos

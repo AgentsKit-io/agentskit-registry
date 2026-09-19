@@ -35,7 +35,6 @@ Categorias reguladas (`clinical`, `legal`, `fintech`, `compliance`) exigem curad
 
 ## Stacks (workflows compostos)
 
-14 stacks em [`stacks.json`](./stacks.json). Instale os átomos, ligue no AKOS ou no seu orchestrator.
 
 | Stack | Verticais |
 |-------|-----------|
