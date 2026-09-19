@@ -447,7 +447,7 @@ const agents = [
   a('ecosystem-changelog-ecosystem', 'Ecosystem Changelog', {
     category: 'ecosystem', ecosystem: true,
     pain: 'Cross-repo ecosystem changes need unified changelog',
-    output: 'Changelog typed across www/registry/playbook/akos',
+    output: 'Changelog typed across www/registry/playbook',
     tags: ['ecosystem', 'dogfood'],
   }),
 ]
