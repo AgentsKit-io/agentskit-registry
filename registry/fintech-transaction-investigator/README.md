@@ -19,7 +19,6 @@ const r = await createTransactionInvestigatorAgent({
 
 > Replaces the two near-duplicate single-prompt agents `fintech-fraud-investigator` and `fintech-transaction-monitor` with one configurable, typed agent.
 
-- **Canonical `Finding[]`** — `invokeStructured` + zod against `@agentskit/core/finding`. Each finding cites the transaction IDs (`location`), the pattern tripped (`category`), a severity, and a next step (`remediation`) — interoperable with dashboards, eval scorers, and AKOS steps.
 - **Always a draft** — `requiresHumanReview` is always true; never freezes accounts or files SARs. `highestSeverity` summarises the case.
 - **No over-claiming / fail-safe** — ambiguous evidence ⇒ `insufficientEvidence`; an unparseable model response ⇒ `insufficientEvidence:true` with zero findings, **never** a silent all-clear.
 - Untrusted transaction text is **fenced**; compliance footer enforced.

@@ -4,7 +4,6 @@ Status: human guide. Owner: Emerson Braun. Reviewed: 2026-08-14.
 
 ## What it does
 
-Builds a typed changelog across the AgentsKit, Registry, Playbook, and AKOS surfaces from supplied change context.
 
 ## Install and try
 

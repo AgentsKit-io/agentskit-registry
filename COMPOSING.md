@@ -88,7 +88,5 @@ createXAgent({ adapter, observers: [myTracer] })  // LangSmith / OTel / console
 
 ---
 
-In **AKOS**, these same config slots are filled by the enterprise control plane —
 egress-wrapped tools, the RBAC `onConfirm` gate, the hosted orchestrator
 (`delegates`), and the audit ledger (`observers`). The OSS agent is the portable
-brain; AKOS wraps it. See RFC 0003.

@@ -61,7 +61,7 @@ for (const id of ids) {
     return { path: rel, content: readFileSync(p, 'utf8') }
   })
 
-  // Extract the inline skill's systemPrompt so the CLI/AKOS can run the agent as
+  // Extract the inline skill's systemPrompt so the CLI can run the agent as
   // data (no code execution). Scan EVERY copied source file (not just agent.ts) so
   // a single skill defined in a separate file (e.g. skills.ts) is still found.
   //
@@ -83,9 +83,9 @@ for (const id of ids) {
 
   // Optional Tier-B FLOW decomposition (flow.json). A gated/pipeline agent whose
   // deterministic safety gate lives in code (sanctions fuzzy-gate, PII backstop) can
-  // ship a FlowConfig that decomposes it into tool/condition/agent nodes, so AKOS runs
+  // ship a FlowConfig that decomposes it into tool/condition/agent nodes, so the runtime runs
   // the gate in its flow engine — not just the extracted skill. Absent ⇒ Tier A
-  // (single skill, run as-is). Validated against AKOS @agentskit/os-core on import.
+  // (single skill, run as-is).
   const flowPath = join(dir, 'flow.json')
   let flow = null
   if (existsSync(flowPath)) {
@@ -262,7 +262,7 @@ try {
   ecoBlock =
     '## The AgentsKit ecosystem\n\n' +
     eco.properties
-      .filter((p) => p.id !== 'registry')
+      .filter((p) => p.id !== 'registry' && p.id !== 'akos')
       .map((p) => `- [${p.name}](${p.url}) — ${p.tagline} llms.txt: ${p.llms}`)
       .join('\n') +
     '\n\n'
