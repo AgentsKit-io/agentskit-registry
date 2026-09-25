@@ -1,42 +1,42 @@
-# AgentsKit Registry — Catálogo Mestre
+# AgentsKit Registry — Master Catalog
 
-> **346 agentes no catálogo** · **346 validados v1** · **0 alpha** · **0 drafts**
-> JSON: [`/r/catalog.json`](https://registry.agentskit.io/r/catalog.json) · Instaláveis: [`/r/index.json`](https://registry.agentskit.io/r/index.json)
+> **346 agents in the catalog** · **346 validated v1** · **0 alpha** · **0 drafts**
+> JSON: [`/r/catalog.json`](https://registry.agentskit.io/r/catalog.json) · Installable: [`/r/index.json`](https://registry.agentskit.io/r/index.json)
 
-## Modelo de publicação
+## Publication model
 
-| Status | `npx agentskit add` | Onde aparece |
+| Status | `npx agentskit add` | Where it appears |
 |--------|---------------------|--------------|
-| `draft` | Bloqueado | Catálogo, spec apenas |
-| `alpha` | Funciona (warning) | Experimental (fase anterior) |
-| `validated` | Funciona | **v1** — schema de domínio + testes + eval |
-| `deprecated` | Bloqueado | Histórico apenas |
+| `draft` | Blocked | Catalog, spec only |
+| `alpha` | Works (warning) | Experimental (earlier phase) |
+| `validated` | Works | **v1** — domain schema + tests + eval |
+| `deprecated` | Blocked | History only |
 
-**Fluxo:** spec em `catalog/manifest.json` → `npm run scaffold -- <id>` → implementar Zod real + `eval.ts` → `status: validated` → PR.
+**Flow:** spec in `catalog/manifest.json` → `npm run scaffold -- <id>` → implement the real Zod schema + `eval.ts` → `status: validated` → PR.
 
-## Contrato mínimo (todo agente)
+## Minimum contract (every agent)
 
-- Uma dor, um output tipado (Zod)
-- Nunca inventa — lacunas viram `gaps` / `openQuestions`
-- Domínios sensíveis: sempre draft + HITL
-- Safety nets determinísticos onde o modelo só pode escalar
-- Transport injetado para ações externas (sem ID falso)
-- `agent.test.ts` + `eval.ts` antes de validar
+- One pain point, one typed output (Zod)
+- Never invents — gaps become `gaps` / `openQuestions`
+- Sensitive domains: always draft + HITL
+- Deterministic safety nets where the model can only escalate
+- Injected transport for external actions (no fake IDs)
+- `agent.test.ts` + `eval.ts` before validating
 
-## Política de conteúdo (bloqueado)
+## Content policy (blocked)
 
-Ver [`content-policy.json`](./content-policy.json). Rejeitamos automaticamente:
+See [`content-policy.json`](./content-policy.json). Automatically rejected:
 
-- Armas, adulto, campanha política, atividade ilegal
-- Ódio/assédio, segurança infantil, stalking
-- Gambling (catálogo aberto)
+- Weapons, adult content, political campaigns, illegal activity
+- Hate/harassment, child safety, stalking
+- Gambling (open catalog)
 
-Categorias reguladas (`clinical`, `legal`, `fintech`, `compliance`) exigem curadoria + `eval.ts`.
+Regulated categories (`clinical`, `legal`, `fintech`, `compliance`) require curation + `eval.ts`.
 
-## Stacks (workflows compostos)
+## Stacks (composed workflows)
 
 
-| Stack | Verticais |
+| Stack | Verticals |
 |-------|-----------|
 | `stack-coding-ship` | PRD → issues → specs → code → QA → review → release |
 | `stack-marketing-campaign` | Brief → research → copy → review → publish |
@@ -44,22 +44,22 @@ Categorias reguladas (`clinical`, `legal`, `fintech`, `compliance`) exigem curad
 | `stack-ecosystem-registry-growth` | Spec → eval → playbook audit |
 | `stack-compliance-lgpd` | LGPD assess → DPA → retention → breach BR |
 
-## Dogfood do ecossistema
+## Ecosystem dogfood
 
-Agentes `ecosystem-*` alimentam propriedades AgentsKit:
+`ecosystem-*` agents feed AgentsKit properties:
 
-| Agente | Serve |
+| Agent | Serves |
 |--------|-------|
 | `ecosystem-doc-bridge-memory-classifier` | doc-bridge: memory candidates |
 | `ecosystem-doc-bridge-handoff-author` | doc-bridge: agent-handoff-v1 |
 | `ecosystem-playbook-alignment-auditor` | playbook.agentskit.io |
-| `ecosystem-registry-agent-spec-author` | Novos agentes no registry |
-| `ecosystem-registry-eval-author` | Casos eval antes de validar |
-| `knowledge-promoter` | Private notes → docs públicos |
+| `ecosystem-registry-agent-spec-author` | New agents in the registry |
+| `ecosystem-registry-eval-author` | Eval cases before validating |
+| `knowledge-promoter` | Private notes → public docs |
 
-## Verticais e contagem
+## Verticals and counts
 
-| Categoria | Draft | Validated | Total alvo |
+| Category | Draft | Validated | Target total |
 |-----------|-------|-----------|------------|
 | coding | 18 | 8 | 26 |
 | research | 14 | 1 | 15 |
@@ -85,36 +85,36 @@ Agentes `ecosystem-*` alimentam propriedades AgentsKit:
 | compliance | 8 | 0 | 8 |
 | ecosystem | 10 | 0 | 10 |
 
-## Locais (global + regional)
+## Regional (global + local)
 
-Incluídos no catálogo, não genéricos:
+Included in the catalog, not generic:
 
 - `compliance-lgpd-assessor` (BR)
 - `compliance-lgpd-dpa-reviewer` (BR)
 - `compliance-breach-notification-br` (BR, 72h ANPD)
 - `compliance-gdpr-dpia-drafter` (EU)
 
-## Prioridade de validação (fase 1)
+## Validation priority (phase 1)
 
 1. **Ecosystem** — doc-bridge + playbook + registry loop
 2. **Coding gaps** — incident postmortem, dependency auditor, security interpreter
 3. **Research** — due diligence, regulatory tracker, vendor evaluation
 4. **Support gaps** — macro suggester, bug repro, churn risk
-5. **Compliance LGPD pack** — stack completo BR
+5. **Compliance LGPD pack** — full BR stack
 
-## Comandos
+## Commands
 
 ```bash
-npm run catalog:generate   # regenera manifest.json
-npm run catalog:validate   # política de conteúdo
-npm run scaffold -- <id>   # código draft em registry/<id>/
+npm run catalog:generate   # regenerates manifest.json
+npm run catalog:validate   # content policy
+npm run scaffold -- <id>   # draft code in registry/<id>/
 npm run build              # public/r/index.json + catalog.json
 ```
 
-## Contribuir
+## Contributing
 
-1. Escolha um agente `draft` em `manifest.json`
+1. Pick a `draft` agent in `manifest.json`
 2. `npm run scaffold -- <id>`
-3. Implemente o schema Zod real (substitua o placeholder)
-4. Adicione `eval.ts` com 5+ casos
-5. PR com `status: validated`
+3. Implement the real Zod schema (replace the placeholder)
+4. Add `eval.ts` with 5+ cases
+5. Open a PR with `status: validated`

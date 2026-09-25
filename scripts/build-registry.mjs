@@ -262,7 +262,7 @@ try {
   ecoBlock =
     '## The AgentsKit ecosystem\n\n' +
     eco.properties
-      .filter((p) => p.id !== 'registry' && p.id !== 'akos')
+      .filter((p) => p.id !== 'registry')
       .map((p) => `- [${p.name}](${p.url}) — ${p.tagline} llms.txt: ${p.llms}`)
       .join('\n') +
     '\n\n'
