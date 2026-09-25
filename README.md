@@ -164,12 +164,12 @@ must review against your provider, tools, data policy, and risk profile.
 - **Registry** — start from owned, ready-made source.
 - [AgentsKit Chat](https://chat.agentskit.io) — deliver one
   agent experience across Web, native, and terminal interfaces.
-- [Agents Playbook](https://playbook.agentskit.io/docs) — apply production
-  engineering and review discipline.
 - [Doc Bridge](https://doc-bridge.agentskit.io) — turn documentation
   into executable agent handoffs.
-- [Code Review](https://github.com/AgentsKit-io/code-review-cli) — run deep,
+- [Code Review](https://code-review.agentskit.io) — run deep,
   low-noise review with the model already in use.
+- [Harness](https://harness.agentskit.io) — the keep-pushing delivery
+  loop for your SDLC.
 
 ## Compatibility and license
 
