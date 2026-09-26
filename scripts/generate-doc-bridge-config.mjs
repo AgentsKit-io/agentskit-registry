@@ -109,7 +109,7 @@ const config = {
         { url: 'https://playbook.agentskit.io/docs', paths: ['README.md', 'docs/getting-started.md'] },
         { url: 'https://chat.agentskit.io', paths: ['README.md', 'docs/getting-started.md'] },
         { url: 'https://doc-bridge.agentskit.io', paths: ['README.md'] },
-        { url: 'https://github.com/AgentsKit-io/code-review-cli', paths: ['README.md'] },
+        { url: 'https://code-review.agentskit.io', paths: ['README.md'] },
       ],
       ecosystemContract: { manifest: 'ecosystem.json', claims: 'ecosystem-claims.json', productId: 'registry' },
       quickstarts: [{

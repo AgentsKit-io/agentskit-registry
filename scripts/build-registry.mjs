@@ -261,9 +261,10 @@ try {
   const eco = JSON.parse(readFileSync(join(root, 'ecosystem.json'), 'utf8'))
   ecoBlock =
     '## The AgentsKit ecosystem\n\n' +
-    eco.properties
-      .filter((p) => p.id !== 'registry')
-      .map((p) => `- [${p.name}](${p.url}) — ${p.tagline} llms.txt: ${p.llms}`)
+    eco.products
+      .filter((p) => p.navigation?.showInBar === true && p.id !== 'registry')
+      .sort((a, b) => a.navigation.order - b.navigation.order)
+      .map((p) => `- [${p.name}](${p.surfaces.home}) — ${p.promise}${p.surfaces.llms ? ` llms.txt: ${p.surfaces.llms}` : ''}`)
       .join('\n') +
     '\n\n'
 } catch {
