@@ -45,6 +45,12 @@ Review copied code and provider/tool permissions before production use. A
 validated template is a strong starting point, not authorization for your data
 or environment.
 
+## Companion tool
+
+To let coding agents resolve ownership and checks in the repository that holds
+your agent, see the optional [Doc Bridge companion](./doc-bridge.md). Registry
+agents do not require it.
+
 ## Next steps
 
 - [Browse all agents](https://registry.agentskit.io/agents)

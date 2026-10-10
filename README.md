@@ -165,7 +165,8 @@ must review against your provider, tools, data policy, and risk profile.
 - [AgentsKit Chat](https://chat.agentskit.io) — deliver one
   agent experience across Web, native, and terminal interfaces.
 - [Doc Bridge](https://doc-bridge.agentskit.io) — turn documentation
-  into executable agent handoffs.
+  into executable agent handoffs. Optional companion for repositories that
+  install agents: [how it fits](./docs/doc-bridge.md).
 - [Code Review](https://code-review.agentskit.io) — run deep,
   low-noise review with the model already in use.
 - [Harness](https://harness.agentskit.io) — the keep-pushing delivery
