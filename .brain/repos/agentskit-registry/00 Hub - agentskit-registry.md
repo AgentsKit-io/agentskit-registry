@@ -5,8 +5,8 @@ camada: ferramenta
 visibilidade: publico
 verificado-em: 2026-10-16
 commits:
-  agentskit-registry: 87c2ddc
-metodo: análise estática; doc-bridge.config.json lido; instalação/indexação não concluídas por falha de rede/cache
+  agentskit-registry: 08d7f62
+metodo: análise estática; doc-bridge.config.json lido; instalação/indexação não concluídas por falha de rede/cache; auditado em 2026-10-16
 fontes: ["README.md", "AGENTS.md", "docs/architecture.md", "docs/for-agents/index.md", "package.json", "scripts/build-registry.mjs", "scripts/lib/deterministic-discovery.mjs", ".github/workflows/ci.yml"]
 tags: [repo, repo/agentskit-registry, camada/ferramenta]
 ---
@@ -20,7 +20,7 @@ tags: [repo, repo/agentskit-registry, camada/ferramenta]
 
 ## Responsabilidade e limites
 
-O repositório é fonte canônica do catálogo, validadores e bundles; não fornece runtime, CLI de instalação nem a aplicação visual. Agentes copiados são código do consumidor e compõem releases publicados `@agentskit/*` (AGENTS.md:1; docs/architecture.md:3).
+O repositório é fonte canônica do catálogo, validadores e bundles; não fornece runtime, CLI de instalação nem a aplicação visual. Agentes copiados são código do consumidor e compõem releases publicados `@agentskit/*` (AGENTS.md:3-5; docs/architecture.md:3-6).
 
 ## Módulos
 
@@ -41,14 +41,17 @@ O repositório é fonte canônica do catálogo, validadores e bundles; não forn
 
 | Relação | Evidência |
 |---|---|
-| [[00 Hub - agentskit]] fornece runtime e CLI que consumidores usam | README.md:80; docs/architecture.md:23 |
-| [[00 Hub - agentskit-chat]] fornece protocolo determinístico importado pelo build | docs/architecture.md:17; package.json:43 |
-| A aplicação Registry vive no monorepo AgentsKit | docs/architecture.md:3 |
-| [[00 Hub - doc-bridge]] é dependência de desenvolvimento e gate documental | package.json:46; AGENTS.md:13 |
+| [[00 Hub - agentskit]] fornece runtime e CLI que consumidores usam | README.md:134-136; docs/architecture.md:30 |
+| [[00 Hub - agentskit-chat]] fornece protocolo determinístico importado pelo build | docs/architecture.md:27-29; package.json:43 |
+| A aplicação Registry vive no monorepo AgentsKit | README.md:131-134; docs/architecture.md:5-6 |
+| [[00 Hub - doc-bridge]] é dependência de desenvolvimento e gate documental | package.json:46; AGENTS.md:21; .github/workflows/ci.yml:37 |
 
 ## Artefatos e operação
 
-`public/r`, `public/deterministic`, `ecosystem-claims.json` e `.doc-bridge` são gerados; editar fonte e reconstruir é obrigatório (AGENTS.md:9). O workflow CI usa Node 22 e executa validação, lint, testes, replay, build e gates Doc Bridge (`.github/workflows/ci.yml:20). Build local principal: `npm run build` (package.json:14).
+`public/r`, `public/deterministic`, `ecosystem-claims.json` e `.doc-bridge` são gerados; editar fonte e reconstruir é obrigatório (AGENTS.md:13-14). O workflow CI usa Node 22 e executa validação, lint, testes, replay, build e gates Doc Bridge (`.github/workflows/ci.yml:20-40`). Build local principal: `npm run build` (package.json:14).
+
+> [!question] Dúvida
+> Scripts de eval, projeções de runner, geração de claims, padrão de README e scaffolding não têm nota neste vault. Ver a lista em [[Auditoria - agentskit-registry]].
 
 ## Detalhe técnico
 
@@ -57,4 +60,4 @@ O repositório é fonte canônica do catálogo, validadores e bundles; não forn
 - O projeto não tem ADRs no repositório em `docs/adr/`; sua história relevante está no Git e nos contratos atuais.
 
 > [!question] Dúvida
-> A configuração Doc Bridge existe, mas `.doc-bridge/index.json` não está presente e a instalação falhou por ausência de pacote em cache e rede indisponível; relações verificadas pelo índice permanecem por confirmar.
+> A configuração Doc Bridge existe (`doc-bridge.config.json` é versionado), mas `.doc-bridge/` não é versionado e não há `.doc-bridge/index.json` na worktree. A falha de instalação relatada na coleta original não foi reproduzida na auditoria; relações verificadas pelo índice permanecem por confirmar.
