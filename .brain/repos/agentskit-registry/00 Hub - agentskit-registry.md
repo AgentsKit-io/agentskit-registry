@@ -5,91 +5,56 @@ camada: ferramenta
 visibilidade: publico
 verificado-em: 2026-10-16
 commits:
-  agentskit: 779aa601
-  agentskit-chat: 8aeeffd
-  agentskit-registry: 49952c7
-metodo: análise estática; nada foi executado
-fontes: ["agentskit-registry/README.md", "agentskit-registry/docs/architecture.md", "agentskit-registry/package.json", "agentskit-registry/scripts/build-registry.mjs", "agentskit-registry/scripts/build-discovery.mjs", "agentskit-registry/action.yml", "agentskit-registry/.github/workflows/ci.yml", "agentskit-registry/.github/workflows/codeql.yml", "agentskit-registry/.github/workflows/dependency-review.yml", "agentskit-registry/.github/workflows/scorecard.yml"]
-tags: [repo, repo/agentskit-registry]
+  agentskit-registry: 87c2ddc
+metodo: análise estática; doc-bridge.config.json lido; instalação/indexação não concluídas por falha de rede/cache
+fontes: ["README.md", "AGENTS.md", "docs/architecture.md", "docs/for-agents/index.md", "package.json", "scripts/build-registry.mjs", "scripts/lib/deterministic-discovery.mjs", ".github/workflows/ci.yml"]
+tags: [repo, repo/agentskit-registry, camada/ferramenta]
 ---
 
 # agentskit-registry
 
 > [!tldr] Em linguagem comum
-> É o catálogo público de agentes prontos para copiar e adaptar. Guarda código, metadados, testes e evidências; a vitrine fica no monorepo AgentsKit. Depois da instalação, o código pertence ao projeto que o copiou.
+> Mantém fontes de agentes AgentsKit, evidências públicas e os arquivos reproduzíveis que permitem encontrá-los e copiá-los para um projeto.
 
-## Para quem existe
+← [[00 Hub - Ecossistema AgentsKit]]
 
-Serve desenvolvedores que querem um ponto de partida editável, a vitrine Registry e ferramentas de descoberta. O CLI consome bundles; os agentes copiados passam a depender dos pacotes declarados em seus metadados, sem runtime Registry adicional.
+## Responsabilidade e limites
 
-**Visibilidade:** público/OSS (documentação pública e licença MIT; a configuração de visibilidade do GitHub não foi consultada). **Stack:** Repositório de dados e código TypeScript, scripts Node ESM, npm, Vitest e JSON. Não há apps/* ou packages/* declarados como workspaces; as notas abaixo descrevem módulos lógicos.
+O repositório é fonte canônica do catálogo, validadores e bundles; não fornece runtime, CLI de instalação nem a aplicação visual. Agentes copiados são código do consumidor e compõem releases publicados `@agentskit/*` (AGENTS.md:1; docs/architecture.md:3).
 
-```mermaid
-flowchart LR
-  S[Fontes registry/id] --> V[Validação e replay]
-  V --> B[Build de bundles]
-  E[Evidência sanitizada] --> B
-  B --> I[Índices public/r]
-  B --> D[Conhecimento determinístico]
-  I --> CLI[CLI AgentsKit]
-  I --> W[Site em agentskit]
-  D --> C[AgentsKit Chat]
-```
+## Módulos
 
-## Peças do repositório
+| Nota | Responsabilidade |
+|---|---|
+| [[registry-catalogo]] | Dados catalogados e geração de bundles/indexes públicos |
+| [[registry-validacao]] | Validação de fontes, política e evidência pública |
+| [[registry-descoberta]] | Conhecimento determinístico e configuração do site |
 
-| Nota | Nome no manifesto / papel | Tipo |
-|---|---|---|
-| [[registry-catalogo]] | Código e bundles de agentes | módulo lógico |
-| [[registry-validacao]] | Estrutura, política de conteúdo e evidência | módulo lógico |
-| [[registry-descoberta]] | Índices, conhecimento determinístico e llms | módulo lógico |
-
-## Fluxos principais
+## Fluxos e guias
 
 - [[Registry - Da contribuição ao bundle]]
 - [[Registry - Descoberta sem IA]]
+- [[Contribuir e validar um agente]]
+- [[Regenerar catálogo e descoberta]]
 
-## Ligações com o ecossistema
+## Relações do ecossistema
 
-| Outra parte | Como se relaciona |
+| Relação | Evidência |
 |---|---|
-| [[00 Hub - agentskit]] | Fornece controlador, adaptadores, memória, ferramentas e bindings. |
-| [[00 Hub - agentskit-chat]] | Fornece aplicação, protocolo e apresentação compartilhados. |
-| [[00 Hub - agents-playbook]] | Guia de padrões; host de conversa e corpus Ask documentados. |
-| [[00 Hub - doc-bridge]] | Indexação, handoffs e gates documentais configurados nos repositórios. |
-| [[00 Hub - harness]] | Companheiro do ecossistema para o ciclo SDLC; não é runtime obrigatório de agentes. |
-| [[00 Hub - code-review]] | Companheiro de revisão citado na documentação pública. |
-| [[00 Hub - .github]] | Workflows compartilhados de segurança referenciados por agentskit e agentskit-chat. |
+| [[00 Hub - agentskit]] fornece runtime e CLI que consumidores usam | README.md:80; docs/architecture.md:23 |
+| [[00 Hub - agentskit-chat]] fornece protocolo determinístico importado pelo build | docs/architecture.md:17; package.json:43 |
+| A aplicação Registry vive no monorepo AgentsKit | docs/architecture.md:3 |
+| [[00 Hub - doc-bridge]] é dependência de desenvolvimento e gate documental | package.json:46; AGENTS.md:13 |
 
-## Infra e deploy
+## Artefatos e operação
 
-Os artefatos versionados ficam em `public/r`, `public/deterministic` e arquivos llms. O site consumidor é [[agentskit-registry]] em [[00 Hub - agentskit]], com deploy Vercel documentado naquele repo. O build declara endereços públicos em registry.agentskit.io/r; o mecanismo que transporta estes dados até produção não está demonstrado por configuração de deploy deste repositório. Não há banco, Railway, Neon ou R2 obrigatórios para gerar o catálogo.
+`public/r`, `public/deterministic`, `ecosystem-claims.json` e `.doc-bridge` são gerados; editar fonte e reconstruir é obrigatório (AGENTS.md:9). O workflow CI usa Node 22 e executa validação, lint, testes, replay, build e gates Doc Bridge (`.github/workflows/ci.yml:20). Build local principal: `npm run build` (package.json:14).
 
-## CI: o que está configurado
+## Detalhe técnico
 
-| Workflow | Runner declarado | Responsabilidade legível no código |
-|---|---|---|
-| `ci.yml` | `ubuntu-latest` | Lint, build, testes e gates documentais; condições podem selecionar subconjuntos. |
-| `codeql.yml` | `ubuntu-latest` | Workflow especializado: codeql. |
-| `dependency-review.yml` | `ubuntu-latest` | Workflow especializado: dependency-review. |
-| `scorecard.yml` | `ubuntu-latest` | Workflow especializado: scorecard. |
+- `scripts/build-registry.mjs` incorpora fontes e escreve índice e bundles; rascunhos têm `installable: false` (scripts/build-registry.mjs:6; scripts/build-registry.mjs:142).
+- `scripts/lib/deterministic-discovery.mjs` delega esquema, normalização e hash a `@agentskit/chat/protocol` (scripts/lib/deterministic-discovery.mjs:12).
+- O projeto não tem ADRs no repositório em `docs/adr/`; sua história relevante está no Git e nos contratos atuais.
 
-Esta tabela descreve configuração versionada, sem executar CI ou afirmar que o último run passou. Os comandos dos projetos não foram executados, conforme o contrato de análise estática.
-
-> [!info]- Detalhe técnico
-> - `agentskit-registry/README.md:1` — objetivo, contagens declaradas e propriedade do site
-> - `agentskit-registry/docs/architecture.md:21` — limites de responsabilidade
-> - `agentskit-registry/package.json:1` — build, validação, eval e testes
-> - `agentskit-registry/scripts/build-registry.mjs:47` — geração de bundles
-> - `agentskit-registry/scripts/build-discovery.mjs:13` — conhecimento local
-> - `agentskit-registry/action.yml:15` — validação em outros repositórios
-> - `agentskit-registry/.github/workflows/ci.yml:1` — workflow listado acima.
-> - `agentskit-registry/.github/workflows/codeql.yml:1` — workflow listado acima.
-> - `agentskit-registry/.github/workflows/dependency-review.yml:1` — workflow listado acima.
-> - `agentskit-registry/.github/workflows/scorecard.yml:1` — workflow listado acima.
-
-## Divergências e limites
-
-“Validated” no catálogo reúne classificação/evidência versionada, não uma certificação para uso real. Os 346 agentes e 333 revisões são claims do README; a contagem estática do artefato é registrada no relatório deste lote. O README chama o artefato de “signed”; a implementação reutiliza hash de conteúdo, que não prova assinatura de autoria. O CLI pré-valida conflitos, mas não oferece rollback de falha de escrita, apesar do termo “transactional” usado no guia de arquitetura.
-
-Dúvidas, relações brutas e capacidades opcionais estão em [[Dúvidas abertas]] e [[Capacidades não usadas]] desta pasta.
+> [!question] Dúvida
+> A configuração Doc Bridge existe, mas `.doc-bridge/index.json` não está presente e a instalação falhou por ausência de pacote em cache e rede indisponível; relações verificadas pelo índice permanecem por confirmar.
