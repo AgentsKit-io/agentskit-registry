@@ -23,11 +23,16 @@ if (!spec) {
 }
 
 const dir = join(root, 'registry', id)
-// mkdirSync({ recursive }) returns undefined when the directory already existed.
-const createdDir = mkdirSync(dir, { recursive: true })
-if (createdDir === undefined && !force) {
-  console.error(`${dir} already exists (use --force to overwrite scaffold files)`)
-  process.exit(1)
+mkdirSync(dirname(dir), { recursive: true })
+try {
+  // Non-recursive mkdir fails atomically with EEXIST when the folder is already there.
+  mkdirSync(dir)
+} catch (err) {
+  if (err.code !== 'EEXIST') throw err
+  if (!force) {
+    console.error(`${dir} already exists (use --force to overwrite scaffold files)`)
+    process.exit(1)
+  }
 }
 
 const factory = id

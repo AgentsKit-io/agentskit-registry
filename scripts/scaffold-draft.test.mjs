@@ -40,7 +40,9 @@ afterEach(() => {
 
 describe('scaffold-draft', () => {
   it('escapes backslashes so the description literal evaluates back to the original', () => {
-    expect(scaffold().status).toBe(0)
+    const res = scaffold()
+    expect(res.stderr).toBe('')
+    expect(res.status).toBe(0)
     const src = readFileSync(join(sandbox, 'registry', 'demo-agent', 'agent.ts'), 'utf8')
     const literal = src.match(/^ {2}description: ('.*'),$/m)[1]
     expect(new Function(`return ${literal}`)()).toBe(description)
