@@ -21,3 +21,7 @@ const r = await createCopyReviewerAgent({
 - **Routes contentious calls** — any item marked `contentious` (a judgment on brand *intent*, not a clear rule break) sets `routeToHuman` for the account lead. Untrusted copy is **fenced**.
 
 `run(guideAndDraft)` → `CopyReviewResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

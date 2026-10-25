@@ -12,3 +12,7 @@ Claims typed + DOI/URL
 The source contract is typed and human-reviewable. An MCP projection is
 planned with explicit input/output schemas; until its typed adapter ships, use
 the copied source rather than the generic task-to-text MCP wrapper.
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

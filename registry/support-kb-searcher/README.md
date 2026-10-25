@@ -23,3 +23,7 @@ const r = await createKbSearcherAgent({
 - Untrusted ticket + candidate text is **fenced**.
 
 `run(ticket)` → `KbSearchResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Pairs with [`support-triage-bot`](../support-triage-bot).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

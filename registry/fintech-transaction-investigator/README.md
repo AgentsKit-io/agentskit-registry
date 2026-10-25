@@ -24,3 +24,7 @@ const r = await createTransactionInvestigatorAgent({
 - Untrusted transaction text is **fenced**; compliance footer enforced.
 
 `run(history)` → `InvestigationResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Pairs with [`fintech-sanctions-screener`](../fintech-sanctions-screener) and [`fintech-kyc-screener`](../fintech-kyc-screener).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

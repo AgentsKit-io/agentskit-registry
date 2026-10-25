@@ -70,3 +70,7 @@ zero-config still works:
 
 See [composing agents](../../COMPOSING.md) — tools, RAG, MCP, permissions, and
 multi-agent orchestration.
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) — the files this agent ships (`meta.json` `files`).

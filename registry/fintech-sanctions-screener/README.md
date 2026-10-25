@@ -46,3 +46,7 @@ A naive screener puts "never auto-clear a strong match" in the system prompt —
 `run(candidate)` returns a typed `ScreeningResult { candidate, status: 'clear'|'escalate', hits[], requiresHumanSignoff }`; each hit carries `{ matched, list, score, decision, rationale, autoCleared }`. `asHandle()` accepts/returns JSON for orchestration.
 
 See [composing agents](../../COMPOSING.md).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

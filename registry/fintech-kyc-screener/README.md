@@ -38,3 +38,7 @@ if (r.requiresHumanSignoff) routeToCompliance(r)
 `run(candidate)` → typed `KycResult { candidate, riskTier: 'clear'|'escalate', hits[], requiresHumanSignoff, missing? }`. `asHandle()` is JSON-in/JSON-out.
 
 See [composing agents](../../COMPOSING.md). Sibling: [`fintech-sanctions-screener`](../fintech-sanctions-screener) (same gate, ongoing single-list screening).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

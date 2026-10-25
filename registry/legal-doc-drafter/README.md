@@ -22,3 +22,7 @@ const r = await createDocDrafterAgent({
 - **Always a draft** — never final, never a signature; ends with `openQuestions` the attorney must resolve before sign-off. Untrusted facts are **fenced**.
 
 `run(facts)` → `DocDraftResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`legal-case-analyst`](../legal-case-analyst).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

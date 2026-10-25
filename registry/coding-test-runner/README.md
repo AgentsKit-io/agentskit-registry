@@ -21,3 +21,7 @@ const report = await createTestRunnerAgent({
 - Untrusted output text is **fenced**.
 
 `run(vitestOutput)` → `TestReport`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Sibling of [`coding-code-qa`](../coding-code-qa) (which runs the commands).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

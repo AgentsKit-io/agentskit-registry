@@ -64,3 +64,7 @@ agent that defaults to *block* when uncertain. The `publish` function should use
 
 `@agentskit/runtime` (ReAct + structured tool-call capture), `@agentskit/tools`
 (`defineZodTool`), `@agentskit/adapters`. Skills are plain `SkillDefinition`s in `skills.ts`.
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`skills.ts`](./skills.ts) — the files this agent ships (`meta.json` `files`).
