@@ -10,6 +10,8 @@ the boundary between this source repository and the published application.
 - Architecture: [`../../docs/architecture.md`](../../docs/architecture.md)
 - Handoff index: [`index.md`](index.md)
 - Contract: [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)
+- Build, validation, eval, and generator scripts: [`../../scripts/`](../../scripts/)
+- README examples, verified by `scripts/readme-standard.test.mjs`: [`../../examples/`](../../examples/)
 
 ## Change route
 

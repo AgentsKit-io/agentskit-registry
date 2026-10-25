@@ -1,3 +1,8 @@
+---
+id: registry-discovery
+editRoot: scripts/lib/deterministic-discovery.mjs
+---
+
 # Registry discovery
 
 ## Purpose
