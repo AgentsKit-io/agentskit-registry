@@ -3,7 +3,7 @@
  * Scaffold a draft agent folder from catalog/manifest.json.
  * Usage: node scripts/scaffold-draft.mjs <id> [--force]
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { appendSourceSection } from './lib/agent-readme-source.mjs'
@@ -16,19 +16,36 @@ if (!id) {
   process.exit(1)
 }
 
-const manifest = JSON.parse(readFileSync(join(root, 'catalog', 'manifest.json'), 'utf8'))
+// SCAFFOLD_MANIFEST lets tests supply their own catalog.
+const manifestPath = process.env.SCAFFOLD_MANIFEST ?? join(root, 'catalog', 'manifest.json')
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
 const spec = manifest.agents.find((a) => a.id === id)
 if (!spec) {
   console.error(`Unknown catalog id: ${id}`)
   process.exit(1)
 }
 
-const dir = join(root, 'registry', id)
-if (existsSync(dir) && !force) {
-  console.error(`${dir} already exists (use --force to overwrite scaffold files)`)
-  process.exit(1)
+// SCAFFOLD_REGISTRY_DIR lets tests write outside the real registry/.
+const registryDir = process.env.SCAFFOLD_REGISTRY_DIR ?? join(root, 'registry')
+const dir = join(registryDir, id)
+mkdirSync(registryDir, { recursive: true })
+try {
+  // Non-recursive mkdir is atomic: EEXIST replaces the separate existence check.
+  mkdirSync(dir)
+} catch (err) {
+  if (err.code !== 'EEXIST') throw err
+  if (!force) {
+    console.error(`${dir} already exists (use --force to overwrite scaffold files)`)
+    process.exit(1)
+  }
 }
-mkdirSync(dir, { recursive: true })
+
+/** Escape text for a single-quoted JS string literal. */
+const sq = (s) =>
+  String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r')
+
+/** Escape text for a template literal body. */
+const tl = (s) => String(s).replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${')
 
 const factory = id
   .split('-')
@@ -71,8 +88,8 @@ const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchem
 
 const skill = {
   name: '${id}',
-  description: '${spec.description.replace(/'/g, "\\'")}',
-  systemPrompt: \`You are ${spec.title}. ${spec.output}
+  description: '${sq(spec.description)}',
+  systemPrompt: \`You are ${tl(spec.title)}. ${tl(spec.output)}
 
 Never invent facts absent from the input — list them in gaps or openQuestions.
 Output is always a draft for human review.
@@ -192,8 +209,12 @@ for (const [name, content] of [
   ['meta.json', JSON.stringify(meta, null, 2) + '\n'],
 ]) {
   const path = join(dir, name)
-  if (existsSync(path) && !force) continue
-  writeFileSync(path, content)
+  try {
+    // 'wx' creates exclusively; with --force plain 'w' overwrites.
+    writeFileSync(path, content, { flag: force ? 'w' : 'wx' })
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err
+  }
 }
 
 console.log(`scaffolded draft: registry/${id}/`)

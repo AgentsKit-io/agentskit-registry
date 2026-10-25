@@ -4,7 +4,7 @@
  * Skips agents already validated. Preserves handcrafted registry/ecosystem-* overrides.
  * Usage: node scripts/enhance-v1-all.mjs [--category X] [--skip-handcrafted]
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execSync } from 'node:child_process'
