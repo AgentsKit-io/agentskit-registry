@@ -14,6 +14,7 @@ import {
   pickArchetype,
   archetypeSchema,
 } from './lib/agent-archetypes.mjs'
+import { appendSourceSection } from './lib/agent-readme-source.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dryRun = process.argv.includes('--dry-run')
@@ -250,30 +251,28 @@ for (const spec of targets) {
   const dir = join(root, 'registry', spec.id)
   if (!dryRun) mkdirSync(dir, { recursive: true })
 
+  const meta = {
+    id: spec.id,
+    title: spec.title,
+    description: `${spec.output}. ${spec.pain}. Alpha: auto-implemented typed agent — review before production.`,
+    category: spec.category,
+    status: 'alpha',
+    version: '0.1.0-alpha',
+    source: 'agentskit-registry',
+    license: 'MIT',
+    tags: [...new Set([...(spec.tags ?? []), 'alpha', 'structured-output', spec.category])],
+    packages: spec.packages ?? ['@agentskit/core', '@agentskit/runtime', '@agentskit/tools'],
+    files: ['agent.ts', 'README.md', 'eval.ts'],
+    requires: { zod: '^3', 'zod-to-json-schema': '^3' },
+    ...(spec.locale ? { locale: spec.locale } : {}),
+    ...(spec.ecosystem ? { ecosystem: true } : {}),
+  }
+
   const files = {
     'agent.ts': generateAgent(spec, arch, tool, factory),
     'agent.test.ts': generateTest(spec, factory, tool, arch),
-    'README.md': generateReadme(spec),
-    'meta.json': JSON.stringify(
-      {
-        id: spec.id,
-        title: spec.title,
-        description: `${spec.output}. ${spec.pain}. Alpha: auto-implemented typed agent — review before production.`,
-        category: spec.category,
-        status: 'alpha',
-        version: '0.1.0-alpha',
-        source: 'agentskit-registry',
-        license: 'MIT',
-        tags: [...new Set([...(spec.tags ?? []), 'alpha', 'structured-output', spec.category])],
-        packages: spec.packages ?? ['@agentskit/core', '@agentskit/runtime', '@agentskit/tools'],
-        files: ['agent.ts', 'README.md', 'eval.ts'],
-        requires: { zod: '^3', 'zod-to-json-schema': '^3' },
-        ...(spec.locale ? { locale: spec.locale } : {}),
-        ...(spec.ecosystem ? { ecosystem: true } : {}),
-      },
-      null,
-      2,
-    ) + '\n',
+    'README.md': appendSourceSection(generateReadme(spec), meta),
+    'meta.json': JSON.stringify(meta, null, 2) + '\n',
     'eval.ts': generateEval(spec),
   }
 
