@@ -3,12 +3,11 @@
  * Batch-implement catalog draft agents → alpha status.
  * Usage: node scripts/batch-implement.mjs [--category sales] [--limit 20] [--dry-run]
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execSync } from 'node:child_process'
 import {
-  REGULATED,
   factoryName,
   toolName,
   pickArchetype,
