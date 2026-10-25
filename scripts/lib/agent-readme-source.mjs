@@ -19,5 +19,5 @@ export const buildSourceSection = (meta) => {
  */
 export const appendSourceSection = (readme, meta) => {
   if (SOURCE_HEADING_PATTERN.test(readme)) return readme
-  return `${readme.replace(/\n*$/, '\n')}\n${buildSourceSection(meta)}`
+  return `${readme.trimEnd()}\n\n${buildSourceSection(meta)}`
 }
