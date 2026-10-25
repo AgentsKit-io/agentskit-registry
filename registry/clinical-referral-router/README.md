@@ -24,3 +24,7 @@ if (r.requiresHumanReview) routeToCoordinator(r)
 `run(packet)` → `ReferralResult { specialty, urgency, rationale, missingFields[], requiresHumanReview }`. `asHandle()` is JSON-out.
 
 See [composing agents](../../COMPOSING.md). Sibling: [`clinical-intake-triage`](../clinical-intake-triage).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

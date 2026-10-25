@@ -22,3 +22,7 @@ const r = await createQaAuthorAgent({
 - Untrusted PRD text is **fenced**.
 
 `run(prd)` → `QaResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`coding-prd-author`](../coding-prd-author); feeds [`coding-dev-implementer`](../coding-dev-implementer).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

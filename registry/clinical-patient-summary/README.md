@@ -22,3 +22,7 @@ const { summary } = await createPatientSummaryAgent({
 `run(chart)` → `PatientSummaryResult { summary, requiresClinicianSignoff }`. `asHandle()` is JSON-out.
 
 See [composing agents](../../COMPOSING.md). Sibling: [`clinical-note-summariser`](../clinical-note-summariser).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

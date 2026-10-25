@@ -26,3 +26,7 @@ const result = await createEcosystemDocBridgeMemoryClassifierAgent({ adapter }).
 ## Promote to validated
 
 Human review + expand `eval.ts` + set `status: validated` in meta.json.
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

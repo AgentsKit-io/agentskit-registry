@@ -25,3 +25,7 @@ const report = await createCodeQaAgent({
 - **Reports, never fixes.** Untrusted command output is **fenced**.
 
 `run(branch)` → `CodeQaReport`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Sibling of [`coding-test-runner`](../coding-test-runner) (which parses output you already captured).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

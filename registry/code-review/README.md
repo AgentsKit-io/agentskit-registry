@@ -67,3 +67,7 @@ The lens and the skeptic are separate skills in separate runtimes — a lens nev
 
 - The GitHub reporters POST to the REST API directly. The model-facing equivalents are the `github_create_pr_review_comment` / `github_create_pr_review` tools in `@agentskit/tools` — use those when an LLM decides to post.
 - Patches are **suggestions** — a human applies them; the agent never commits.
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`lenses.ts`](./lenses.ts) · [`sources.ts`](./sources.ts) · [`reporters.ts`](./reporters.ts) — the files this agent ships (`meta.json` `files`).

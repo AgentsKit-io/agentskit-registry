@@ -21,3 +21,7 @@ const r = await createCaseAnalystAgent({
 - **Deadline-first** — statute-of-limitations / filing-deadline risks are pulled into `deadlineRisks` for the attorney. Always a draft; untrusted file text is **fenced**.
 
 `run(caseFile)` → `CaseAnalysisResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Feeds [`legal-doc-drafter`](../legal-doc-drafter) and [`legal-case-summariser`](../legal-case-summariser).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

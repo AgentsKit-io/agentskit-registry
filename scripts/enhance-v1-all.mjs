@@ -17,6 +17,7 @@ import {
   generateV1Eval,
   generateV1Meta,
 } from './lib/v1-enhance.mjs'
+import { appendSourceSection } from './lib/agent-readme-source.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const manifest = JSON.parse(readFileSync(join(root, 'catalog', 'manifest.json'), 'utf8'))
@@ -61,9 +62,10 @@ for (const spec of targets) {
   writeFileSync(join(dir, 'agent.ts'), generateV1Agent(spec, schema, tool, factory))
   writeFileSync(join(dir, 'agent.test.ts'), generateV1Test(spec, factory, tool, schema))
   writeFileSync(join(dir, 'eval.ts'), generateV1Eval(spec))
-  writeFileSync(join(dir, 'meta.json'), JSON.stringify(generateV1Meta(spec), null, 2) + '\n')
+  const meta = generateV1Meta(spec)
+  writeFileSync(join(dir, 'meta.json'), JSON.stringify(meta, null, 2) + '\n')
   const readme = `# ${spec.title}\n\n> **v1 validated** — \`npx agentskit add ${spec.id}\`\n\n## Pain\n${spec.pain}\n\n## Output\n${spec.output}\n`
-  writeFileSync(join(dir, 'README.md'), readme)
+  writeFileSync(join(dir, 'README.md'), appendSourceSection(readme, meta))
 }
 
 console.log('Running full validation...')

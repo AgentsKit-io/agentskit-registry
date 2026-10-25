@@ -35,3 +35,7 @@ const { redacted, log, privilegeFlags, status } = await agent.run(documentText)
 `run(document)` → `{ redacted, log[], privilegeFlags[], status }`. `asHandle()` returns the redacted text.
 
 See [composing agents](../../COMPOSING.md). Sibling: [`clinical-chart-redactor`](../clinical-chart-redactor) (same backstop, HIPAA profile).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

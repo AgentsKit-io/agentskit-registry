@@ -6,6 +6,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { appendSourceSection } from './lib/agent-readme-source.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const id = process.argv[2]
@@ -187,7 +188,7 @@ const meta = {
 for (const [name, content] of [
   ['agent.ts', agentTs],
   ['agent.test.ts', testTs],
-  ['README.md', readme],
+  ['README.md', appendSourceSection(readme, meta)],
   ['meta.json', JSON.stringify(meta, null, 2) + '\n'],
 ]) {
   const path = join(dir, name)

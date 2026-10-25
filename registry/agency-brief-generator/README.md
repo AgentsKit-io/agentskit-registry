@@ -21,3 +21,7 @@ const r = await createBriefGeneratorAgent({
 - **Always a draft** — `requiresReview` always true. Untrusted notes are **fenced**.
 
 `run(notes)` → `BriefResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Feeds [`agency-deck-builder`](../agency-deck-builder).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

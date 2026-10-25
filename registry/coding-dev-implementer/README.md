@@ -26,3 +26,7 @@ const r = await createDevImplementerAgent({
 - **Fail-closed PR** — pass `openPr` to turn the approved plan into a real PR (reports the real url); no `approve` + `autoApprove` off ⇒ nothing opened. Untrusted specs/diff are **fenced**.
 
 `run(specsAndPrd)` → `DevImplementerResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`coding-qa-author`](../coding-qa-author).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

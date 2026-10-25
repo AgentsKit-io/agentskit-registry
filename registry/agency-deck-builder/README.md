@@ -22,3 +22,7 @@ const r = await createDeckBuilderAgent({
 - **Always a draft** — `requiresReview` always true. Untrusted artifacts are **fenced**.
 
 `run(artifacts)` → `DeckResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`agency-brief-generator`](../agency-brief-generator).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

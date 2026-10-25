@@ -21,3 +21,7 @@ const r = await createPrdAuthorAgent({
 - **Always a draft** — `requiresReview` always true. Untrusted input is **fenced**.
 
 `run(description)` → `PrdResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Feeds [`coding-qa-author`](../coding-qa-author) and [`coding-issue-creator`](../coding-issue-creator).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).
