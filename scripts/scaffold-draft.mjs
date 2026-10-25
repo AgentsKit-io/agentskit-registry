@@ -3,7 +3,7 @@
  * Scaffold a draft agent folder from catalog/manifest.json.
  * Usage: node scripts/scaffold-draft.mjs <id> [--force]
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -23,11 +23,12 @@ if (!spec) {
 }
 
 const dir = join(root, 'registry', id)
-if (existsSync(dir) && !force) {
+// mkdirSync({ recursive }) returns undefined when the directory already existed.
+const createdDir = mkdirSync(dir, { recursive: true })
+if (createdDir === undefined && !force) {
   console.error(`${dir} already exists (use --force to overwrite scaffold files)`)
   process.exit(1)
 }
-mkdirSync(dir, { recursive: true })
 
 const factory = id
   .split('-')
@@ -70,7 +71,7 @@ const toJson = (s: z.ZodTypeAny): JSONSchema7 => zodToJsonSchema(s) as JSONSchem
 
 const skill = {
   name: '${id}',
-  description: '${spec.description.replace(/'/g, "\\'")}',
+  description: '${spec.description.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}',
   systemPrompt: \`You are ${spec.title}. ${spec.output}
 
 Never invent facts absent from the input — list them in gaps or openQuestions.
@@ -191,8 +192,12 @@ for (const [name, content] of [
   ['meta.json', JSON.stringify(meta, null, 2) + '\n'],
 ]) {
   const path = join(dir, name)
-  if (existsSync(path) && !force) continue
-  writeFileSync(path, content)
+  try {
+    // 'wx' fails atomically if the file exists; force switches to plain overwrite.
+    writeFileSync(path, content, { flag: force ? 'w' : 'wx' })
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err
+  }
 }
 
 console.log(`scaffolded draft: registry/${id}/`)
