@@ -58,7 +58,9 @@ for (const id of ids) {
   const files = meta.files.map((rel) => {
     const p = join(dir, rel)
     if (!existsSync(p)) throw new Error(`${id}: listed file "${rel}" does not exist`)
-    return { path: rel, content: readFileSync(p, 'utf8') }
+    // Doc Bridge front matter routes the README to its code; it is not part of the installed copy.
+    const content = readFileSync(p, 'utf8')
+    return { path: rel, content: rel.endsWith('.md') ? content.replace(/^---\n[\s\S]*?\n---\n\n/, '') : content }
   })
 
   // Extract the inline skill's systemPrompt so the CLI can run the agent as
