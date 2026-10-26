@@ -1,0 +1,22 @@
+{
+  "question": "origin/main already contains overlapping work for this issue. How should this branch be delivered?",
+  "context": "This branch is based on ff2f52c. origin/main has since moved to 52a0eb0, which includes 13c799a 'docs: reach Doc Bridge grade A (#174)' (refs #173). That commit adds a Source section to all 346 agent READMEs, bumps @agentskit/doc-bridge to 2.5.0, regenerates the config, and adds a 35-case docs/bench/retrieval-suite-v1.json with hit@3 0.886. This branch instead adds docbridge covers front matter to the READMEs, moves the package docs, and adds a 26-case suite. Merging this branch as-is would revert the 2.5.0 upgrade and overwrite main's suite. Rebase is not available in this sandbox and npm install is blocked, so doc-bridge 2.5.0 cannot be installed here to verify main's config.",
+  "options": [
+    {
+      "id": "rebase-trim",
+      "title": "Rebase onto origin/main and keep only the non-overlapping pieces",
+      "description": "Replay this branch on origin/main. Keep the retrieval guard test and the heading retitles. Drop the README covers, the package-doc move and the second suite, which duplicate main."
+    },
+    {
+      "id": "close-duplicate",
+      "title": "Close this work as a duplicate of origin/main",
+      "description": "Do not open a PR from this branch. Verify origin/main against the outcomes with doc-bridge 2.5.0 and close issue 172 if they pass."
+    },
+    {
+      "id": "replace-main",
+      "title": "Replace main's approach with this branch's approach",
+      "description": "Rebase this branch onto main and replace the Source sections, the 2.5.0 config and main's suite with this branch's covers front matter and 26-case suite."
+    }
+  ],
+  "recommendedOptionId": "rebase-trim"
+}
