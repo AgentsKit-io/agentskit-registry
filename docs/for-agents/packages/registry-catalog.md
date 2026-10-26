@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - module:scripts/build-registry.mjs
+---
+
 # Registry catalog
 
 ## Purpose
@@ -7,9 +13,9 @@ Registry catalog artifacts.
 
 ## Source of truth
 
-- Catalog source: [`../../catalog/`](../../catalog/)
-- Generator: [`../../scripts/build-registry.mjs`](../../scripts/build-registry.mjs)
-- Generated output: [`../../public/r/catalog.json`](../../public/r/catalog.json)
+- Catalog source: [`catalog/`](../../../catalog/)
+- Generator: [`scripts/build-registry.mjs`](../../../scripts/build-registry.mjs)
+- Generated output: [`public/r/catalog.json`](../../../public/r/catalog.json)
 
 ## Change route
 

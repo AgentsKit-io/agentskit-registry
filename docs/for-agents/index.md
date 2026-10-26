@@ -10,6 +10,13 @@ or agent behavior.
 - [Contribution journey](../contributing.md)
 - [Root contribution contract](../../CONTRIBUTING.md)
 
+## Package guides
+
+- [Registry architecture](packages/registry-architecture.md)
+- [Registry catalog](packages/registry-catalog.md)
+- [Registry discovery](packages/registry-discovery.md)
+- [Registry validation](packages/registry-validation.md)
+
 ## Change routes
 
 - Agent behavior or metadata: edit `registry/<id>/`, then run validate, focused

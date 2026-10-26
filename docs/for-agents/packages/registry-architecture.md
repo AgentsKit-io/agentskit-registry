@@ -7,9 +7,9 @@ the boundary between this source repository and the published application.
 
 ## Source of truth
 
-- Architecture: [`../../docs/architecture.md`](../../docs/architecture.md)
-- Handoff index: [`index.md`](index.md)
-- Contract: [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)
+- Architecture: [`../../architecture.md`](../../architecture.md)
+- Handoff index: [`../index.md`](../index.md)
+- Contract: [`../../../CONTRIBUTING.md`](../../../CONTRIBUTING.md)
 
 ## Change route
 

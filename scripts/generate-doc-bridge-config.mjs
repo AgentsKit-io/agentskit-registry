@@ -39,19 +39,19 @@ const ownership = Object.fromEntries(ids.map((id) => [id, {
 Object.assign(ownership, {
   'registry-architecture': {
     path: 'docs', group: 'documentation', purpose: 'Registry ownership, boundaries, quickstart, and contribution journey',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/quick-start', checks,
+    agentDoc: 'docs/for-agents/packages/registry-architecture.md', humanDoc: 'https://registry.agentskit.io/docs/quick-start', checks,
   },
   'registry-catalog': {
     path: 'catalog', group: 'catalog', purpose: 'Agent lifecycle, stacks, policy, and catalog generation',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
+    agentDoc: 'docs/for-agents/packages/registry-catalog.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
   },
   'registry-discovery': {
     path: 'scripts/lib/deterministic-discovery.mjs', group: 'discovery', purpose: 'Canonical deterministic knowledge artifact generation',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
+    agentDoc: 'docs/for-agents/packages/registry-discovery.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
   },
   'registry-validation': {
     path: 'validation', group: 'validation', purpose: 'Public independent-review evidence summaries',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/contributing', checks,
+    agentDoc: 'docs/for-agents/packages/registry-validation.md', humanDoc: 'https://registry.agentskit.io/docs/contributing', checks,
   },
 })
 
