@@ -100,3 +100,7 @@ is still being verified.
 ## Packages
 
 `@agentskit/core` · `@agentskit/runtime` · `@agentskit/skills` · `@agentskit/tools`
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) — the files this agent ships (`meta.json` `files`).

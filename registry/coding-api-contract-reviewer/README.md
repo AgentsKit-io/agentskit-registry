@@ -7,3 +7,7 @@ Breaking API changes
 
 ## Output
 Breaking/non-breaking diff typed
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

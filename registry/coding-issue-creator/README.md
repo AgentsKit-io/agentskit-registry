@@ -25,3 +25,7 @@ const r = await createIssueCreatorAgent({
 - **Fail-closed HITL** — each creation gated by `approve`; no `approve` + `autoApprove` off ⇒ nothing created. Untrusted PRD text is **fenced**.
 
 `run(prd)` → `IssueCreatorResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`coding-prd-author`](../coding-prd-author).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

@@ -22,3 +22,7 @@ const r = await createCopyAuthorAgent({
 - **Length-checked** — bodies over `maxWords` (default 150) are flagged in `overLength`, never silently truncated. Untrusted brief text is **fenced**.
 
 `run(brief)` → `CopyResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`marketing-brief-analyst`](../marketing-brief-analyst); pairs with [`marketing-social-publisher`](../marketing-social-publisher).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

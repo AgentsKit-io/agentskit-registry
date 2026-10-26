@@ -33,3 +33,7 @@ if (r.requiresAttorneyReview) routeForReview(r.findings)
 `run(document)` → `LegalReviewResult { mode, findings[], requiresAttorneyReview }`. `asHandle()` is JSON-out.
 
 See [composing agents](../../COMPOSING.md).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

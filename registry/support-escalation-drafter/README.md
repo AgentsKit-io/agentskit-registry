@@ -21,3 +21,7 @@ const r = await createEscalationDrafterAgent({
 - **Always a draft** — `requiresAgentReview` is always true; the agent reviews before posting. Untrusted ticket + notes are **fenced**.
 
 `run(ticketAndNotes)` → `EscalationResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Fed by [`support-triage-bot`](../support-triage-bot).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

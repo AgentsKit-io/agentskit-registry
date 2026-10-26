@@ -22,3 +22,7 @@ const r = await createBriefAnalystAgent({
 - **Voice-aware** — pass `voiceGuide` and brief language conflicting with it is flagged in `voiceFlags`. Untrusted brief text is **fenced**.
 
 `run(brief)` → `BriefAnalysisResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Feeds [`marketing-copy-author`](../marketing-copy-author).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

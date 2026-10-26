@@ -39,3 +39,7 @@ A prompt-only redactor trusts the model to have caught everything. This one does
 > Names/free-text PHI rely on the model + your `extraRules`. The deterministic backstop guarantees the *structured* identifier classes; supply name/MRN patterns via `extraRules` for full coverage.
 
 See [composing agents](../../COMPOSING.md).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

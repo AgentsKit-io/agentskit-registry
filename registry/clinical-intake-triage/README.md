@@ -32,3 +32,7 @@ const r = await agent.run('I have crushing chest pain')
 | `observers`, `memory`, `onConfirm`, `maxSteps` | standard runtime options |
 
 See [composing agents](../../COMPOSING.md).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

@@ -39,19 +39,19 @@ const ownership = Object.fromEntries(ids.map((id) => [id, {
 Object.assign(ownership, {
   'registry-architecture': {
     path: 'docs', group: 'documentation', purpose: 'Registry ownership, boundaries, quickstart, and contribution journey',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/quick-start', checks,
+    agentDoc: 'docs/for-agents/registry-architecture.md', humanDoc: 'https://registry.agentskit.io/docs/quick-start', checks,
   },
   'registry-catalog': {
     path: 'catalog', group: 'catalog', purpose: 'Agent lifecycle, stacks, policy, and catalog generation',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
+    agentDoc: 'docs/for-agents/registry-catalog.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
   },
   'registry-discovery': {
     path: 'scripts/lib/deterministic-discovery.mjs', group: 'discovery', purpose: 'Canonical deterministic knowledge artifact generation',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
+    agentDoc: 'docs/for-agents/registry-discovery.md', humanDoc: 'https://registry.agentskit.io/docs/using', checks,
   },
   'registry-validation': {
     path: 'validation', group: 'validation', purpose: 'Public independent-review evidence summaries',
-    agentDoc: 'docs/for-agents/index.md', humanDoc: 'https://registry.agentskit.io/docs/contributing', checks,
+    agentDoc: 'docs/for-agents/registry-validation.md', humanDoc: 'https://registry.agentskit.io/docs/contributing', checks,
   },
 })
 
@@ -79,6 +79,15 @@ const config = {
         { id: 'change-agent', title: 'Change an agent contract or behavior', startHere: 'docs/for-agents/index.md' },
         { id: 'change-catalog', title: 'Change catalog lifecycle or metadata', startHere: 'catalog/manifest.json' },
         { id: 'change-discovery', title: 'Change local discovery answers', startHere: 'scripts/lib/deterministic-discovery.mjs' },
+      ],
+    },
+  },
+  analysis: {
+    documents: {
+      exclude: [
+        { pattern: 'CODE_OF_CONDUCT.md', reason: 'Community conduct policy; describes no Registry code, agents, or artifacts.' },
+        { pattern: 'GOVERNANCE.md', reason: 'Project governance policy; describes no Registry code, agents, or artifacts.' },
+        { pattern: 'SECURITY.md', reason: 'Vulnerability reporting policy; describes no Registry code, agents, or artifacts.' },
       ],
     },
   },

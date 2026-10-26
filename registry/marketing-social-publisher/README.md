@@ -29,3 +29,7 @@ const r = await createSocialPublisherAgent({
 - Untrusted copy is **fenced**; the model can't be steered by injected instructions.
 
 `run(approvedCopy)` → `PublishResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Pairs with [`marketing-copy-author`](../marketing-copy-author).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

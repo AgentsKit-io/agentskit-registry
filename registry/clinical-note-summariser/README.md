@@ -22,3 +22,7 @@ const { note, missingFields, requiresClinicianSignoff } = await createNoteSummar
 `run(dictation)` → `NoteResult { note, missingFields[], requiresClinicianSignoff }`. `asHandle()` is JSON-out.
 
 See [composing agents](../../COMPOSING.md).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

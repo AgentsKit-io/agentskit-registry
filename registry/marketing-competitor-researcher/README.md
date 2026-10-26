@@ -33,3 +33,7 @@ This is a **tool-loop** agent (multi-page fetch over a ReAct loop) — it keeps 
 | `observers` | tracing / audit |
 
 See [composing agents](../../COMPOSING.md).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

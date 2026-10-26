@@ -21,3 +21,7 @@ const r = await createCaseSummariserAgent({
 - **Neutral & always a draft** — no editorialising; `requiresAttorneyReview` always true. Untrusted input is **fenced**.
 
 `run(docsAndNotes)` → `CaseSummaryResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Pairs with [`legal-case-analyst`](../legal-case-analyst).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

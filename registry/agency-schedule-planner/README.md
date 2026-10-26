@@ -21,3 +21,7 @@ const r = await createSchedulePlannerAgent({
 - **Never auto-publishes** — `requiresApproval` always true; the plan is for the account lead to confirm before any post goes out. Untrusted input is **fenced**.
 
 `run(draftsAndConstraints)` → `ScheduleResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).

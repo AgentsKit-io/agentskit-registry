@@ -22,3 +22,7 @@ const r = await createTriageBotAgent({
 - **Metadata, not a reply** — output feeds the human agent; the bot never replies to the customer. Untrusted ticket text is **fenced**.
 
 `run(ticket)` → `TriageResult`. `asHandle()` is JSON-out. See [composing agents](../../COMPOSING.md). Pairs with [`support-escalation-drafter`](../support-escalation-drafter) and [`support-kb-searcher`](../support-kb-searcher).
+
+## Source
+
+[Agent folder](./) · [`agent.ts`](./agent.ts) · [`eval.ts`](./eval.ts) — the files this agent ships (`meta.json` `files`).
