@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-referral-router
+---
+
 # Referral Router
 
 Routes a referral packet to the receiving specialty + urgency — typed output, and **never assigns an incomplete packet**.

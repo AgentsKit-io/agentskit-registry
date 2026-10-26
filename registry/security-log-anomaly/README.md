@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/security-log-anomaly
+---
+
 # Log Anomaly
 
 > **v1 validated** — `npx agentskit add security-log-anomaly`

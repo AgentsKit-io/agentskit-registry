@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-llms-txt-optimizer
+---
+
 # llms.txt Optimizer
 
 > **v1 validated** — `npx agentskit add ecosystem-llms-txt-optimizer`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/education-quiz-generator
+---
+
 # Quiz Generator
 
 > **v1 validated** — `npx agentskit add education-quiz-generator`

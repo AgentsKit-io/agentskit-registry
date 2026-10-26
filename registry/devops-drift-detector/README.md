@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/devops-drift-detector
+---
+
 # Drift Detector
 
 > **v1 validated** — `npx agentskit add devops-drift-detector`

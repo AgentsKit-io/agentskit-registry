@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/research
+---
+
 # Research Agent
 
 Citation-first research agent. The [`researcher`](https://www.agentskit.io/docs/reference/packages/skills) skill wired to web search + URL fetching — every claim is anchored to a source URL.

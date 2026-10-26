@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-webinar-script
+---
+
 # Webinar Script
 
 > **v1 validated** — `npx agentskit add marketing-webinar-script`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/realestate-property-description
+---
+
 # Property Description
 
 > **v1 validated** — `npx agentskit add realestate-property-description`

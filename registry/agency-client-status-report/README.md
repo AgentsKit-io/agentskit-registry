@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-client-status-report
+---
+
 # Client Status Report
 
 > **v1 validated** — `npx agentskit add agency-client-status-report`

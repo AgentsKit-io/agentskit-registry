@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-social-publisher
+---
+
 # Social Publisher
 
 Formats one approved copy variant per platform and **delivers it through your transports** — real delivery or an honest failure, never a faked post.

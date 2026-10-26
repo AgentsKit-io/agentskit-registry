@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/fintech-kyc-screener
+---
+
 # KYC Screener
 
 Onboarding identity screen against sanctions / PEP / adverse-media lists — with the compliance guarantee enforced in **code, not a prompt**.

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/fintech-insurance-claim-triage
+---
+
 # Insurance Claim Triage
 
 > **v1 validated** — `npx agentskit add fintech-insurance-claim-triage`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/fintech-regulatory-change-impact
+---
+
 # Regulatory Change Impact
 
 > **v1 validated** — `npx agentskit add fintech-regulatory-change-impact`

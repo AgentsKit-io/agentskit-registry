@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-i18n-reviewer
+---
+
 # i18n Reviewer
 
 > **v1 validated** — `npx agentskit add coding-i18n-reviewer`

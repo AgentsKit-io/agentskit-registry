@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-note-summariser
+---
+
 # SOAP Generator
 
 Turns clinician dictation into a **typed SOAP note** (Subjective / Objective / Assessment / Plan) — each section addressable, missing sections surfaced (never invented), always a draft for sign-off.

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecommerce-listing-optimizer
+---
+
 # Listing Optimizer
 
 > **v1 validated** — `npx agentskit add ecommerce-listing-optimizer`

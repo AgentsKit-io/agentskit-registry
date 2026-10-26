@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/devops-compliance-evidence
+---
+
 # Compliance Evidence
 
 > **v1 validated** — `npx agentskit add devops-compliance-evidence`

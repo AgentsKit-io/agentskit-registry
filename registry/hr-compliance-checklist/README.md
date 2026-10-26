@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-compliance-checklist
+---
+
 # HR Compliance Checklist
 
 > **v1 validated** — `npx agentskit add hr-compliance-checklist`

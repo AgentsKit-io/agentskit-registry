@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-doc-bridge-handoff-author
+---
+
 # Doc-bridge Handoff Author
 
 > **v1 validated** — `npx agentskit add ecosystem-doc-bridge-handoff-author`

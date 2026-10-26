@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-doc-bridge-memory-classifier
+---
+
 # Doc-bridge Memory Classifier
 
 > **Status: alpha** — installable via `npx agentskit add ecosystem-doc-bridge-memory-classifier` for experimentation. Not yet `validated`.

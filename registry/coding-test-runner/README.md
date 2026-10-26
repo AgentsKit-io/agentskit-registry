@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-test-runner
+---
+
 # Test Runner
 
 Parses raw Vitest output into a **typed test report** — per-failure root-cause hypotheses, grouped for prioritisation.

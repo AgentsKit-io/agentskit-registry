@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-pto-request-evaluator
+---
+
 # PTO Request Evaluator
 
 > **v1 validated** — `npx agentskit add hr-pto-request-evaluator`

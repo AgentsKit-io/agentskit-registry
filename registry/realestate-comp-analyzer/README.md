@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/realestate-comp-analyzer
+---
+
 # Comp Analyzer
 
 > **v1 validated** — `npx agentskit add realestate-comp-analyzer`

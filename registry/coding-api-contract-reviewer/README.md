@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-api-contract-reviewer
+---
+
 # API Contract Reviewer
 
 > **v1 validated** — `npx agentskit add coding-api-contract-reviewer`

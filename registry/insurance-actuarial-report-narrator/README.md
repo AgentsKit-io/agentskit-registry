@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/insurance-actuarial-report-narrator
+---
+
 # Actuarial Report Narrator
 
 > **v1 validated** — `npx agentskit add insurance-actuarial-report-narrator`

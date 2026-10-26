@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/product-nps-analyzer
+---
+
 # NPS Analyzer
 
 > **v1 validated** — `npx agentskit add product-nps-analyzer`

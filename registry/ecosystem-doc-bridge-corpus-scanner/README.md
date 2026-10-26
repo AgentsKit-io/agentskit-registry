@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-doc-bridge-corpus-scanner
+---
+
 # Doc-bridge Corpus Scanner
 
 > **v1 validated** — `npx agentskit add ecosystem-doc-bridge-corpus-scanner`

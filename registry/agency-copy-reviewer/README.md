@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-copy-reviewer
+---
+
 # Copy Reviewer
 
 Reads draft creative against a brand-voice guide and returns **typed misalignments** with suggested rewrites — suggests, never imposes.

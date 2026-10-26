@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-migration-planner
+---
+
 # Migration Planner
 
 > **v1 validated** — `npx agentskit add coding-migration-planner`

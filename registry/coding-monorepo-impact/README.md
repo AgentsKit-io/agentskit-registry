@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-monorepo-impact
+---
+
 # Monorepo Impact Analyzer
 
 > **v1 validated** — `npx agentskit add coding-monorepo-impact`

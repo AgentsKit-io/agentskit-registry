@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/devops-oncall-schedule-optimizer
+---
+
 # On-call Schedule Optimizer
 
 > **v1 validated** — `npx agentskit add devops-oncall-schedule-optimizer`

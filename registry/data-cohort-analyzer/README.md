@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/data-cohort-analyzer
+---
+
 # Cohort Analyzer
 
 > **v1 validated** — `npx agentskit add data-cohort-analyzer`

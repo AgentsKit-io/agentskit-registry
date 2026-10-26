@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-google-ad-copy
+---
+
 # Google Ad Copy
 
 > **v1 validated** — `npx agentskit add marketing-google-ad-copy`

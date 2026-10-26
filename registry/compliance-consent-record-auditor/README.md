@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/compliance-consent-record-auditor
+---
+
 # Consent Record Auditor
 
 > **v1 validated** — `npx agentskit add compliance-consent-record-auditor`

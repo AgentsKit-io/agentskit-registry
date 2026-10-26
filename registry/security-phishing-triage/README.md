@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/security-phishing-triage
+---
+
 # Phishing Triage
 
 > **v1 validated** — `npx agentskit add security-phishing-triage`

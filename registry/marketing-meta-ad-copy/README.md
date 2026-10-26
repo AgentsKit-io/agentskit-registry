@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-meta-ad-copy
+---
+
 # Meta Ad Copy
 
 > **v1 validated** — `npx agentskit add marketing-meta-ad-copy`

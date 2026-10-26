@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/security-incident-timeline
+---
+
 # Incident Timeline
 
 > **v1 validated** — `npx agentskit add security-incident-timeline`

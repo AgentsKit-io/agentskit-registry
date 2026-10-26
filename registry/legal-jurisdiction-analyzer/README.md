@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/legal-jurisdiction-analyzer
+---
+
 # Jurisdiction Analyzer
 
 > **v1 validated** — `npx agentskit add legal-jurisdiction-analyzer`

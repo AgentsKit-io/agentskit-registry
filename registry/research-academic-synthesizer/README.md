@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/research-academic-synthesizer
+---
+
 # Academic Synthesizer
 
 > **v1 validated** — `npx agentskit add research-academic-synthesizer`

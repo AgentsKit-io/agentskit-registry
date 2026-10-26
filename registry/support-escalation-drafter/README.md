@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-escalation-drafter
+---
+
 # Escalation Drafter
 
 Turns a ticket + the support agent's notes into a **typed internal escalation draft** — with a deterministic **PII backstop** so customer PII never rides into the internal channel.

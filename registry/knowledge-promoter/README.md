@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/knowledge-promoter
+---
+
 # Knowledge Promoter Agent
 
 Turns curated **private notes** into **public documentation PRs** — safely.

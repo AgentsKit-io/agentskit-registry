@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-release-notes-drafter
+---
+
 # Release Notes Drafter
 
 Turns merged PRs since the last tag into **typed, grouped release notes** + a markdown block — every entry cites its PR number.

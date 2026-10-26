@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/legal-case-analyst
+---
+
 # Case Analyst
 
 Extracts a **typed, cited analysis** from a case file — every datum cites its source, gaps are "not in record", deadline risks surfaced at the top.

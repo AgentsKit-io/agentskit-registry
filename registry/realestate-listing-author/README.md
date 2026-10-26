@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/realestate-listing-author
+---
+
 # Listing Author
 
 > **v1 validated** — `npx agentskit add realestate-listing-author`

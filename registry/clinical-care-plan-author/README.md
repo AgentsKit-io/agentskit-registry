@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-care-plan-author
+---
+
 # Care Plan Author
 
 > **v1 validated** — `npx agentskit add clinical-care-plan-author`

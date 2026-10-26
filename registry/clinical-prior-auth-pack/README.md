@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-prior-auth-pack
+---
+
 # Prior Auth Pack
 
 > **v1 validated** — `npx agentskit add clinical-prior-auth-pack`

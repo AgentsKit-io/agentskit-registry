@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-calendar-digest-author
+---
+
 # Calendar Digest Author
 
 Turns the week's scheduled social posts into a **typed digest** + a ready-to-paste Slack markdown block. Delivery is optional and **HITL-gated**.

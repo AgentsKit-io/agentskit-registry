@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-internal-mobility-matcher
+---
+
 # Internal Mobility Matcher
 
 > **v1 validated** — `npx agentskit add hr-internal-mobility-matcher`

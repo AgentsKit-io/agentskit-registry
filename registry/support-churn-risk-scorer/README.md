@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-churn-risk-scorer
+---
+
 # Churn Risk Scorer
 
 > **v1 validated** — `npx agentskit add support-churn-risk-scorer`

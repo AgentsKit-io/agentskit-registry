@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-performance-review-author
+---
+
 # Performance Review Author
 
 > **v1 validated** — `npx agentskit add hr-performance-review-author`

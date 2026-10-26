@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/content-translation-localizer
+---
+
 # Translation Localizer
 
 > **v1 validated** — `npx agentskit add content-translation-localizer`

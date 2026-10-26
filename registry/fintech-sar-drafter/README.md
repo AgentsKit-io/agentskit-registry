@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/fintech-sar-drafter
+---
+
 # SAR Drafter
 
 > **v1 validated** — `npx agentskit add fintech-sar-drafter`

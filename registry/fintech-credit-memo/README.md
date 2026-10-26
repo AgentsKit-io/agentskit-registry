@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/fintech-credit-memo
+---
+
 # Credit Memo
 
 > **v1 validated** — `npx agentskit add fintech-credit-memo`

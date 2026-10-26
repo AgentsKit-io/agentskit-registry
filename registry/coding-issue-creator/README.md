@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-issue-creator
+---
+
 # Issue Creator
 
 Drafts **one typed GitHub issue per PRD acceptance criterion**, then creates them through your transport — real creation or an honest draft.

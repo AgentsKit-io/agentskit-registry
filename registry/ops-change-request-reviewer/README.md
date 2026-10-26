@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ops-change-request-reviewer
+---
+
 # Change Request Reviewer
 
 > **v1 validated** — `npx agentskit add ops-change-request-reviewer`

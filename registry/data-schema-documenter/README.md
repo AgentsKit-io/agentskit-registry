@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/data-schema-documenter
+---
+
 # Schema Documenter
 
 > **v1 validated** — `npx agentskit add data-schema-documenter`

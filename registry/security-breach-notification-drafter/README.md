@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/security-breach-notification-drafter
+---
+
 # Breach Notification Drafter
 
 > **v1 validated** — `npx agentskit add security-breach-notification-drafter`

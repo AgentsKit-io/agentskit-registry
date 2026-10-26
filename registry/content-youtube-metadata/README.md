@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/content-youtube-metadata
+---
+
 # YouTube Metadata
 
 > **v1 validated** — `npx agentskit add content-youtube-metadata`

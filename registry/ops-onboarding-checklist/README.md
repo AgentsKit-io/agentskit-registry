@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ops-onboarding-checklist
+---
+
 # Employee Onboarding Checklist
 
 > **v1 validated** — `npx agentskit add ops-onboarding-checklist`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/product-user-story-splitter
+---
+
 # User Story Splitter
 
 > **v1 validated** — `npx agentskit add product-user-story-splitter`

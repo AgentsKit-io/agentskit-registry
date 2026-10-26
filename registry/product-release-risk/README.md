@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/product-release-risk
+---
+
 # Release Risk
 
 > **v1 validated** — `npx agentskit add product-release-risk`

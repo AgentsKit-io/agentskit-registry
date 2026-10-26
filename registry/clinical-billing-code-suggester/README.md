@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-billing-code-suggester
+---
+
 # Billing Code Suggester
 
 > **v1 validated** — `npx agentskit add clinical-billing-code-suggester`

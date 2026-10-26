@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/security-vuln-prioritizer
+---
+
 # Vuln Prioritizer
 
 > **v1 validated** — `npx agentskit add security-vuln-prioritizer`

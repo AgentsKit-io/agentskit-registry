@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-code-qa
+---
+
 # Code QA
 
 Runs the project's test / lint / type-check commands through **your** runner, then turns the real output into a **typed failure report**.

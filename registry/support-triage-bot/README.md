@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-triage-bot
+---
+
 # Triage Bot
 
 Classifies an inbound support ticket by **topic / severity (P1–P4) / queue** as typed output — with a deterministic **red-flag net** that forces P1.

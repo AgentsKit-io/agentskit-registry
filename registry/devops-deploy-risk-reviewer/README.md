@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/devops-deploy-risk-reviewer
+---
+
 # Deploy Risk Reviewer
 
 > **v1 validated** — `npx agentskit add devops-deploy-risk-reviewer`

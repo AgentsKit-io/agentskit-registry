@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/realestate-cma-author
+---
+
 # CMA Author
 
 > **v1 validated** — `npx agentskit add realestate-cma-author`

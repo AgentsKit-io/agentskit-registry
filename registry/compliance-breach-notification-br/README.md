@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/compliance-breach-notification-br
+---
+
 # Breach Notification BR
 
 > **v1 validated** — `npx agentskit add compliance-breach-notification-br`

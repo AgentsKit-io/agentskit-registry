@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-refund-evaluator
+---
+
 # Refund Evaluator
 
 > **v1 validated** — `npx agentskit add support-refund-evaluator`

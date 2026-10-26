@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/product-usage-insights
+---
+
 # Usage Insights
 
 > **v1 validated** — `npx agentskit add product-usage-insights`

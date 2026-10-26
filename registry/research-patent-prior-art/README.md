@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/research-patent-prior-art
+---
+
 # Patent Prior Art
 
 > **v1 validated** — `npx agentskit add research-patent-prior-art`

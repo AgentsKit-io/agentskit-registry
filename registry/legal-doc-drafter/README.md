@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/legal-doc-drafter
+---
+
 # Doc Drafter
 
 Drafts a legal document (memo / motion / demand-letter / client-update) from an approved fact pattern — **every inference flagged, always a draft**.

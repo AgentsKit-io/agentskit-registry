@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-health-summary
+---
+
 # Account Health Summary
 
 > **v1 validated** — `npx agentskit add support-health-summary`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/legal-doc-reviewer
+---
+
 # Legal Doc Reviewer
 
 One configurable legal-review agent — supersedes the separate `contract-reviewer`, `discovery-reviewer`, and `privilege-spotter` (they were single-pass prompts with no structural difference). Pick a `mode`:

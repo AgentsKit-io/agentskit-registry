@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/legal-case-summariser
+---
+
 # Case Summariser
 
 Produces a **typed, court-ready matter summary** from reviewed documents + reviewer notes — every fact cited, conflicts flagged not resolved.

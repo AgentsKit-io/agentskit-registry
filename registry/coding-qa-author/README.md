@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-qa-author
+---
+
 # QA Author
 
 Turns a PRD's acceptance criteria into **typed Vitest spec stubs** — one+ block per criterion, with coverage tracking.

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-compensation-benchmark
+---
+
 # Compensation Benchmark
 
 > **v1 validated** — `npx agentskit add hr-compensation-benchmark`

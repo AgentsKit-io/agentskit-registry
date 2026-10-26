@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-benefits-faq-bot
+---
+
 # Benefits FAQ
 
 > **v1 validated** — `npx agentskit add hr-benefits-faq-bot`

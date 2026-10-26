@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/fintech-transaction-investigator
+---
+
 # Transaction Investigator
 
 Scans a transaction history for anomalous patterns and drafts a **typed case file** — `fraud` or `aml` (SAR-ready) mode. Always a draft for a human; never an enforcement action.

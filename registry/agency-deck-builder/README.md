@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-deck-builder
+---
+
 # Deck Builder
 
 Drafts a **typed pitch/status deck** from project artifacts — every number must cite its source.

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/sales-partner-deal-desk
+---
+
 # Partner Deal Desk
 
 > **v1 validated** — `npx agentskit add sales-partner-deal-desk`

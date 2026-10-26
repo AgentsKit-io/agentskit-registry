@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-changelog-ecosystem
+---
+
 # Ecosystem Changelog
 
 > **v1 validated** — `npx agentskit add ecosystem-changelog-ecosystem`

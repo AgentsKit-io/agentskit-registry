@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ops-asset-inventory-reconciler
+---
+
 # Asset Inventory Reconciler
 
 > **v1 validated** — `npx agentskit add ops-asset-inventory-reconciler`

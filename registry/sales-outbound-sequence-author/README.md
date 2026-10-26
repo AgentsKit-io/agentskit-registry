@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/sales-outbound-sequence-author
+---
+
 # Outbound Sequence Author
 
 > **v1 validated** — `npx agentskit add sales-outbound-sequence-author`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-bug-repro-guide
+---
+
 # Bug Repro Guide
 
 > **v1 validated** — `npx agentskit add support-bug-repro-guide`

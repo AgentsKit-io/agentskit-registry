@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/sales-objection-handler
+---
+
 # Objection Handler
 
 > **v1 validated** — `npx agentskit add sales-objection-handler`

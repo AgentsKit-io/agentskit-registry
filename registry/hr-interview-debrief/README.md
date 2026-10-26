@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-interview-debrief
+---
+
 # Interview Debrief
 
 > **v1 validated** — `npx agentskit add hr-interview-debrief`

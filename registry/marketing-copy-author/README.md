@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-copy-author
+---
+
 # Copy Author
 
 Produces exactly **three distinct typed copy variants** — `bold` / `warm` / `precise` — from a structured brief.

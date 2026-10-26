@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/realestate-closing-checklist
+---
+
 # Closing Checklist
 
 > **v1 validated** — `npx agentskit add realestate-closing-checklist`

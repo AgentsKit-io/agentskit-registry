@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/product-metrics-tree-author
+---
+
 # Metrics Tree Author
 
 > **v1 validated** — `npx agentskit add product-metrics-tree-author`

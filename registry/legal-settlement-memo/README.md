@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/legal-settlement-memo
+---
+
 # Settlement Memo
 
 > **v1 validated** — `npx agentskit add legal-settlement-memo`

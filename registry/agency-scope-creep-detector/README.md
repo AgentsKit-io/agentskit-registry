@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-scope-creep-detector
+---
+
 # Scope Creep Detector
 
 > **v1 validated** — `npx agentskit add agency-scope-creep-detector`

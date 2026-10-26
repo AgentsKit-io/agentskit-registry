@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-performance-interpreter
+---
+
 # Performance Interpreter
 
 > **v1 validated** — `npx agentskit add coding-performance-interpreter`

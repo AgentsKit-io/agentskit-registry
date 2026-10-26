@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-schedule-planner
+---
+
 # Schedule Planner
 
 Drafts a **typed multi-channel publish schedule** from approved drafts + channel constraints — flags conflicts instead of dropping items, never schedules itself.

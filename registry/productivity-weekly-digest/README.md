@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/productivity-weekly-digest
+---
+
 # Weekly Digest
 
 > **v1 validated** — `npx agentskit add productivity-weekly-digest`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-intake-triage
+---
+
 # Intake Triage
 
 Classifies an inbound patient message by urgency and routes it — typed output, with a **deterministic red-flag safety net** so an emergency can't be silently downgraded.

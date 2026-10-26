@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/data-sql-reviewer
+---
+
 # SQL Reviewer
 
 > **v1 validated** — `npx agentskit add data-sql-reviewer`

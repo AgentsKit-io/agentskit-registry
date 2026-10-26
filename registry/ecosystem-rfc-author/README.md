@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-rfc-author
+---
+
 # RFC Author
 
 > **v1 validated** — `npx agentskit add ecosystem-rfc-author`

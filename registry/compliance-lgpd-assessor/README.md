@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/compliance-lgpd-assessor
+---
+
 # LGPD Assessor
 
 > **v1 validated** — `npx agentskit add compliance-lgpd-assessor`

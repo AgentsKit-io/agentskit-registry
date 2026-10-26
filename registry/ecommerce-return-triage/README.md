@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecommerce-return-triage
+---
+
 # Return Triage
 
 > **v1 validated** — `npx agentskit add ecommerce-return-triage`

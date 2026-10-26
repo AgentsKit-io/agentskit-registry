@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/data-etl-failure-diagnoser
+---
+
 # ETL Failure Diagnoser
 
 > **v1 validated** — `npx agentskit add data-etl-failure-diagnoser`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/compliance-gdpr-dpia-drafter
+---
+
 # GDPR DPIA Drafter
 
 > **v1 validated** — `npx agentskit add compliance-gdpr-dpia-drafter`

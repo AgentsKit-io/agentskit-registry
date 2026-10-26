@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/devops-slo-breach-analyzer
+---
+
 # SLO Breach Analyzer
 
 > **v1 validated** — `npx agentskit add devops-slo-breach-analyzer`

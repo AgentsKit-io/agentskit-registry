@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-messaging-hierarchy
+---
+
 # Messaging Hierarchy
 
 > **v1 validated** — `npx agentskit add marketing-messaging-hierarchy`

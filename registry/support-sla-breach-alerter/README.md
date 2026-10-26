@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-sla-breach-alerter
+---
+
 # SLA Breach Alerter
 
 > **v1 validated** — `npx agentskit add support-sla-breach-alerter`

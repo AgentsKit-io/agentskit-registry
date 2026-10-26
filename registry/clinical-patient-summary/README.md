@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-patient-summary
+---
+
 # Patient Summary
 
 Drafts a **typed one-page pre-visit summary** from chart excerpts — structured fields, never invents values, always a draft for the clinician to confirm.

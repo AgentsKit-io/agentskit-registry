@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-brief-analyst
+---
+
 # Brief Analyst
 
 The intake step of a campaign studio — reads an incoming brief and produces a **typed structured brief** downstream agents reference.

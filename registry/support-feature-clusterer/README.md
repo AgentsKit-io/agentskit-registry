@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-feature-clusterer
+---
+
 # Feature Request Clusterer
 
 > **v1 validated** — `npx agentskit add support-feature-clusterer`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/content-fact-checker
+---
+
 # Fact Checker
 
 > **v1 validated** — `npx agentskit add content-fact-checker`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/compliance-cookie-policy-auditor
+---
+
 # Cookie Policy Auditor
 
 > **v1 validated** — `npx agentskit add compliance-cookie-policy-auditor`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-adverse-event-reporter
+---
+
 # Adverse Event Reporter
 
 > **v1 validated** — `npx agentskit add clinical-adverse-event-reporter`

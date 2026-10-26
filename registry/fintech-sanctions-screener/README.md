@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/fintech-sanctions-screener
+---
+
 # Sanctions Screener
 
 Screens a customer/counterparty against a sanctions list and decides **clear** vs **escalate** — with the compliance guarantee enforced in **code, not a prompt**.

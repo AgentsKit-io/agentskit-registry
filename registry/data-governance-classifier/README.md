@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/data-governance-classifier
+---
+
 # Data Governance Classifier
 
 > **v1 validated** — `npx agentskit add data-governance-classifier`

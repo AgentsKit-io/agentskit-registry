@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/compliance-data-retention-planner
+---
+
 # Data Retention Planner
 
 > **v1 validated** — `npx agentskit add compliance-data-retention-planner`

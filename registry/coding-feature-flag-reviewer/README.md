@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-feature-flag-reviewer
+---
+
 # Feature Flag Reviewer
 
 > **v1 validated** — `npx agentskit add coding-feature-flag-reviewer`

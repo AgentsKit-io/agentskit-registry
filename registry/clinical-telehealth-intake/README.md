@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-telehealth-intake
+---
+
 # Telehealth Intake
 
 > **v1 validated** — `npx agentskit add clinical-telehealth-intake`

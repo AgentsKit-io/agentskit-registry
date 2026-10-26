@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-dev-implementer
+---
+
 # Dev Implementer
 
 Proposes a **typed, minimal patch plan** that makes the QA specs pass — proposes, never writes your working tree.

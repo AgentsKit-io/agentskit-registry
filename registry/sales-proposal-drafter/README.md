@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/sales-proposal-drafter
+---
+
 # Proposal Drafter
 
 > **v1 validated** — `npx agentskit add sales-proposal-drafter`

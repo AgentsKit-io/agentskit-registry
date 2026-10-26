@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/code-review
+---
+
 # Code Review
 
 A deep, **low-noise** code-review agent. It doesn't just scan for typos — it reasons about each change on seven dimensions, then *proves* a finding is real before it shows it to you.

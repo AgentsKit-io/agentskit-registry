@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/data-sql-generator
+---
+
 # SQL Generator
 
 > **v1 validated** — `npx agentskit add data-sql-generator`

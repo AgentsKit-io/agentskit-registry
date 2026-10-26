@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-creative-qa-checklist
+---
+
 # Creative QA Checklist
 
 > **v1 validated** — `npx agentskit add agency-creative-qa-checklist`

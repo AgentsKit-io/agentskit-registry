@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/content-blog-outline
+---
+
 # Blog Outline
 
 > **v1 validated** — `npx agentskit add content-blog-outline`

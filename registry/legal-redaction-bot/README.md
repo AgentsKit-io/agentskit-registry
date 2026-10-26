@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/legal-redaction-bot
+---
+
 # Redaction Bot
 
 Redacts PII from a legal document before it leaves the matter — with a **deterministic backstop** (no structured identifier slips through) and **privilege flagging** (privileged content is surfaced for the attorney, never silently redacted).

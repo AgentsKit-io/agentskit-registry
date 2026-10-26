@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/education-plagiarism-pattern-flag
+---
+
 # Plagiarism Pattern Flag
 
 > **v1 validated** — `npx agentskit add education-plagiarism-pattern-flag`

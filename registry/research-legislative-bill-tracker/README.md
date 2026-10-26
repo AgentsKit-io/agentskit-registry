@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/research-legislative-bill-tracker
+---
+
 # Legislative Bill Tracker
 
 > **v1 validated** — `npx agentskit add research-legislative-bill-tracker`

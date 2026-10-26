@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/devops-incident-triage
+---
+
 # Incident Triage
 
 > **v1 validated** — `npx agentskit add devops-incident-triage`

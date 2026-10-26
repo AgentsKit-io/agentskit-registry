@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-seo-brief
+---
+
 # SEO Brief
 
 > **v1 validated** — `npx agentskit add marketing-seo-brief`

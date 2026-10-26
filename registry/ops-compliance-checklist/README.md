@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ops-compliance-checklist
+---
+
 # Compliance Checklist
 
 > **v1 validated** — `npx agentskit add ops-compliance-checklist`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/sales-pipeline-hygiene
+---
+
 # Pipeline Hygiene
 
 > **v1 validated** — `npx agentskit add sales-pipeline-hygiene`

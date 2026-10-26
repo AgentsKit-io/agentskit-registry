@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/sales-lead-scorer
+---
+
 # Lead Scorer
 
 > **v1 validated** — `npx agentskit add sales-lead-scorer`

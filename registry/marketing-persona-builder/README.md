@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-persona-builder
+---
+
 # Persona Builder
 
 > **v1 validated** — `npx agentskit add marketing-persona-builder`

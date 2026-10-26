@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecommerce-supplier-communicator
+---
+
 # Supplier Communicator
 
 > **v1 validated** — `npx agentskit add ecommerce-supplier-communicator`

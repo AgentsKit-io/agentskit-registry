@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/devops-iam-policy-reviewer
+---
+
 # IAM Policy Reviewer
 
 > **v1 validated** — `npx agentskit add devops-iam-policy-reviewer`

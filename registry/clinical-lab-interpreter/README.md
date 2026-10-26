@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-lab-interpreter
+---
+
 # Lab Interpreter
 
 > **v1 validated** — `npx agentskit add clinical-lab-interpreter`

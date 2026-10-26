@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/product-roadmap-narrator
+---
+
 # Roadmap Narrator
 
 > **v1 validated** — `npx agentskit add product-roadmap-narrator`

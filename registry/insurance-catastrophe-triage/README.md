@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/insurance-catastrophe-triage
+---
+
 # Catastrophe Triage
 
 > **v1 validated** — `npx agentskit add insurance-catastrophe-triage`

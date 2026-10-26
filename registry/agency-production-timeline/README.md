@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-production-timeline
+---
+
 # Production Timeline
 
 > **v1 validated** — `npx agentskit add agency-production-timeline`

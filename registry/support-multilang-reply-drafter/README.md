@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-multilang-reply-drafter
+---
+
 # Multilingual Reply Drafter
 
 > **v1 validated** — `npx agentskit add support-multilang-reply-drafter`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/data-contract-validator
+---
+
 # Data Contract Validator
 
 > **v1 validated** — `npx agentskit add data-contract-validator`

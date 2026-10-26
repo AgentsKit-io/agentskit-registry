@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-runbook-from-incident
+---
+
 # Runbook from Incident
 
 > **v1 validated** — `npx agentskit add coding-runbook-from-incident`

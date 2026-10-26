@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/security-compliance-gap-nist
+---
+
 # NIST Compliance Gap
 
 > **v1 validated** — `npx agentskit add security-compliance-gap-nist`

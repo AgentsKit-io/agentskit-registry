@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/support-kb-searcher
+---
+
 # KB Searcher
 
 Matches a support ticket to the top knowledge-base articles as **typed hits with a 1–5 confidence**, grounded in **your** corpus — never invents an article.

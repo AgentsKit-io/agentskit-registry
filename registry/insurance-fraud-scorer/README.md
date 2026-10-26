@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/insurance-fraud-scorer
+---
+
 # Fraud Scorer
 
 > **v1 validated** — `npx agentskit add insurance-fraud-scorer`

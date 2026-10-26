@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ops-postmortem-action-tracker
+---
+
 # Postmortem Action Tracker
 
 > **v1 validated** — `npx agentskit add ops-postmortem-action-tracker`

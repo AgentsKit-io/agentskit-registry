@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/clinical-chart-redactor
+---
+
 # Chart Redactor
 
 Redacts HIPAA identifiers from a clinical chart before cross-tenant export — with a **deterministic backstop** so no structured identifier can slip through, even if the model misses it.

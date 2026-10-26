@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/coding-prd-author
+---
+
 # PRD Author
 
 Transforms a free-form product description into a **typed, testable PRD** — never invents business logic.

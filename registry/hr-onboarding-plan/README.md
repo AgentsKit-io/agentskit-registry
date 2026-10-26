@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-onboarding-plan
+---
+
 # Onboarding Plan
 
 > **v1 validated** — `npx agentskit add hr-onboarding-plan`

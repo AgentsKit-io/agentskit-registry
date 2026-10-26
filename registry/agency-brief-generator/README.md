@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-brief-generator
+---
+
 # Brief Generator
 
 Drafts a **typed creative brief** from client kickoff notes — pulls facts only from the notes, never invents.

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/data-dashboard-spec-author
+---
+
 # Dashboard Spec Author
 
 > **v1 validated** — `npx agentskit add data-dashboard-spec-author`

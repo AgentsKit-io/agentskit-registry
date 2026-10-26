@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-playbook-alignment-auditor
+---
+
 # Playbook Alignment Auditor
 
 > **v1 validated** — `npx agentskit add ecosystem-playbook-alignment-auditor`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/agency-revision-tracker
+---
+
 # Revision Tracker
 
 > **v1 validated** — `npx agentskit add agency-revision-tracker`

@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/research-expert-interview-prep
+---
+
 # Expert Interview Prep
 
 > **v1 validated** — `npx agentskit add research-expert-interview-prep`

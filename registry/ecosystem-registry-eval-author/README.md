@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-registry-eval-author
+---
+
 # Registry Eval Author
 
 > **v1 validated** — `npx agentskit add ecosystem-registry-eval-author`

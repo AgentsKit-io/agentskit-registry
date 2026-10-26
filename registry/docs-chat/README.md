@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/docs-chat
+---
+
 # Docs Chat
 
 Provider-agnostic "chat over your docs" — grounded RAG answers drawn strictly

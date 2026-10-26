@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/research-policy-brief
+---
+
 # Policy Brief
 
 > **v1 validated** — `npx agentskit add research-policy-brief`

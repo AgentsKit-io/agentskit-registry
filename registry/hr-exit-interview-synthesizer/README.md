@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-exit-interview-synthesizer
+---
+
 # Exit Interview Synthesizer
 
 > **v1 validated** — `npx agentskit add hr-exit-interview-synthesizer`

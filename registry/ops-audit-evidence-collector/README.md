@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ops-audit-evidence-collector
+---
+
 # Audit Evidence Collector
 
 > **v1 validated** — `npx agentskit add ops-audit-evidence-collector`

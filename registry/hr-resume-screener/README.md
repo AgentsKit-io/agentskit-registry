@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-resume-screener
+---
+
 # Resume Screener
 
 > **v1 validated** — `npx agentskit add hr-resume-screener`

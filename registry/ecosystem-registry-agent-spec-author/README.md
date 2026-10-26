@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/ecosystem-registry-agent-spec-author
+---
+
 # Registry Agent Spec Author
 
 > **v1 validated** — `npx agentskit add ecosystem-registry-agent-spec-author`

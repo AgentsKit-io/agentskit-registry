@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/hr-offer-letter-drafter
+---
+
 # Offer Letter Drafter
 
 > **v1 validated** — `npx agentskit add hr-offer-letter-drafter`

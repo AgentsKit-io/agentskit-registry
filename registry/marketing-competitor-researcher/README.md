@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-competitor-researcher
+---
+
 # Competitor Researcher
 
 Searches + fetches competitor web content (`webSearch` / `fetchUrl`), diffs it against your RAG baseline, and produces a structured competitive-landscape report — **hardened against prompt injection** from fetched pages.

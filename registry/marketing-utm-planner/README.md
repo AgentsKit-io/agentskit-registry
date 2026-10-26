@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/marketing-utm-planner
+---
+
 # UTM Planner
 
 > **v1 validated** — `npx agentskit add marketing-utm-planner`

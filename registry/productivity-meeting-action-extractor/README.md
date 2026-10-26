@@ -1,3 +1,9 @@
+---
+docbridge:
+  covers:
+    - area:registry/productivity-meeting-action-extractor
+---
+
 # Meeting Action Extractor
 
 > **v1 validated** — `npx agentskit add productivity-meeting-action-extractor`
