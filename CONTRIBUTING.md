@@ -29,7 +29,7 @@ source in an issue, pull request, test, fixture, or recording.
 Agents are curated, not gatekept by the framework's full gate suite — keep them
 honest, tested, and small.
 
-## Catalog vs validated agents
+## Catalog vs validated agents: promoting a draft
 
 The full roadmap lives in `catalog/manifest.json` (~300+ agent specs). Only agents
 with `"status": "validated"` in `meta.json` appear in `public/r/index.json` and

@@ -2,7 +2,8 @@
 
 Every registry agent is a portable "brain" (a skill) with a capability-rich
 factory. All config is **optional** — the zero-config form still runs. This guide
-shows how to wire the full AgentsKit runtime.
+shows how to wire the full AgentsKit runtime. Use it to compose a registry
+agent with other agents, tools, and MCP servers.
 
 ## Config surface
 

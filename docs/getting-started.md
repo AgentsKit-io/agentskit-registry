@@ -1,4 +1,4 @@
-# Get an agent running
+# Add and run a validated agent
 
 Registry works like shadcn for agents: a command copies readable source into
 your project. You own that source and can change it without a Registry runtime

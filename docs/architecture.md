@@ -1,4 +1,4 @@
-# Registry architecture and ownership
+# Registry architecture, ownership, and build flow
 
 AgentsKit Registry is the source-owned catalog for ready-to-use AgentsKit
 agents. It stores agent source, validation evidence, generated install bundles,
