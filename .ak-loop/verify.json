@@ -1,0 +1,47 @@
+{
+  "ranAt": "2026-10-26T06:00:00Z",
+  "command": "npm run lint && npm run test && npm run build",
+  "exitCode": 0,
+  "outcomes": [
+    {
+      "id": "o1",
+      "status": "passed",
+      "evidence": "Score: 98/100 (A); Reachability: 384/384 documents (100%); Connectivity: 347/350 areas documented, 351/384 documents link to code (95%); no 'Grade B: an A requires' block, so grading.unmet is empty. Before: 76/100 (B), connectivity 8%."
+    },
+    {
+      "id": "o2",
+      "status": "passed",
+      "evidence": "Each registry/<id>/README.md declares covers area:registry/<id> for its own folder; registry-catalog covers module:scripts/build-registry.mjs; registry-validation covers module:scripts/lib/external-agent-validation.mjs and module:scripts/lib/readme-standard.mjs. Every cited path was checked to exist; no area exclusions were added."
+    },
+    {
+      "id": "o3",
+      "status": "passed",
+      "evidence": "node .ak-loop/check-suite.mjs (same logic as the outcome one-liner, which the sandbox hook blocked): suite cases: 26"
+    },
+    {
+      "id": "o4",
+      "status": "passed",
+      "evidence": "Retrieval benchmark: registry-retrieval-v1 Cases: 26; hit@1: 53.8% | hit@3: 88.5% | MRR: 0.695. Unfixed misses: question-add-agent, question-checks-before-pr, symbol-validate-external-agents. No baseline written."
+    },
+    {
+      "id": "o5",
+      "status": "passed",
+      "evidence": "After npm run docs:bridge:config, npm run readme:standard:refresh, npm run docs:bridge:index and npm run build, git diff --exit-code printed nothing. git diff origin/main -G reviewedOn and -G reviewDueOn printed nothing. readme-standard-v1.json changes only sourceHash."
+    },
+    {
+      "id": "o6",
+      "status": "passed",
+      "evidence": "npm run lint: tsc --noEmit with no errors; npm run test: vitest run passed including scripts/retrieval-suite.test.mjs; npm run build: registry built 346 folders, ecosystem claims generated. Known failure outside this list: npm run check:readme-standard reports 'README review is expired' from reviewDueOn, which is unchanged."
+    },
+    {
+      "id": "o7",
+      "status": "passed",
+      "evidence": "node node_modules/@agentskit/doc-bridge/bin/ak-docs.js gate run --text: index-freshness Index is fresh; human-guide-links Resolved 15 humanDoc link(s); documentation-standard-v1 passed; All gates passed."
+    },
+    {
+      "id": "o8",
+      "status": "passed",
+      "evidence": "Six commits on ff2f52c: every header is 42-67 characters and no body line exceeds 100 characters (checked by a script over git log)."
+    }
+  ]
+}
