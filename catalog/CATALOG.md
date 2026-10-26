@@ -23,9 +23,9 @@
 - Injected transport for external actions (no fake IDs)
 - `agent.test.ts` + `eval.ts` before validating
 
-## Content policy (blocked)
+## Content policy: kinds of agents the catalog refuses to publish
 
-See [`content-policy.json`](./content-policy.json). Automatically rejected:
+These kinds of agents are blocked. See [`content-policy.json`](./content-policy.json). Automatically rejected:
 
 - Weapons, adult content, political campaigns, illegal activity
 - Hate/harassment, child safety, stalking

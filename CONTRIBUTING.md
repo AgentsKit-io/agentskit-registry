@@ -1,6 +1,6 @@
 # Contributing an agent
 
-Agents here are intentionally small and self-contained. To add one:
+Agents here are intentionally small and self-contained.
 
 By participating, you agree to follow the
 [Code of Conduct](./CODE_OF_CONDUCT.md). Project decisions and maintainer
@@ -9,12 +9,16 @@ suspected vulnerabilities privately according to [SECURITY.md](./SECURITY.md);
 never put credentials, tokens, private prompts, customer data, or proprietary
 source in an issue, pull request, test, fixture, or recording.
 
+## Files every agent must include
+
 1. Create `registry/<id>/` with:
    - `agent.ts` — a `create<Name>Agent(config)` factory that wires **published**
      `@agentskit/*` packages (skill + tools + `createRuntime`). No private/internal imports.
    - `meta.json` — conforms to [`registry.schema.json`](./registry.schema.json).
    - `agent.test.ts` — at minimum, "constructs and runs against `mockAdapter`".
    - `README.md` — concept + `npx agentskit add <id>` + usage + required env.
+## Checks that must pass before opening a pull request
+
 2. `npm run lint && npm test && npm run build` must pass.
 3. Deterministic discovery uses `@agentskit/chat/protocol` via exact `@agentskit/chat@0.6.0` only — never reintroduce `@agentskit/chat-protocol` or a chat UI runtime (`npm run check:no-legacy-chat-imports`).
 4. Open a PR.

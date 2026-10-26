@@ -4,7 +4,7 @@ Registry works like shadcn for agents: a command copies readable source into
 your project. You own that source and can change it without a Registry runtime
 dependency.
 
-## 1. Add a validated agent
+## 1. Add a validated agent to your project with `npx agentskit add`
 
 ```bash
 npx agentskit add research
