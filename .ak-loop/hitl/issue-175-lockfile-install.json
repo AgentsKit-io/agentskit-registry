@@ -1,0 +1,22 @@
+{
+  "question": "How should the TypeScript 7 / Vitest 5 upgrade get its lockfile refresh, given that npm install is denied in this sandbox?",
+  "context": "Issue AgentsKit-io/agentskit-registry#175. Baseline on origin/main 52a0eb0: npm run lint passes; npm test passes 355 files and 806 tests on vitest 4.1.12. The required change is typescript ^5.9.3 -> ^7.0.2 (7.0.2 is on npm, with 19 @typescript/typescript-<platform>@7.0.2 optional deps) and vitest ^4.1.12 -> ^5.0.5 (5.0.5 is on npm; peers @vitest/coverage-v8 and similar are optional and only needed if a coverage provider is added). The lockfile cannot be regenerated here: `npm install` and its flags (--package-lock-only, --ignore-scripts) are denied by the task allowlist, and `npm ci` fails with 'lock file's typescript@5.9.3 does not satisfy typescript@7.0.2' plus 19 missing @typescript/* entries. Hand-editing package-lock.json was rejected as too error-prone. The working tree is clean at origin/main; nothing has been committed for this issue.",
+  "options": [
+    {
+      "id": "allow-npm-install",
+      "title": "Allow npm install for this task",
+      "description": "Permit npm install (with --package-lock-only) for this worktree so the lockfile can be refreshed. The worker then commits chore(deps): typescript 7, chore(deps): vitest 5, and fix: commits, and verifies all outcomes."
+    },
+    {
+      "id": "human-refreshes-lock",
+      "title": "Human refreshes the lockfile",
+      "description": "A maintainer runs npm install -D typescript@^7.0.2 vitest@^5.0.5 on this branch and pushes the lockfile. The worker then resumes with the code adaptations and verification."
+    },
+    {
+      "id": "ship-vitest-only",
+      "title": "Ship Vitest 5 alone, keep TypeScript 5",
+      "description": "Hold typescript at ^5.9.3 and ship only the Vitest 5 bump. This still needs npm install, so it stays blocked until the install is allowed, but it narrows the scope if TypeScript 7 is the problem."
+    }
+  ],
+  "recommendedOptionId": "allow-npm-install"
+}
