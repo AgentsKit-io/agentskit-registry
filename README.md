@@ -105,9 +105,9 @@ contracts. The copied factory stays ordinary application code.
 ## What is actually here
 
 - **346 validated, installable agents** across 23 categories, from coding and
-  security to legal, clinical, marketing, operations, support, and research.
+  cybersecurity to legal, clinical, marketing, operations, support, and research.
 - **333 independent-review summaries** with scores, confidence, strengths, and
-  required adjustments; private raw reviewer output is never published.
+  review notes; private raw reviewer output is never published.
 - **Typed source + focused tests + usage guide** for every installable entry.
 - **Eval replay fixtures** for repeatable behavioral checks without live keys.
 - **JSON, `llms.txt`, MCP, and deterministic discovery artifacts** for people,
@@ -120,8 +120,8 @@ marketing copy.
 ## Discovery without unnecessary backend calls
 
 Exact agent IDs, titles, install commands, categories, capabilities,
-contribution links, and ecosystem navigation resolve from a signed local
-artifact. Semantic requests such as “which agent fits my incident workflow?”
+contribution links, and ecosystem navigation resolve from a local artifact
+pinned by content hash. Semantic requests such as “which agent fits my incident workflow?”
 escalate through AgentsKit Chat to the trusted cited backend only after a
 validated local miss.
 
