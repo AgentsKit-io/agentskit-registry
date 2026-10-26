@@ -1,0 +1,10 @@
+{
+  "question": "The lockfile cannot be refreshed because `npm install` is denied by the task allowlist. How should #175 proceed?",
+  "context": "Bumping typescript to 7.x and vitest to 5.x requires regenerating package-lock.json with npm install, which the allowlist denies (npm-subcommand-denied). Hand-editing the lockfile is unsafe. Without it, outcome o1 cannot be met.",
+  "options": [
+    {"id": "allow-npm-install", "title": "Allow npm install for this task", "description": "Permit `npm install -D typescript@^7.0.2 vitest@^5.0.5` so the worker can finish the upgrade end to end."},
+    {"id": "maintainer-install", "title": "Maintainer refreshes the lockfile", "description": "A maintainer runs the npm install on the branch and the worker continues with adaptations."},
+    {"id": "vitest-only", "title": "Ship Vitest 5 only", "description": "Hold TypeScript at 5.x; still requires npm install to refresh the lock."}
+  ],
+  "recommendedOptionId": "allow-npm-install"
+}
