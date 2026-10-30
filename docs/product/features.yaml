@@ -1,0 +1,118 @@
+# Rascunho 2026-10-29. Fontes: README, release v1.0.0 (22/07, GitHub Action), PRs mergeados desde 29/09 (só docs/deps/CI), issues abertas.
+# Nenhum ticket Linear encontrado para este repo. Site registry.agentskit.io/agents responde 200.
+product: AgentsKit Registry
+project: AgentsKit Registry
+version_url: null
+repos:
+  - name: AgentsKit-io/agentskit-registry
+features:
+  # estado: publicada — site no ar, 346 agentes em 23 categorias (README, public/r/index.json)
+  - key: catalogo-de-agentes
+    group: produto
+    phase: A
+    name: Encontrar um agente pronto no catálogo
+    description: Navegar 346 agentes validados por categoria, ID ou capacidade.
+    milestone: null
+    tickets: []
+    acceptance: null
+    how_to_test: Abrir registry.agentskit.io/agents e filtrar por categoria
+    blocked_reason: null
+  # estado: publicada — via @agentskit/cli 0.14.0 (npx agentskit add)
+  - key: copiar-agente-para-o-projeto
+    group: produto
+    phase: A
+    name: Copiar o código do agente para o projeto (estilo shadcn)
+    description: Instalar um agente com um comando, recebendo TypeScript legível, testes e guia de uso, sem runtime do Registry.
+    milestone: null
+    tickets: []
+    acceptance: null
+    how_to_test: npx agentskit add research e rodar o exemplo do README com um adaptador
+    blocked_reason: null
+  # estado: publicada — 333 de 346 com resumo de revisão independente; 13 sem
+  - key: revisoes-independentes
+    group: confianca
+    phase: A
+    name: Ver a nota de revisão independente de cada agente
+    description: Consultar score, confiança, pontos fortes e notas do revisor antes de adotar.
+    milestone: null
+    tickets: []
+    acceptance: null
+    how_to_test: Abrir a página de um agente e conferir o bloco de revisão
+    blocked_reason: null
+  # estado: publicada — fixtures de replay de eval sem chave (README)
+  - key: replay-de-avaliacao-sem-chave
+    group: confianca
+    phase: A
+    name: Testar o comportamento do agente sem chave de API
+    description: Rodar fixtures de replay de avaliação localmente para checar o agente copiado.
+    milestone: null
+    tickets: []
+    acceptance: null
+    how_to_test: Rodar os testes do agente copiado sem variáveis de ambiente de provedor
+    blocked_reason: null
+  # estado: publicada — Action AgentsKit-io/agentskit-registry@v1 (release v1.0.0, 22/07)
+  - key: validar-agentes-no-ci
+    group: confianca
+    phase: A
+    name: Validar agentes próprios no GitHub Actions
+    description: Usar a Action do Registry como gate de CI para pastas de agentes em outro repositório, sem enviar código a API.
+    milestone: null
+    tickets: []
+    acceptance: null
+    how_to_test: Adicionar uses AgentsKit-io/agentskit-registry@v1 num repo de teste e abrir PR
+    blocked_reason: null
+  # estado: publicada — JSON, llms.txt, server.json (MCP) e artefato de descoberta determinística
+  - key: descoberta-para-ferramentas-e-llms
+    group: produto
+    phase: A
+    name: Descobrir agentes por ferramentas e LLMs
+    description: Consultar o catálogo via JSON, llms.txt ou MCP; perguntas exatas resolvem localmente, semânticas escalam só quando preciso.
+    milestone: null
+    tickets: []
+    acceptance: null
+    how_to_test: npm run discovery:build e consultar um ID exato sem rede
+    blocked_reason: null
+  # estado: não começada — #132 pm:ok mas loop:stale, sem PR
+  - key: exportar-para-mcp-e-runners
+    group: produto
+    phase: B
+    name: Exportar agentes do Registry para MCP e outros runners
+    description: Levar um agente do catálogo para hosts MCP e runners de código populares.
+    milestone: null
+    tickets: ["gh:#132"]
+    acceptance: null
+    how_to_test: Exportar um agente e carregá-lo num host MCP
+    blocked_reason: null
+  # estado: não começada — #143 loop:stale
+  - key: explorador-de-capacidades
+    group: produto
+    phase: B
+    name: Explorar capacidades entre os produtos do ecossistema
+    description: Ver quais capacidades existem no Registry, AgentsKit e Playbook num só lugar.
+    milestone: null
+    tickets: ["gh:#143"]
+    acceptance: null
+    how_to_test: Abrir o explorador e filtrar por uma capacidade
+    blocked_reason: null
+  # estado: não começada — #93 agent:go, sem PR
+  - key: metadados-externos-robustos
+    group: confianca
+    phase: A
+    name: Rejeitar com clareza metadados de agente malformados
+    description: Ao validar agentes de terceiros, receber erro claro para metadados inválidos.
+    milestone: null
+    tickets: ["gh:#93"]
+    acceptance: null
+    how_to_test: Rodar a validação com um fixture de metadados malformado
+    blocked_reason: null
+  # estado: não começada — 15 issues good-first-issue ACT-01..15 abertas, nenhuma em andamento
+  - key: contribuicao-da-comunidade
+    group: prontidao
+    phase: B
+    name: Contribuir com agentes e casos de teste
+    description: Seguir trilhas guiadas (fixtures, casos de eval, revisões) para contribuir com o catálogo.
+    milestone: null
+    tickets: ["gh:#119", "gh:#104", "gh:#105", "gh:#106", "gh:#107", "gh:#108", "gh:#109", "gh:#110", "gh:#111", "gh:#112", "gh:#113", "gh:#114", "gh:#115", "gh:#116", "gh:#117", "gh:#118"]
+    acceptance: null
+    how_to_test: Seguir CONTRIBUTING.md e abrir um PR com um fixture novo
+    blocked_reason: null
