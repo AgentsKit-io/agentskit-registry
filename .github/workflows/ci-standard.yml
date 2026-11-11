@@ -1,0 +1,27 @@
+name: CI standard
+
+# This repository's settings for the organization's reusable CI pipeline
+# (AgentsKit-io/.github, docs/ci.md). Called by ci.yml.
+
+on:
+  workflow_call:
+    outputs:
+      mode:
+        description: Pipeline mode (draft, light, pr, full, seed or skip).
+        value: ${{ jobs.standard.outputs.mode }}
+
+permissions: {}
+
+jobs:
+  standard:
+    uses: AgentsKit-io/.github/.github/workflows/ci.yml@a88e01535c7cb30a42f4d13be88e007dd121344a
+    permissions:
+      actions: write
+      contents: read
+    with:
+      runs-on: ${{ vars.RUNS_ON || '"ubuntu-24.04"' }}
+      installer: auto
+      typecheck-command: bash scripts/ci/check.sh
+      test-command: npx vitest run
+      build-command: bash scripts/ci/build.sh
+      job-timeout-minutes: 15

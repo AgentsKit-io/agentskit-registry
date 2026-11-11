@@ -1,40 +1,40 @@
 name: CI
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [main]
-  pull_request:
+  schedule:
+    - cron: '41 3 * * *'
+  workflow_dispatch:
+
+permissions: {}
 
 concurrency:
-  # Supersede in-flight runs for the same PR; pushes to main always finish.
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Supersede in-flight runs for the same PR; pushes to main and scheduled runs always finish.
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  pipeline:
+    uses: ./.github/workflows/ci-standard.yml
+    permissions:
+      actions: write
+      contents: read
+
+  # Keeps the required check name: green only when every pipeline stage passed.
   verify:
-    runs-on: ubuntu-latest
+    needs: pipeline
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions: {}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run check:no-legacy-chat-imports
-      - name: Generate Doc Bridge ownership for every agent
-        run: npm run docs:bridge:config
-      - name: Validate agent structure (CONTRIBUTING bar)
-        run: npm run validate
-      - run: npm run lint
-      - run: npm test
-      - run: npm run test:quickstart
-      - name: Eval replay (doc-bridge pack)
-        run: npm run eval:run -- --ecosystem-doc-bridge
-      - run: npm run build
-      - run: npm run docs:bridge:index
-      - run: npm run docs:bridge:gate
-      - run: npm run docs:bridge:conformance
-      - name: Committed machine artifacts and handoffs are up to date
-        run: git diff --exit-code public ecosystem-claims.json doc-bridge.config.json .doc-bridge || (echo "Generated Registry artifacts are stale — regenerate and commit them." && exit 1)
+      - name: Pipeline result
+        env:
+          RESULT: ${{ needs.pipeline.result }}
+          MODE: ${{ needs.pipeline.outputs.mode }}
+        run: |
+          echo "pipeline: $RESULT (mode: ${MODE:-unknown})"
+          test "$RESULT" = success
